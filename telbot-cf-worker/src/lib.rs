@@ -2,7 +2,7 @@ use serde::Serialize;
 pub use telbot_types as types;
 use telbot_types::{ApiResponse, FileMethod, JsonMethod, TelegramError, TelegramMethod};
 use worker::wasm_bindgen::JsValue;
-use worker::{Fetch, Request, RequestInit};
+use worker::{Fetch, Headers, Request, RequestInit};
 
 #[derive(Clone)]
 pub struct Api {
@@ -50,10 +50,14 @@ impl Api {
         &self,
         method: &Method,
     ) -> Result<Method::Response> {
+        let mut headers = Headers::new();
+        headers.set("Content-Type", "application/json")?;
         let mut request = RequestInit::new();
+        let payload = serde_json::to_string(&method)?;
         request
             .with_method(worker::Method::Post)
-            .with_body(Some(JsValue::from_serde(method)?));
+            .with_body(Some(JsValue::from_str(&payload)))
+            .with_headers(headers);
 
         let mut response = Fetch::Request(Request::new_with_init(
             &format!("{}{}", self.base_url, Method::name()),

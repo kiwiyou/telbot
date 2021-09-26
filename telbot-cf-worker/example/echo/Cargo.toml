@@ -1,5 +1,5 @@
 [package]
-name = "get-me"
+name = "echo"
 version = "0.1.0"
 authors = ["kiwiyou <kiwiyou.dev@gmail.com>"]
 edition = "2018"

@@ -17,6 +17,7 @@ pub struct Update {
     /// If there are no new updates for at least a week,
     /// then identifier of the next update will be chosen randomly instead of sequentially.
     pub update_id: u32,
+    #[serde(flatten)]
     /// Update type
     pub kind: UpdateKind,
 }

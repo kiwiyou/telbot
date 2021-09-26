@@ -64,7 +64,7 @@ pub enum MessageKind {
         /// The actual UTF-8 text of the message, 0-4096 characters
         text: String,
         /// Special entities like usernames, URLs, bot commands, etc. that appear in the text
-        entities: Vec<MessageEntity>,
+        entities: Option<Vec<MessageEntity>>,
     },
     /// Animation message
     Animation {
@@ -465,6 +465,6 @@ impl Message {
     }
 
     pub fn reply_text(&self, text: impl Into<String>) -> SendMessage {
-        SendMessage::new(self.chat.id, text)
+        SendMessage::new(self.chat.id, text).reply_to(self.message_id)
     }
 }

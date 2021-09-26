@@ -6,6 +6,7 @@ authors = ["kiwiyou <kiwiyou.dev@gmail.com>"]
 
 [dependencies]
 serde = "1"
+serde_json = "1"
 
 [dependencies.telbot-types]
 path = "../telbot-types"
