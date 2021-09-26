@@ -1,5 +1,6 @@
 use serde::Deserialize;
 
+use crate::bot::SendMessage;
 use crate::chat::Chat;
 use crate::file::{Animation, Audio, Document, PhotoSize, Sticker, Video, VideoNote, Voice};
 use crate::markup::{InlineKeyboardMarkup, MessageEntity};
@@ -453,4 +454,17 @@ pub struct VoiceChatEnded {
 pub struct VoiceChatParticipantsInvited {
     /// New members that were invited to the voice chat
     pub users: Option<Vec<User>>,
+}
+
+impl Message {
+    pub fn text(&self) -> Option<&str> {
+        match &self.kind {
+            MessageKind::Text { text, .. } => Some(text),
+            _ => None,
+        }
+    }
+
+    pub fn reply_text(&self, text: impl Into<String>) -> SendMessage {
+        SendMessage::new(self.chat.id, text)
+    }
 }

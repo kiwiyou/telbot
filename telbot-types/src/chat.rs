@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::message::{Location, Message};
 use crate::user::User;
@@ -262,7 +262,27 @@ pub struct ChatMemberUpdated {
 }
 
 /// Chat identifier
+#[derive(Serialize)]
+#[serde(untagged)]
 pub enum ChatId {
     Id(i64),
     Username(String),
+}
+
+impl From<i64> for ChatId {
+    fn from(id: i64) -> Self {
+        Self::Id(id)
+    }
+}
+
+impl From<String> for ChatId {
+    fn from(username: String) -> Self {
+        Self::Username(username)
+    }
+}
+
+impl From<&str> for ChatId {
+    fn from(username: &str) -> Self {
+        Self::Username(username.to_string())
+    }
 }

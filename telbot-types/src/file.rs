@@ -212,7 +212,7 @@ pub enum InputMedia {
         /// Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
         /// [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
         #[serde(skip_serializing_if = "Option::is_none")]
-        thumb: Option<InputThumbnail>,
+        thumb: Option<InputFileVariant>,
         /// Video width
         #[serde(skip_serializing_if = "Option::is_none")]
         width: Option<u32>,
@@ -250,7 +250,7 @@ pub enum InputMedia {
         /// Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
         /// [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
         #[serde(skip_serializing_if = "Option::is_none")]
-        thumb: Option<InputThumbnail>,
+        thumb: Option<InputFileVariant>,
         /// Animation width
         #[serde(skip_serializing_if = "Option::is_none")]
         width: Option<u32>,
@@ -286,7 +286,7 @@ pub enum InputMedia {
         /// Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
         /// [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
         #[serde(skip_serializing_if = "Option::is_none")]
-        thumb: Option<InputThumbnail>,
+        thumb: Option<InputFileVariant>,
         /// Performer of the audio
         #[serde(skip_serializing_if = "Option::is_none")]
         performer: Option<String>,
@@ -322,7 +322,7 @@ pub enum InputMedia {
         /// Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
         /// [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
         #[serde(skip_serializing_if = "Option::is_none")]
-        thumb: Option<InputThumbnail>,
+        thumb: Option<InputFileVariant>,
         /// Caption of the document to be sent, 0-1024 characters after entities parsing
         #[serde(skip_serializing_if = "Option::is_none")]
         caption: Option<String>,
@@ -340,11 +340,29 @@ pub enum InputMedia {
 /// Thumbnail type.
 #[derive(Serialize)]
 #[serde(untagged)]
-pub enum InputThumbnail {
+pub enum InputFileVariant {
     /// Use existing file
-    Existing(InputFile),
+    File(InputFile),
     /// Upload a new file
-    Uploaded(String),
+    Id(String),
+}
+
+impl From<InputFile> for InputFileVariant {
+    fn from(file: InputFile) -> Self {
+        Self::File(file)
+    }
+}
+
+impl From<String> for InputFileVariant {
+    fn from(id: String) -> Self {
+        Self::Id(id)
+    }
+}
+
+impl From<&str> for InputFileVariant {
+    fn from(id: &str) -> Self {
+        Self::Id(id.to_string())
+    }
 }
 
 pub struct InputFile {

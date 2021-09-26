@@ -220,7 +220,7 @@ pub struct ForceReply {
     pub selective: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub enum ParseMode {
     MarkdownV2,
     HTML,
@@ -284,4 +284,38 @@ pub enum MessageEntityKind {
         /// The mentioned user
         user: User,
     },
+}
+
+/// Reply markups
+#[derive(Serialize)]
+#[serde(untagged)]
+pub enum ReplyMarkup {
+    InlineKeyboard(InlineKeyboardMarkup),
+    ReplyKeyboard(ReplyKeyboardMarkup),
+    RemoveReplyKeyboard(ReplyKeyboardRemove),
+    ForceReply(ForceReply),
+}
+
+impl From<InlineKeyboardMarkup> for ReplyMarkup {
+    fn from(markup: InlineKeyboardMarkup) -> Self {
+        Self::InlineKeyboard(markup)
+    }
+}
+
+impl From<ReplyKeyboardMarkup> for ReplyMarkup {
+    fn from(markup: ReplyKeyboardMarkup) -> Self {
+        Self::ReplyKeyboard(markup)
+    }
+}
+
+impl From<ReplyKeyboardRemove> for ReplyMarkup {
+    fn from(markup: ReplyKeyboardRemove) -> Self {
+        Self::RemoveReplyKeyboard(markup)
+    }
+}
+
+impl From<ForceReply> for ReplyMarkup {
+    fn from(markup: ForceReply) -> Self {
+        Self::ForceReply(markup)
+    }
 }
