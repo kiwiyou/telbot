@@ -579,6 +579,172 @@ impl TelegramMethod for SendMessage {
 
 impl JsonMethod for SendMessage {}
 
+/// Use this method to forward messages of any kind. Service messages can't be forwarded.
+/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+#[derive(Serialize)]
+pub struct ForwardMessage {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Unique identifier for the chat where the original message was sent (in the format `@channelusername`)
+    pub from_chat_id: ChatId,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// Message identifier in the chat specified in *from_chat_id*
+    pub message_id: i64,
+}
+
+impl ForwardMessage {
+    /// Create a new forwardMessage request
+    pub fn new(to: impl Into<ChatId>, from: impl Into<ChatId>, message: i64) -> Self {
+        Self {
+            chat_id: to.into(),
+            from_chat_id: from.into(),
+            disable_notification: None,
+            message_id: message,
+        }
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for ForwardMessage {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "forwardMessage"
+    }
+}
+
+impl JsonMethod for ForwardMessage {}
+
+/// Use this method to copy messages of any kind.
+/// Service messages and invoice messages can't be copied.
+/// The method is analogous to the method [forwardMessage](https://core.telegram.org/bots/api#forwardmessage), but the copied message doesn't have a link to the original message.
+/// Returns the [MessageId](https://core.telegram.org/bots/api#messageid) of the sent message on success.
+#[derive(Serialize)]
+pub struct CopyMessage {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Unique identifier for the chat where the original message was sent (in the format `@channelusername`)
+    pub from_chat_id: ChatId,
+    /// Message identifier in the chat specified in *from_chat_id*
+    pub message_id: i64,
+    /// New caption for media, 0-1024 characters after entities parsing.
+    /// If not specified, the original caption is kept
+    pub caption: Option<String>,
+    /// Mode for parsing entities in the new caption.
+    /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
+    pub parse_mode: Option<ParseMode>,
+    /// List of special entities that appear in the new caption, which can be specified instead of *parse_mode*
+    pub caption_entities: Option<Vec<MessageEntity>>,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// If the message is a reply, ID of the original message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_message_id: Option<i64>,
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_sending_without_reply: Option<bool>,
+    /// Additional interface options.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating),
+    /// [custom reply keyboard](https://core.telegram.org/bots#keyboards),
+    /// instructions to remove reply keyboard or to force a reply from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<ReplyMarkup>,
+}
+
+impl CopyMessage {
+    /// Create a new forwardMessage request
+    pub fn new(to: impl Into<ChatId>, from: impl Into<ChatId>, message: i64) -> Self {
+        Self {
+            chat_id: to.into(),
+            from_chat_id: from.into(),
+            message_id: message,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Set caption
+    pub fn with_caption(self, caption: impl Into<String>) -> Self {
+        Self {
+            caption: Some(caption.into()),
+            ..self
+        }
+    }
+    /// Set parse mode
+    pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
+        Self {
+            parse_mode: Some(parse_mode),
+            ..self
+        }
+    }
+    /// Set caption entities
+    pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(entities),
+            ..self
+        }
+    }
+    /// Add one entity
+    pub fn with_entity(mut self, entity: MessageEntity) -> Self {
+        let entities = self.caption_entities.get_or_insert_with(Default::default);
+        entities.push(entity);
+        self
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Reply to message
+    pub fn reply_to(self, message_id: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(message_id),
+            ..self
+        }
+    }
+    /// Allow sending message even if the replying message isn't present
+    pub fn allow_sending_without_reply(self) -> Self {
+        Self {
+            allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for CopyMessage {
+    type Response = MessageId;
+
+    fn name() -> &'static str {
+        "copyMessage"
+    }
+}
+
+impl JsonMethod for CopyMessage {}
+
 /// Use this method to send photos.
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
 #[derive(Serialize)]
@@ -637,6 +803,7 @@ impl SendPhoto {
             reply_markup: None,
         }
     }
+    /// Set caption
     pub fn with_caption(self, caption: impl Into<String>) -> Self {
         Self {
             caption: Some(caption.into()),
@@ -1247,7 +1414,471 @@ impl FileMethod for SendVideo {
     fn files(&self) -> Option<HashMap<&str, &InputFile>> {
         let mut map = HashMap::new();
         if let InputFileVariant::File(file) = &self.video {
-            map.insert("audio", file);
+            map.insert("video", file);
+        }
+        if let Some(InputFileVariant::File(file)) = &self.thumb {
+            map.insert("thumb", file);
+        }
+        if map.is_empty() {
+            None
+        } else {
+            Some(map)
+        }
+    }
+}
+
+/// Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound).
+/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+/// Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
+#[derive(Serialize)]
+pub struct SendAnimation {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended),
+    /// pass an HTTP URL as a String for Telegram to get a video from the Internet,
+    /// or upload a new video using multipart/form-data.
+    /// [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
+    pub animation: InputFileVariant,
+    /// Duration of sent animation in seconds
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration: Option<u32>,
+    /// Animation width
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub width: Option<u32>,
+    /// Animation height
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub height: Option<u32>,
+    /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
+    /// The thumbnail should be in JPEG format and less than 200 kB in size.
+    /// A thumbnail's width and height should not exceed 320.
+    /// Ignored if the file is not uploaded using multipart/form-data.
+    /// Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thumb: Option<InputFileVariant>,
+    /// Video caption (may also be used when resending videos by *file_id*), 0-1024 characters after entities parsing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption: Option<String>,
+    /// Mode for parsing entities in the message text.
+    /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<ParseMode>,
+    /// List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption_entities: Option<Vec<MessageEntity>>,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// If the message is a reply, ID of the original message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_message_id: Option<i64>,
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_sending_without_reply: Option<bool>,
+    /// Additional interface options.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating),
+    /// [custom reply keyboard](https://core.telegram.org/bots#keyboards),
+    /// instructions to remove reply keyboard or to force a reply from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<ReplyMarkup>,
+}
+
+impl SendAnimation {
+    /// Create a new sendVideo request
+    pub fn new(chat_id: impl Into<ChatId>, animation: impl Into<InputFileVariant>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            animation: animation.into(),
+            duration: None,
+            width: None,
+            height: None,
+            thumb: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Set duration
+    pub fn with_duration(self, duration: u32) -> Self {
+        Self {
+            duration: Some(duration),
+            ..self
+        }
+    }
+    /// Set width
+    pub fn with_width(self, width: u32) -> Self {
+        Self {
+            width: Some(width),
+            ..self
+        }
+    }
+    /// Set height
+    pub fn with_height(self, height: u32) -> Self {
+        Self {
+            height: Some(height),
+            ..self
+        }
+    }
+    /// Set thumbnail
+    pub fn with_thumbnail(self, thumbnail: impl Into<InputFileVariant>) -> Self {
+        Self {
+            thumb: Some(thumbnail.into()),
+            ..self
+        }
+    }
+    /// Set caption
+    pub fn with_caption(self, caption: impl Into<String>) -> Self {
+        Self {
+            caption: Some(caption.into()),
+            ..self
+        }
+    }
+    /// Set parse mode
+    pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
+        Self {
+            parse_mode: Some(parse_mode),
+            ..self
+        }
+    }
+    /// Set caption entities
+    pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(entities),
+            ..self
+        }
+    }
+    /// Add one entity
+    pub fn with_entity(mut self, entity: MessageEntity) -> Self {
+        let entities = self.caption_entities.get_or_insert_with(Default::default);
+        entities.push(entity);
+        self
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Reply to message
+    pub fn reply_to(self, message_id: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(message_id),
+            ..self
+        }
+    }
+    /// Allow sending message even if the replying message isn't present
+    pub fn allow_sending_without_reply(self) -> Self {
+        Self {
+            allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for SendAnimation {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "sendAnimation"
+    }
+}
+
+impl FileMethod for SendAnimation {
+    fn files(&self) -> Option<HashMap<&str, &InputFile>> {
+        let mut map = HashMap::new();
+        if let InputFileVariant::File(file) = &self.animation {
+            map.insert("animation", file);
+        }
+        if let Some(InputFileVariant::File(file)) = &self.thumb {
+            map.insert("thumb", file);
+        }
+        if map.is_empty() {
+            None
+        } else {
+            Some(map)
+        }
+    }
+}
+
+/// Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message.
+/// For this to work, your audio must be in an .OGG file encoded with OPUS
+/// (other formats may be sent as [Audio](https://core.telegram.org/bots/api#audio) or [Document](https://core.telegram.org/bots/api#document)).
+/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+/// Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
+#[derive(Serialize)]
+pub struct SendVoice {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended),
+    /// pass an HTTP URL as a String for Telegram to get a video from the Internet,
+    /// or upload a new video using multipart/form-data.
+    /// [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
+    pub voice: InputFileVariant,
+    /// Duration of the voice message in seconds
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration: Option<u32>,
+    /// Video caption (may also be used when resending videos by *file_id*), 0-1024 characters after entities parsing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption: Option<String>,
+    /// Mode for parsing entities in the message text.
+    /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<ParseMode>,
+    /// List of special entities that appear in the caption, which can be specified instead of *parse_mode*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub caption_entities: Option<Vec<MessageEntity>>,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// If the message is a reply, ID of the original message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_message_id: Option<i64>,
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_sending_without_reply: Option<bool>,
+    /// Additional interface options.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating),
+    /// [custom reply keyboard](https://core.telegram.org/bots#keyboards),
+    /// instructions to remove reply keyboard or to force a reply from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<ReplyMarkup>,
+}
+
+impl SendVoice {
+    /// Create a new sendVideo request
+    pub fn new(chat_id: impl Into<ChatId>, voice: impl Into<InputFileVariant>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            voice: voice.into(),
+            duration: None,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Set duration
+    pub fn with_duration(self, duration: u32) -> Self {
+        Self {
+            duration: Some(duration),
+            ..self
+        }
+    }
+    /// Set caption
+    pub fn with_caption(self, caption: impl Into<String>) -> Self {
+        Self {
+            caption: Some(caption.into()),
+            ..self
+        }
+    }
+    /// Set parse mode
+    pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
+        Self {
+            parse_mode: Some(parse_mode),
+            ..self
+        }
+    }
+    /// Set caption entities
+    pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(entities),
+            ..self
+        }
+    }
+    /// Add one entity
+    pub fn with_entity(mut self, entity: MessageEntity) -> Self {
+        let entities = self.caption_entities.get_or_insert_with(Default::default);
+        entities.push(entity);
+        self
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Reply to message
+    pub fn reply_to(self, message_id: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(message_id),
+            ..self
+        }
+    }
+    /// Allow sending message even if the replying message isn't present
+    pub fn allow_sending_without_reply(self) -> Self {
+        Self {
+            allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for SendVoice {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "sendVoice"
+    }
+}
+
+impl FileMethod for SendVoice {
+    fn files(&self) -> Option<HashMap<&str, &InputFile>> {
+        if let InputFileVariant::File(file) = &self.voice {
+            let mut map = HashMap::new();
+            map.insert("voice", file);
+            Some(map)
+        } else {
+            None
+        }
+    }
+}
+
+/// As of [v.4.0](https://telegram.org/blog/video-messages-and-telescope), Telegram clients support rounded square mp4 videos of up to 1 minute long.
+/// Use this method to send video messages.
+/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+#[derive(Serialize)]
+pub struct SendVideoNote {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended)
+    /// or upload a new video using multipart/form-data.
+    /// [More info on Sending Files »](https://core.telegram.org/bots/api#sending-files)
+    /// Sending video notes by a URL is currently unsupported
+    pub video_note: InputFileVariant,
+    /// Duration of sent video in seconds
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration: Option<u32>,
+    /// Video width and height, i.e. diameter of the video message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub length: Option<u32>,
+    /// Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side.
+    /// The thumbnail should be in JPEG format and less than 200 kB in size.
+    /// A thumbnail's width and height should not exceed 320.
+    /// Ignored if the file is not uploaded using multipart/form-data.
+    /// Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub thumb: Option<InputFileVariant>,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// If the message is a reply, ID of the original message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_message_id: Option<i64>,
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_sending_without_reply: Option<bool>,
+    /// Additional interface options.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating),
+    /// [custom reply keyboard](https://core.telegram.org/bots#keyboards),
+    /// instructions to remove reply keyboard or to force a reply from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<ReplyMarkup>,
+}
+
+impl SendVideoNote {
+    /// Create a new sendVideo request
+    pub fn new(chat_id: impl Into<ChatId>, video_note: impl Into<InputFileVariant>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            video_note: video_note.into(),
+            duration: None,
+            length: None,
+            thumb: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Set duration
+    pub fn with_duration(self, duration: u32) -> Self {
+        Self {
+            duration: Some(duration),
+            ..self
+        }
+    }
+    /// Set length
+    pub fn with_length(self, length: u32) -> Self {
+        Self {
+            length: Some(length),
+            ..self
+        }
+    }
+    /// Set thumbnail
+    pub fn with_thumbnail(self, thumbnail: impl Into<InputFileVariant>) -> Self {
+        Self {
+            thumb: Some(thumbnail.into()),
+            ..self
+        }
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Reply to message
+    pub fn reply_to(self, message_id: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(message_id),
+            ..self
+        }
+    }
+    /// Allow sending message even if the replying message isn't present
+    pub fn allow_sending_without_reply(self) -> Self {
+        Self {
+            allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for SendVideoNote {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "sendVideoNote"
+    }
+}
+
+impl FileMethod for SendVideoNote {
+    fn files(&self) -> Option<HashMap<&str, &InputFile>> {
+        let mut map = HashMap::new();
+        if let InputFileVariant::File(file) = &self.video_note {
+            map.insert("video_note", file);
         }
         if let Some(InputFileVariant::File(file)) = &self.thumb {
             map.insert("thumb", file);
@@ -1344,5 +1975,13 @@ impl Message {
 
     pub fn reply_text(&self, text: impl Into<String>) -> SendMessage {
         SendMessage::new(self.chat.id, text).reply_to(self.message_id)
+    }
+
+    pub fn forward_to(&self, chat_id: impl Into<ChatId>) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id, self.message_id)
+    }
+
+    pub fn copy_to(&self, chat_id: impl Into<ChatId>) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id, self.message_id)
     }
 }
