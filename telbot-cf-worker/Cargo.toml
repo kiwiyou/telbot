@@ -1,0 +1,14 @@
+[package]
+name = "telbot-cf-worker"
+version = "0.1.0"
+edition = "2018"
+authors = ["kiwiyou <kiwiyou.dev@gmail.com>"]
+
+[dependencies]
+serde = "1"
+
+[dependencies.telbot-types]
+path = "../telbot-types"
+
+[dependencies.worker]
+version = "0.0.6"
