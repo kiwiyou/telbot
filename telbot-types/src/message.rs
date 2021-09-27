@@ -1484,7 +1484,7 @@ pub struct SendAnimation {
 }
 
 impl SendAnimation {
-    /// Create a new sendVideo request
+    /// Create a new sendAnimation request
     pub fn new(chat_id: impl Into<ChatId>, animation: impl Into<InputFileVariant>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1658,7 +1658,7 @@ pub struct SendVoice {
 }
 
 impl SendVoice {
-    /// Create a new sendVideo request
+    /// Create a new sendVoice request
     pub fn new(chat_id: impl Into<ChatId>, voice: impl Into<InputFileVariant>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1801,7 +1801,7 @@ pub struct SendVideoNote {
 }
 
 impl SendVideoNote {
-    /// Create a new sendVideo request
+    /// Create a new sendVideoNote request
     pub fn new(chat_id: impl Into<ChatId>, video_note: impl Into<InputFileVariant>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1912,7 +1912,7 @@ pub struct SendMediaGroup {
 }
 
 impl SendMediaGroup {
-    /// Create
+    /// Create a new sendMediaGroup request
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1985,3 +1985,765 @@ impl Message {
         CopyMessage::new(chat_id, self.chat.id, self.message_id)
     }
 }
+
+/// Use this method to send point on the map.
+/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+#[derive(Serialize)]
+pub struct SendLocation {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Latitude of the location
+    pub latitude: f32,
+    /// Longitude of the location
+    pub longitude: f32,
+    /// The radius of uncertainty for the location, measured in meters; 0-1500
+    pub horizontal_accuracy: f32,
+    /// Period in seconds for which the location can be updated
+    /// (see [Live Locations](https://telegram.org/blog/live-locations)), should be between 60 and 86400.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub live_period: Option<u32>,
+    /// For live locations, a direction in which the user is moving, in degrees.
+    /// Must be between 1 and 360 if specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub heading: Option<u32>,
+    /// For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters.
+    /// Must be between 1 and 100000 if specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub proximity_alert_radius: Option<u32>,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// If the message is a reply, ID of the original message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_message_id: Option<i64>,
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_sending_without_reply: Option<bool>,
+    /// Additional interface options.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating),
+    /// [custom reply keyboard](https://core.telegram.org/bots#keyboards),
+    /// instructions to remove reply keyboard or to force a reply from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<ReplyMarkup>,
+}
+
+impl SendLocation {
+    /// Create a new sendLocation request
+    pub fn new(
+        chat_id: impl Into<ChatId>,
+        latitude: f32,
+        longitude: f32,
+        horizontal_accuracy: f32,
+    ) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            latitude,
+            longitude,
+            horizontal_accuracy,
+            live_period: None,
+            heading: None,
+            proximity_alert_radius: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Set live period
+    pub fn with_live_period(self, live_period: u32) -> Self {
+        Self {
+            live_period: Some(live_period),
+            ..self
+        }
+    }
+    /// Set heading
+    pub fn with_heading(self, direction: u32) -> Self {
+        Self {
+            heading: Some(direction),
+            ..self
+        }
+    }
+    /// Set proximity alert radius
+    pub fn proximity_alert_within(self, radius: u32) -> Self {
+        Self {
+            proximity_alert_radius: Some(radius),
+            ..self
+        }
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Reply to message
+    pub fn reply_to(self, message_id: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(message_id),
+            ..self
+        }
+    }
+    /// Allow sending message even if the replying message isn't present
+    pub fn allow_sending_without_reply(self) -> Self {
+        Self {
+            allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for SendLocation {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "sendLocation"
+    }
+}
+
+impl JsonMethod for SendLocation {}
+
+/// Chat message or inline message id
+#[derive(Serialize)]
+#[serde(untagged)]
+pub enum ChatOrInlineMessage {
+    Chat {
+        /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+        chat_id: ChatId,
+        /// Identifier of the message
+        message_id: i64,
+    },
+    Inline {
+        /// Identifier of the inline message
+        inline_message_id: String,
+    },
+}
+
+/// Use this method to edit live location messages.
+/// A location can be edited until its *live_period* expires
+/// or editing is explicitly disabled by a call to [stopMessageLiveLocation](https://core.telegram.org/bots/api#stopmessagelivelocation).
+/// On success, if the edited message is not an inline message,
+/// the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise True is returned.
+#[derive(Serialize)]
+pub struct EditMessageLiveLocation {
+    /// Identifier of the message to edit
+    #[serde(flatten)]
+    pub target: ChatOrInlineMessage,
+    /// Latitude of new location
+    pub latitude: f32,
+    /// Longitude of new location
+    pub longitude: f32,
+    /// The radius of uncertainty for the location, measured in meters; 0-1500
+    pub horizontal_accuracy: Option<f32>,
+    /// For live locations, a direction in which the user is moving, in degrees.
+    /// Must be between 1 and 360 if specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub heading: Option<u32>,
+    /// For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters.
+    /// Must be between 1 and 100000 if specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub proximity_alert_radius: Option<u32>,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditMessageLiveLocation {
+    /// Create a new editMessageLiveLocation request from chat message id
+    pub fn from_chat(
+        chat_id: impl Into<ChatId>,
+        message_id: i64,
+        latitude: f32,
+        longitude: f32,
+    ) -> Self {
+        Self {
+            target: ChatOrInlineMessage::Chat {
+                chat_id: chat_id.into(),
+                message_id,
+            },
+            latitude,
+            longitude,
+            horizontal_accuracy: None,
+            heading: None,
+            proximity_alert_radius: None,
+            reply_markup: None,
+        }
+    }
+    /// Create a new editMessageLiveLocation request from inline message id
+    pub fn from_inline(
+        inline_message_id: impl Into<String>,
+        latitude: f32,
+        longitude: f32,
+    ) -> Self {
+        Self {
+            target: ChatOrInlineMessage::Inline {
+                inline_message_id: inline_message_id.into(),
+            },
+            latitude,
+            longitude,
+            horizontal_accuracy: None,
+            heading: None,
+            proximity_alert_radius: None,
+            reply_markup: None,
+        }
+    }
+    /// Set horizontal accuracy
+    pub fn with_horizontal_accuracy(self, accuracy: f32) -> Self {
+        Self {
+            horizontal_accuracy: Some(accuracy),
+            ..self
+        }
+    }
+    /// Set heading
+    pub fn with_heading(self, direction: u32) -> Self {
+        Self {
+            heading: Some(direction),
+            ..self
+        }
+    }
+    /// Set proximity alert radius
+    pub fn proximity_alert_within(self, radius: u32) -> Self {
+        Self {
+            proximity_alert_radius: Some(radius),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+/// Result of editMessageLiveLocation
+#[derive(Deserialize)]
+#[serde(untagged)]
+pub enum EditMessageResult {
+    Success(bool),
+    SuccessWith(Message),
+}
+
+impl TelegramMethod for EditMessageLiveLocation {
+    type Response = EditMessageResult;
+
+    fn name() -> &'static str {
+        "editMessageLiveLocation"
+    }
+}
+
+/// Use this method to stop updating a live location message before live_period expires.
+/// On success, if the edited message is not an inline message,
+/// the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise True is returned.
+#[derive(Serialize)]
+pub struct StopMessageLiveLocation {
+    /// Identifier of the message to edit
+    #[serde(flatten)]
+    pub target: ChatOrInlineMessage,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl StopMessageLiveLocation {
+    /// Create a new stopMessageLiveLocation request from chat message id
+    pub fn from_chat(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
+        Self {
+            target: ChatOrInlineMessage::Chat {
+                chat_id: chat_id.into(),
+                message_id,
+            },
+            reply_markup: None,
+        }
+    }
+    /// Create a new stopMessageLiveLocation request from inline message id
+    pub fn from_inline(inline_message_id: impl Into<String>) -> Self {
+        Self {
+            target: ChatOrInlineMessage::Inline {
+                inline_message_id: inline_message_id.into(),
+            },
+            reply_markup: None,
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for StopMessageLiveLocation {
+    type Response = EditMessageResult;
+
+    fn name() -> &'static str {
+        "stopMessageLiveLocation"
+    }
+}
+
+impl JsonMethod for StopMessageLiveLocation {}
+
+/// Use this method to send information about a venue.
+/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+#[derive(Serialize)]
+pub struct SendVenue {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Latitude of the venue
+    pub latitude: f32,
+    /// Longitude of the venue
+    pub longitude: f32,
+    /// Name of the venue
+    pub title: String,
+    /// Address of the venue
+    pub address: String,
+    /// Foursquare identifier of the venue, if known
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub foursquare_id: Option<String>,
+    /// Foursquare type of the venue, if known.
+    /// (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub foursquare_type: Option<String>,
+    /// Google Places identifier of the venue
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub google_place_id: Option<String>,
+    /// Google Places type of the venue. (See [supported types.](https://developers.google.com/places/web-service/supported_types))
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub google_place_type: Option<String>,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// If the message is a reply, ID of the original message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_message_id: Option<i64>,
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_sending_without_reply: Option<bool>,
+    /// Additional interface options.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating),
+    /// [custom reply keyboard](https://core.telegram.org/bots#keyboards),
+    /// instructions to remove reply keyboard or to force a reply from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<ReplyMarkup>,
+}
+
+impl SendVenue {
+    /// Create a new sendVenue request
+    pub fn new(
+        chat_id: impl Into<ChatId>,
+        latitude: f32,
+        longitude: f32,
+        title: impl Into<String>,
+        address: impl Into<String>,
+    ) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            latitude,
+            longitude,
+            title: title.into(),
+            address: address.into(),
+            foursquare_id: None,
+            foursquare_type: None,
+            google_place_id: None,
+            google_place_type: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Set foursquare id and type
+    pub fn with_foursqaure(self, id: impl Into<String>, kind: Option<String>) -> Self {
+        Self {
+            foursquare_id: Some(id.into()),
+            foursquare_type: kind,
+            ..self
+        }
+    }
+    /// Set google place id and type
+    pub fn with_google_place(self, id: impl Into<String>, kind: Option<String>) -> Self {
+        Self {
+            google_place_id: Some(id.into()),
+            google_place_type: kind,
+            ..self
+        }
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Reply to message
+    pub fn reply_to(self, message_id: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(message_id),
+            ..self
+        }
+    }
+    /// Allow sending message even if the replying message isn't present
+    pub fn allow_sending_without_reply(self) -> Self {
+        Self {
+            allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for SendVenue {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "sendVenue"
+    }
+}
+
+impl JsonMethod for SendVenue {}
+
+/// Use this method to send text messages. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+#[derive(Serialize)]
+pub struct SendContact {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Contact's phone number
+    pub phone_number: String,
+    /// Contact's first name
+    pub first_name: String,
+    /// Contact's last name
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_name: Option<String>,
+    /// Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub vcard: Option<String>,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// If the message is a reply, ID of the original message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_message_id: Option<i64>,
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_sending_without_reply: Option<bool>,
+    /// Additional interface options.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating),
+    /// [custom reply keyboard](https://core.telegram.org/bots#keyboards),
+    /// instructions to remove reply keyboard or to force a reply from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<ReplyMarkup>,
+}
+
+impl SendContact {
+    /// Create a new sendContact request
+    pub fn new(
+        chat_id: impl Into<ChatId>,
+        phone_number: impl Into<String>,
+        first_name: impl Into<String>,
+    ) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            phone_number: phone_number.into(),
+            first_name: first_name.into(),
+            last_name: None,
+            vcard: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Set last name
+    pub fn with_last_name(self, last_name: impl Into<String>) -> Self {
+        Self {
+            last_name: Some(last_name.into()),
+            ..self
+        }
+    }
+    /// Set vcard
+    pub fn with_vcard(self, vcard: impl Into<String>) -> Self {
+        Self {
+            vcard: Some(vcard.into()),
+            ..self
+        }
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Reply to message
+    pub fn reply_to(self, message_id: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(message_id),
+            ..self
+        }
+    }
+    /// Allow sending message even if the replying message isn't present
+    pub fn allow_sending_without_reply(self) -> Self {
+        Self {
+            allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for SendContact {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "sendContact"
+    }
+}
+
+impl JsonMethod for SendContact {}
+
+/// Use this method to send a native poll. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+#[derive(Serialize)]
+pub struct SendPoll {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Poll question, 1-300 characters
+    pub question: String,
+    /// A JSON-serialized list of answer options, 2-10 strings 1-100 characters each
+    pub options: Vec<String>,
+    /// True, if the poll needs to be anonymous, defaults to *True*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_anonymous: Option<bool>,
+    /// Poll type, “quiz” or “regular”, defaults to “regular”
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "type")]
+    pub kind: Option<String>,
+    /// True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to *False*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allows_multiple_answers: Option<bool>,
+    /// 0-based identifier of the correct answer option, required for polls in quiz mode
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub correct_option_id: Option<u32>,
+    /// Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll,
+    /// 0-200 characters with at most 2 line feeds after entities parsing
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub explanation: Option<String>,
+    /// Mode for parsing entities in the explanation.
+    /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub explanation_parse_mode: Option<ParseMode>,
+    /// List of special entities that appear in the poll explanation, which can be specified instead of *parse_mode*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub explanation_entities: Option<Vec<MessageEntity>>,
+    /// Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with *close_date*.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub open_period: Option<u32>,
+    /// Point in time (Unix timestamp) when the poll will be automatically closed.
+    /// Must be at least 5 and no more than 600 seconds in the future.
+    /// Can't be used together with open_period.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub close_date: Option<u64>,
+    /// Pass *True*, if the poll needs to be immediately closed.
+    /// This can be useful for poll preview.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_closed: Option<bool>,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// If the message is a reply, ID of the original message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_message_id: Option<i64>,
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_sending_without_reply: Option<bool>,
+    /// Additional interface options.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating),
+    /// [custom reply keyboard](https://core.telegram.org/bots#keyboards),
+    /// instructions to remove reply keyboard or to force a reply from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<ReplyMarkup>,
+}
+
+impl SendPoll {
+    /// Create a new sendPoll request to send a regular poll
+    pub fn new_regular(
+        chat_id: impl Into<ChatId>,
+        question: impl Into<String>,
+        options: Vec<String>,
+    ) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            question: question.into(),
+            options,
+            is_anonymous: None,
+            kind: Some("quiz".into()),
+            allows_multiple_answers: None,
+            correct_option_id: None,
+            explanation: None,
+            explanation_parse_mode: None,
+            explanation_entities: None,
+            open_period: None,
+            close_date: None,
+            is_closed: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Create a new sendPoll request to send a quiz
+    pub fn new_quiz(
+        chat_id: impl Into<ChatId>,
+        question: impl Into<String>,
+        options: Vec<String>,
+        correct_option_id: u32,
+    ) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            question: question.into(),
+            options,
+            is_anonymous: None,
+            kind: Some("quiz".into()),
+            allows_multiple_answers: None,
+            correct_option_id: Some(correct_option_id),
+            explanation: None,
+            explanation_parse_mode: None,
+            explanation_entities: None,
+            open_period: None,
+            close_date: None,
+            is_closed: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Set the poll as anonymous
+    pub fn anonymous(self) -> Self {
+        Self {
+            is_anonymous: Some(true),
+            ..self
+        }
+    }
+    /// Allow multiple answers
+    pub fn allow_multiple_answers(self) -> Self {
+        Self {
+            allows_multiple_answers: Some(true),
+            ..self
+        }
+    }
+    /// Set explanation
+    pub fn with_explanation(self, explanation: impl Into<String>) -> Self {
+        Self {
+            explanation: Some(explanation.into()),
+            ..self
+        }
+    }
+    /// Set explanation parse mode
+    pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
+        Self {
+            explanation_parse_mode: Some(parse_mode),
+            ..self
+        }
+    }
+    /// Set explanation entities
+    pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
+        Self {
+            explanation_entities: Some(entities),
+            ..self
+        }
+    }
+    /// Add explanation entity
+    pub fn with_entity(mut self, entity: MessageEntity) -> Self {
+        let entities = self
+            .explanation_entities
+            .get_or_insert_with(Default::default);
+        entities.push(entity);
+        self
+    }
+    /// Set open period. This sets `close_date` to `None`
+    pub fn with_open_period(self, period: u32) -> Self {
+        Self {
+            open_period: Some(period),
+            close_date: None,
+            ..self
+        }
+    }
+    /// Set close date. This sets `open_period` to `None`
+    pub fn with_close_date(self, close_date: u64) -> Self {
+        Self {
+            close_date: Some(close_date),
+            open_period: None,
+            ..self
+        }
+    }
+    /// Set the poll as closed
+    pub fn closed(self) -> Self {
+        Self {
+            is_closed: Some(true),
+            ..self
+        }
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Reply to message
+    pub fn reply_to(self, message_id: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(message_id),
+            ..self
+        }
+    }
+    /// Allow sending message even if the replying message isn't present
+    pub fn allow_sending_without_reply(self) -> Self {
+        Self {
+            allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for SendPoll {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "sendPoll"
+    }
+}
+
+impl JsonMethod for SendPoll {}
