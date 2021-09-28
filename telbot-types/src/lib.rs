@@ -11,6 +11,7 @@ pub mod markup;
 pub mod message;
 pub mod payment;
 pub mod query;
+pub mod sticker;
 pub mod update;
 pub mod user;
 pub mod webhook;

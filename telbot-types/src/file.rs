@@ -90,9 +90,6 @@ pub struct PhotoSize {
     pub file_size: u32,
 }
 
-#[derive(Deserialize)]
-pub struct Sticker {}
-
 /// This object represents a video file.
 #[derive(Deserialize)]
 pub struct Video {

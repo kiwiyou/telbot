@@ -4,6 +4,7 @@ use crate::markup::{InlineKeyboardMarkup, MessageEntity, ParseMode};
 use crate::message::{Location, Message};
 use crate::payment::LabeledPrice;
 use crate::user::User;
+use crate::{JsonMethod, TelegramMethod};
 
 /// This object represents an incoming inline query.
 /// When the user sends an empty query, your bot could return some default or trending results.
@@ -89,12 +90,12 @@ pub struct CallbackQuery {
 ///
 /// **Note:** All URLs passed in inline query results will be available to end users
 /// and therefore must be assumed to be **public**.
-#[derive(Deserialize)]
+#[derive(Serialize)]
 pub struct InlineQueryResult {
     /// Unique identifier for this result, 1-64 bytes
     pub id: String,
     /// Result type, should be handled manually
-    r#type: String,
+    r#type: &'static str,
     /// Result type
     #[serde(flatten)]
     pub kind: InlineQueryResultKind,
@@ -103,8 +104,18 @@ pub struct InlineQueryResult {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
+impl InlineQueryResult {
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
 /// Inline query result type
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(untagged)]
 pub enum InlineQueryResultKind {
     /// Represents a link to an article or web page.
@@ -691,6 +702,32 @@ pub enum InlineQueryResultKind {
     },
 }
 
+impl InlineQueryResultKind {
+    pub fn with_id(self, id: impl Into<String>) -> InlineQueryResult {
+        use InlineQueryResultKind::*;
+        let r#type = match self {
+            Article { .. } => "article",
+            Photo { .. } | CachedPhoto { .. } => "photo",
+            Gif { .. } | CachedGif { .. } => "gif",
+            Mpeg4Gif { .. } | CachedMpeg4Gif { .. } => "mpeg4_gif",
+            Video { .. } | CachedVideo { .. } => "video",
+            Audio { .. } | CachedAudio { .. } => "audio",
+            Voice { .. } | CachedVoice { .. } => "voice",
+            Document { .. } | CachedDocument { .. } => "document",
+            Location { .. } => "location",
+            Venue { .. } => "venue",
+            Contact { .. } => "contact",
+            Game { .. } => "game",
+        };
+        InlineQueryResult {
+            id: id.into(),
+            r#type,
+            kind: self,
+            reply_markup: None,
+        }
+    }
+}
+
 /// This object represents the content of a message to be sent as a result of an inline query.
 ///
 /// Telegram clients currently support the following 5 types:
@@ -700,7 +737,7 @@ pub enum InlineQueryResultKind {
 /// - [InputContactMessageContent](https://core.telegram.org/bots/api#inputcontactmessagecontent)
 /// - [InputInvoiceMessageContent](https://core.telegram.org/bots/api#inputinvoicemessagecontent)
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(untagged)]
 pub enum InputMessageContent {
     /// Represents the [content](https://core.telegram.org/bots/api#inputmessagecontent)
@@ -866,3 +903,183 @@ pub enum InputMessageContent {
         reply_markup: Option<InlineKeyboardMarkup>,
     },
 }
+
+/// Use this method to send answers to callback queries sent from inline keyboards.
+/// The answer will be displayed to the user as a notification at the top of the chat screen or as an alert.
+/// On success, *True* is returned.
+///
+/// > Alternatively, the user can be redirected to the specified Game URL.
+/// > For this option to work, you must first create a game for your bot via [@Botfather](https://t.me/botfather) and accept the terms.
+///
+/// Otherwise, you may use links like `t.me/your_bot?start=XXXX` that open your bot with a parameter.
+#[derive(Serialize)]
+pub struct AnswerCallbackQuery {
+    /// Unique identifier for the query to be answered
+    pub callback_query_id: String,
+    /// Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
+    /// If *true*, an alert will be shown by the client instead of a notification at the top of the chat screen.
+    /// Defaults to false.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub show_alert: Option<bool>,
+    /// URL that will be opened by the user's client.
+    // If you have created a [Game](https://core.telegram.org/bots/api#game) and accepted the conditions via [@Botfather](https://t.me/botfather),
+    // specify the URL that opens your game
+    /// — note that this will only work if the query comes from a [*callback_game*](https://core.telegram.org/bots/api#inlinekeyboardbutton) button.
+    ///
+    /// Otherwise, you may use links like `t.me/your_bot?start=XXXX` that open your bot with a parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    /// The maximum amount of time in seconds that the result of the callback query may be cached client-side.
+    /// Telegram apps will support caching starting in version 3.14. Defaults to 0.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cache_time: Option<u32>,
+}
+
+impl AnswerCallbackQuery {
+    /// Create a new answerCallbackQuery request
+    pub fn new(query_id: impl Into<String>) -> Self {
+        Self {
+            callback_query_id: query_id.into(),
+            text: None,
+            show_alert: None,
+            url: None,
+            cache_time: None,
+        }
+    }
+    /// Set text
+    pub fn with_text(self, text: impl Into<String>) -> Self {
+        Self {
+            text: Some(text.into()),
+            ..self
+        }
+    }
+    /// Show alert
+    pub fn show_alert(self) -> Self {
+        Self {
+            show_alert: Some(true),
+            ..self
+        }
+    }
+    /// Set url
+    pub fn with_url(self, url: impl Into<String>) -> Self {
+        Self {
+            url: Some(url.into()),
+            ..self
+        }
+    }
+    /// Set cache time
+    pub fn with_cache_time(self, cache_time: u32) -> Self {
+        Self {
+            cache_time: Some(cache_time),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for AnswerCallbackQuery {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "answerCallbackQuery"
+    }
+}
+
+impl JsonMethod for AnswerCallbackQuery {}
+
+/// Use this method to send answers to an inline query. On success, True is returned.
+/// No more than 50 results per query are allowed.
+#[derive(Serialize)]
+pub struct AnswerInlineQuery {
+    /// Unique identifier for the answered query
+    pub inline_query_id: String,
+    /// A JSON-serialized array of results for the inline query
+    pub results: Vec<InlineQueryResult>,
+    /// The maximum amount of time in seconds that the result of the inline query may be cached on the server.
+    /// Defaults to 300.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cache_time: Option<u32>,
+    /// Pass *True*, if results may be cached on the server side only for the user that sent the query.
+    /// By default, results may be returned to any user who sends the same query
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_personal: Option<bool>,
+    /// Pass the offset that a client should send in the next query with the same text to receive more results.
+    /// Pass an empty string if there are no more results or if you don't support pagination.
+    /// Offset length can't exceed 64 bytes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub next_offset: Option<String>,
+    /// If passed, clients will display a button with specified text that switches the user to a private chat with the bot and sends the bot a start message with the parameter switch_pm_parameter
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub switch_pm_text: Option<String>,
+    /// [Deep-linking](https://core.telegram.org/bots#deep-linking) parameter for the /start message sent to the bot when user presses the switch button.
+    /// 1-64 characters, only `A-Z`, `a-z`, `0-9`, `_` and `-` are allowed.
+    ///
+    /// *Example:* An inline bot that sends YouTube videos can ask the user to connect the bot to their YouTube account to adapt search results accordingly.
+    /// To do this, it displays a 'Connect your YouTube account' button above the results, or even before showing any.
+    /// The user presses the button, switches to a private chat with the bot and, in doing so, passes a start parameter that instructs the bot to return an oauth link.
+    /// Once done, the bot can offer a [*switch_inline*](https://core.telegram.org/bots/api#inlinekeyboardmarkup) button
+    /// so that the user can easily return to the chat where they wanted to use the bot's inline capabilities.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub switch_pm_parameter: Option<String>,
+}
+
+impl AnswerInlineQuery {
+    /// Create a new answerInlineQuery request
+    pub fn new(query_id: impl Into<String>, results: Vec<InlineQueryResult>) -> Self {
+        Self {
+            inline_query_id: query_id.into(),
+            results,
+            cache_time: None,
+            is_personal: None,
+            next_offset: None,
+            switch_pm_text: None,
+            switch_pm_parameter: None,
+        }
+    }
+    /// Set cache time
+    pub fn with_cache_time(self, cache_time: u32) -> Self {
+        Self {
+            cache_time: Some(cache_time),
+            ..self
+        }
+    }
+    /// Set the results to be cached on the server side
+    pub fn personal(self) -> Self {
+        Self {
+            is_personal: Some(true),
+            ..self
+        }
+    }
+    /// Set next offset string
+    pub fn with_next_offset(self, offset: impl Into<String>) -> Self {
+        Self {
+            next_offset: Some(offset.into()),
+            ..self
+        }
+    }
+    /// Set switch pm text
+    pub fn with_switch_pm_text(self, text: impl Into<String>) -> Self {
+        Self {
+            switch_pm_text: Some(text.into()),
+            ..self
+        }
+    }
+    // Set switch pm parameter
+    pub fn with_switch_pm_parameter(self, param: impl Into<String>) -> Self {
+        Self {
+            switch_pm_parameter: Some(param.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for AnswerInlineQuery {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "answerInlineQuery"
+    }
+}
+
+impl JsonMethod for AnswerInlineQuery {}

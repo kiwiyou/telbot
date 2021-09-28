@@ -4,11 +4,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::chat::{Chat, ChatId};
 use crate::file::{
-    Animation, Audio, Document, InputFile, InputFileVariant, InputMedia, PhotoSize, Sticker, Video,
+    Animation, Audio, Document, InputFile, InputFileVariant, InputMedia, PhotoSize, Video,
     VideoNote, Voice,
 };
 use crate::markup::{InlineKeyboardMarkup, MessageEntity, ParseMode, ReplyMarkup};
 use crate::payment::{Invoice, SuccessfulPayment};
+use crate::sticker::Sticker;
 use crate::user::User;
 use crate::{FileMethod, JsonMethod, TelegramMethod};
 
