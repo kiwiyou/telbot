@@ -2747,3 +2747,144 @@ impl TelegramMethod for SendPoll {
 }
 
 impl JsonMethod for SendPoll {}
+
+/// Use this method to send an animated emoji that will display a random value.
+/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+#[derive(Serialize)]
+pub struct SendDice {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Emoji on which the dice throw animation is based.
+    /// Currently, must be one of “🎲”, “🎯”, “🏀”, “⚽”, “🎳”, or “🎰”.
+    /// Dice can have values 1-6 for “🎲”, “🎯” and “🎳”, values 1-5 for “🏀” and “⚽”, and values 1-64 for “🎰”. Defaults to “🎲”
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub emoji: Option<String>,
+    /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
+    /// Users will receive a notification with no sound.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_notification: Option<bool>,
+    /// If the message is a reply, ID of the original message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_to_message_id: Option<i64>,
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_sending_without_reply: Option<bool>,
+    /// Additional interface options.
+    /// A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating),
+    /// [custom reply keyboard](https://core.telegram.org/bots#keyboards),
+    /// instructions to remove reply keyboard or to force a reply from the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<ReplyMarkup>,
+}
+
+impl SendDice {
+    /// Create a new sendDice request.
+    pub fn new(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            emoji: None,
+            disable_notification: None,
+            reply_to_message_id: None,
+            allow_sending_without_reply: None,
+            reply_markup: None,
+        }
+    }
+    /// Set emoji
+    pub fn with_emoji(self, emoji: impl Into<String>) -> Self {
+        Self {
+            emoji: Some(emoji.into()),
+            ..self
+        }
+    }
+    /// Disable notification
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Reply to message
+    pub fn reply_to(self, message_id: i64) -> Self {
+        Self {
+            reply_to_message_id: Some(message_id),
+            ..self
+        }
+    }
+    /// Allow sending message even if the replying message isn't present
+    pub fn allow_sending_without_reply(self) -> Self {
+        Self {
+            allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for SendDice {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "sendDice"
+    }
+}
+
+impl JsonMethod for SendDice {}
+
+/// Chat action type
+#[derive(Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ChatActionKind {
+    Typing,
+    UploadPhoto,
+    RecordVideo,
+    UploadVideo,
+    RecordVoice,
+    UploadVoice,
+    UplaodDocument,
+    FindLocation,
+    RecordVideoNote,
+    UploadVideoNote,
+}
+
+/// Use this method when you need to tell the user that something is happening on the bot's side.
+/// The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status).
+/// Returns True on success.
+///
+/// > Example: The [ImageBot](https://t.me/imagebot) needs some time to process a request and upload the image.
+/// > Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use sendChatAction with action = upload_photo.
+/// > The user will see a “sending photo” status for the bot.
+///
+/// It is recommended to use this method only when a response from the bot will take a noticeable amount of time to arrive.
+#[derive(Serialize)]
+pub struct SendChatAction {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Type of action to broadcast.
+    pub action: ChatActionKind,
+}
+
+impl SendChatAction {
+    /// Create a new sendChatAction request.
+    pub fn new(chat_id: impl Into<ChatId>, action: ChatActionKind) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            action,
+        }
+    }
+}
+
+impl TelegramMethod for SendChatAction {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "sendChatAction"
+    }
+}
+
+impl JsonMethod for SendChatAction {}
