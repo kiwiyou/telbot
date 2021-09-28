@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::markup::{MessageEntity, ParseMode};
+use crate::{JsonMethod, TelegramMethod};
 
 /// This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
 #[derive(Deserialize)]
@@ -378,3 +379,37 @@ impl Serialize for InputFile {
         "".serialize(serializer)
     }
 }
+
+/// Use this method to get basic info about a file and prepare it for downloading.
+/// For the moment, bots can download files of up to 20MB in size.
+/// On success, a [File](https://core.telegram.org/bots/api#file) object is returned.
+/// The file can then be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`, where `<file_path>` is taken from the response.
+/// It is guaranteed that the link will be valid for at least 1 hour.
+/// When the link expires, a new one can be requested by calling [getFile](https://core.telegram.org/bots/api#getfile) again.
+///
+/// **Note:** This function may not preserve the original file name and MIME type.
+/// You should save the file's MIME type and name (if available) when the File object is received.
+#[derive(Serialize)]
+pub struct GetFile {
+    /// File identifier to get info about
+    pub file_id: String,
+}
+
+impl GetFile {
+    /// Create a new getFile request
+    pub fn new(file_id: impl Into<String>) -> Self {
+        Self {
+            file_id: file_id.into(),
+        }
+    }
+}
+
+impl TelegramMethod for GetFile {
+    type Response = File;
+
+    fn name() -> &'static str {
+        "getFile"
+    }
+}
+
+impl JsonMethod for GetFile {}

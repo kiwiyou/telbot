@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::file::PhotoSize;
+use crate::{JsonMethod, TelegramMethod};
 
 /// This object represents a Telegram user or bot.
 #[derive(Serialize, Deserialize)]
@@ -36,3 +37,50 @@ pub struct UserProfilePhotos {
     /// Requested profile pictures (in up to 4 sizes each)
     pub photos: Vec<Vec<PhotoSize>>,
 }
+
+/// Use this method to get a list of profile pictures for a user.
+/// Returns a [UserProfilePhotos] object.
+#[derive(Serialize)]
+pub struct GetUserProfilePhotos {
+    /// Unique identifier of the target user
+    user_id: i64,
+    /// Sequential number of the first photo to be returned. By default, all photos are returned.
+    offset: Option<u32>,
+    /// Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+    limit: Option<u32>,
+}
+
+impl GetUserProfilePhotos {
+    /// Create a new getUserProfilePhotos request
+    pub fn new(user_id: i64) -> Self {
+        Self {
+            user_id,
+            offset: None,
+            limit: None,
+        }
+    }
+    /// Set offset
+    pub fn with_offset(self, offset: u32) -> Self {
+        Self {
+            offset: Some(offset),
+            ..self
+        }
+    }
+    /// Set limit
+    pub fn with_limit(self, limit: u32) -> Self {
+        Self {
+            limit: Some(limit),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for GetUserProfilePhotos {
+    type Response = UserProfilePhotos;
+
+    fn name() -> &'static str {
+        "getUserProfilePhotos"
+    }
+}
+
+impl JsonMethod for GetUserProfilePhotos {}
