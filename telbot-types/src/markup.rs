@@ -102,13 +102,13 @@ pub struct InlineKeyboardButton {
     pub text: String,
     /// Button type
     #[serde(flatten)]
-    pub kind: InlineKeyboarButtonKind,
+    pub kind: InlineKeyboardButtonKind,
 }
 
 /// Inline keyboard button type
 #[derive(Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum InlineKeyboarButtonKind {
+pub enum InlineKeyboardButtonKind {
     Url {
         /// HTTP or tg:// url to be opened when button is pressed
         url: String,
