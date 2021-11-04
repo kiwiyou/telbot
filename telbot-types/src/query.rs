@@ -753,6 +753,7 @@ pub enum InputMessageContent {
         #[serde(skip_serializing_if = "Option::is_none")]
         entities: Option<Vec<MessageEntity>>,
         /// Disables link previews for links in the sent message
+        #[serde(skip_serializing_if = "Option::is_none")]
         disable_web_page_preview: Option<bool>,
     },
     /// Represents the [content](https://core.telegram.org/bots/api#inputmessagecontent)
