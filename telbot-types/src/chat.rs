@@ -258,7 +258,7 @@ pub struct ChatMemberUpdated {
     pub new_chat_member: ChatMember,
     /// Chat invite link, which was used by the user to join the chat;
     /// for joining by invite link events only.
-    pub invite_link: ChatInviteLink,
+    pub invite_link: Option<ChatInviteLink>,
 }
 
 /// Chat identifier
