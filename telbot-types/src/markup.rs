@@ -109,6 +109,10 @@ pub struct InlineKeyboardButton {
 #[derive(Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineKeyboarButtonKind {
+    Url {
+        /// HTTP or tg:// url to be opened when button is pressed
+        url: String,
+    },
     Login {
         /// An HTTP URL used to automatically authorize the user.
         /// Can be used as a replacement for the [Telegram Login Widget](https://core.telegram.org/widgets/login).
