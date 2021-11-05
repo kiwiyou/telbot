@@ -76,16 +76,16 @@ pub struct GetUpdates {
     /// The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue.
     /// All previous updates will forgotten.
     #[serde(skip_serializing_if = "Option::is_none")]
-    offset: Option<i32>,
+    pub offset: Option<i32>,
     /// Limits the number of updates to be retrieved.
     /// Values between 1-100 are accepted. Defaults to 100.
     #[serde(skip_serializing_if = "Option::is_none")]
-    limit: Option<u32>,
+    pub limit: Option<u32>,
     /// Timeout in seconds for long polling.
     /// Defaults to 0, i.e. usual short polling.
     /// Should be positive, short polling should be used for testing purposes only.
     #[serde(skip_serializing_if = "Option::is_none")]
-    timeout: Option<u32>,
+    pub timeout: Option<u32>,
     /// A JSON-serialized list of the update types you want your bot to receive.
     /// For example, specify [“message”, “edited_channel_post”, “callback_query”] to only receive updates of these types.
     /// See [Update](https://core.telegram.org/bots/api#update) for a complete list of available update types.
@@ -95,7 +95,7 @@ pub struct GetUpdates {
     /// Please note that this parameter doesn't affect updates created before the call to the getUpdates,
     /// so unwanted updates may be received for a short period of time.
     #[serde(skip_serializing_if = "Option::is_none")]
-    allowed_updates: Option<Vec<String>>,
+    pub allowed_updates: Option<Vec<String>>,
 }
 
 impl GetUpdates {

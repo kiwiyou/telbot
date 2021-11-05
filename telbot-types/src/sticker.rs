@@ -1,5 +1,5 @@
 use crate::file::PhotoSize;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// This object represents a sticker.
 #[derive(Deserialize)]
