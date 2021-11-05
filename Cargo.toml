@@ -4,4 +4,5 @@ members = [
     "telbot-cf-worker",
     "telbot-cf-worker/example/get-me",
     "telbot-cf-worker/example/echo",
+    "telbot-ureq",
 ]
