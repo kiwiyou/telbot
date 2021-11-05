@@ -2,7 +2,8 @@
 members = [
     "telbot-types",
     "telbot-cf-worker",
-    "telbot-cf-worker/example/get-me",
-    "telbot-cf-worker/example/echo",
+    "telbot-cf-worker/examples/get-me",
+    "telbot-cf-worker/examples/echo",
+    "telbot-cf-worker/examples/file",
     "telbot-ureq",
 ]
