@@ -364,6 +364,7 @@ impl From<&str> for InputFileVariant {
 }
 
 pub struct InputFile {
+    pub name: String,
     pub data: Vec<u8>,
     pub mime: String,
 }
