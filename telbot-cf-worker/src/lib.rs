@@ -77,7 +77,11 @@ impl Api {
                     Some(file.mime.parse().unwrap()),
                 );
             } else {
-                multipart.add_text(key, value.to_string());
+                if let Some(str) = value.as_str() {
+                    multipart.add_text(key, str);
+                } else {
+                    multipart.add_text(key, value.to_string());
+                }
             }
         }
         let mut payload = multipart.prepare().map_err(Into::<std::io::Error>::into)?;
