@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::message::{Location, Message};
 use crate::user::User;
+use crate::{JsonMethod, TelegramMethod};
 
 /// This object represents a chat.
 #[derive(Deserialize)]
@@ -99,7 +100,7 @@ pub struct ChatLocation {
 }
 
 /// Describes actions that a non-administrator user is allowed to take in a chat.
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize, Default)]
 pub struct ChatPermissions {
     /// True, if the user is allowed to send text messages, contacts, locations and venues
     pub can_send_messages: Option<bool>,
@@ -122,6 +123,69 @@ pub struct ChatPermissions {
     /// True, if the user is allowed to pin messages.
     /// Ignored in public supergroups
     pub can_pin_messages: Option<bool>,
+}
+
+impl ChatPermissions {
+    /// Create a new ChatPermissions object
+    pub fn new() -> Self {
+        Default::default()
+    }
+    /// Set can_send_messages to `true`
+    pub fn allow_send_messages(self) -> Self {
+        Self {
+            can_send_messages: Some(true),
+            ..self
+        }
+    }
+    /// Set can_send_media_messages to `true`
+    pub fn allow_send_media_messages(self) -> Self {
+        Self {
+            can_send_media_messages: Some(true),
+            ..self
+        }
+    }
+    /// Set can_send_polls to `true`
+    pub fn allow_send_polls(self) -> Self {
+        Self {
+            can_send_polls: Some(true),
+            ..self
+        }
+    }
+    /// Set can_send_other_messages to `true`
+    pub fn allow_send_other_messages(self) -> Self {
+        Self {
+            can_send_other_messages: Some(true),
+            ..self
+        }
+    }
+    /// Set can_add_web_page_previews to `true`
+    pub fn allow_add_web_page_previews(self) -> Self {
+        Self {
+            can_add_web_page_previews: Some(true),
+            ..self
+        }
+    }
+    /// Set can_change_info to `true`
+    pub fn allow_change_info(self) -> Self {
+        Self {
+            can_change_info: Some(true),
+            ..self
+        }
+    }
+    /// Set can_invite_users to `true`
+    pub fn allow_invite_users(self) -> Self {
+        Self {
+            can_invite_users: Some(true),
+            ..self
+        }
+    }
+    /// Set can_pin_messages to `true`
+    pub fn allow_pin_messages(self) -> Self {
+        Self {
+            can_pin_messages: Some(true),
+            ..self
+        }
+    }
 }
 
 #[derive(Deserialize)]
@@ -286,3 +350,157 @@ impl From<&str> for ChatId {
         Self::Username(username.to_string())
     }
 }
+
+/// Use this method to ban a user in a group, a supergroup or a channel.
+/// In the case of supergroups and channels, the user will not be able to return to the chat
+/// on their own using invite links, etc., unless unbanned first.
+/// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// Returns True on success.
+#[derive(Serialize)]
+pub struct BanChatMember {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Unique identifier of the target user
+    pub user_id: i64,
+    /// Date when the user will be unbanned, unix time.
+    /// If user is banned for more than 366 days or less than 30 seconds from the current time
+    /// they are considered to be banned forever.
+    /// Applied for supergroups and channels only.
+    pub until_date: Option<u64>,
+    /// Pass _True_ to delete all messages from the chat for the user that is being removed.
+    /// If _False_, the user will be able to see messages in the group that were sent before the user was removed.
+    /// Always _True_ for supergroups and channels.
+    pub revoke_messages: Option<bool>,
+}
+
+impl BanChatMember {
+    /// Create a new banChatMember request
+    pub fn new(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            user_id,
+            until_date: None,
+            revoke_messages: None,
+        }
+    }
+
+    /// Set the date at which the user will be unbanned
+    pub fn until_date(self, date: u64) -> Self {
+        Self {
+            until_date: Some(date),
+            ..self
+        }
+    }
+
+    /// Set revoke_messages to `true`
+    pub fn revoke_messages(self) -> Self {
+        Self {
+            revoke_messages: Some(true),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for BanChatMember {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "banChatMember"
+    }
+}
+
+impl JsonMethod for BanChatMember {}
+
+/// Use this method to unban a previously banned user in a supergroup or channel.
+/// The user will **not** return to the group or channel automatically, but will be able to join via link, etc.
+/// The bot must be an administrator for this to work.
+/// By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it.
+/// So if the user is a member of the chat they will also be **removed** from the chat.
+/// If you don't want this, use the parameter *only_if_banned*.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct UnbanChatMember {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    pub chat_id: ChatId,
+    /// Unique identifier of the target user
+    pub user_id: i64,
+    /// Do nothing if the user is not banned
+    pub only_if_banned: Option<bool>,
+}
+
+impl UnbanChatMember {
+    /// Create a new unbanChatMember request
+    pub fn new(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            user_id,
+            only_if_banned: None,
+        }
+    }
+
+    /// Set only_if_banned to `true`
+    pub fn only_if_banned(self) -> Self {
+        Self {
+            only_if_banned: Some(true),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for UnbanChatMember {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "unbanChatMember"
+    }
+}
+
+impl JsonMethod for UnbanChatMember {}
+
+/// Use this method to restrict a user in a supergroup.
+/// The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights.
+/// Pass *True* for all permissions to lift restrictions from a user.
+/// Returns *True* on success.
+#[derive(Serialize)]
+pub struct RestrictChatMember {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Unique identifier of the target user
+    pub user_id: i64,
+    /// A JSON-serialized object for new user permissions
+    pub permissions: ChatPermissions,
+    /// Date when restrictions will be lifted for the user, unix time.
+    /// If user is restricted for more than 366 days or less than 30 seconds from the current time,
+    /// they are considered to be restricted forever
+    pub until_date: Option<u64>,
+}
+
+impl RestrictChatMember {
+    /// Create a new restrictChatMember request
+    pub fn new(chat_id: impl Into<ChatId>, user_id: i64, permissions: ChatPermissions) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            user_id,
+            permissions,
+            until_date: None,
+        }
+    }
+
+    /// Set the date at which the restriction wil be lifted
+    pub fn until_date(self, date: u64) -> Self {
+        Self {
+            until_date: Some(date),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for RestrictChatMember {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "restrictChatMember"
+    }
+}
+
+impl JsonMethod for RestrictChatMember {}
