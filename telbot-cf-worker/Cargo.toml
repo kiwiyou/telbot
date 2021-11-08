@@ -2,7 +2,13 @@
 name = "telbot-cf-worker"
 version = "0.1.0"
 edition = "2018"
-authors = ["kiwiyou <kiwiyou.dev@gmail.com>"]
+authors = ["kiwiyou <kiwiyou@kiwiyou.dev>"]
+repository = "https://github.com/kiwiyou/telbot"
+license = "MIT"
+description = "Telegram API wrapper for cloudflare workers"
+categories = ["network-programming"]
+keywords = ["telbot", "telegram", "bot", "client", "cloudflare", "workers"]
+readme = "../README.md"
 
 [dependencies]
 serde = "1"
