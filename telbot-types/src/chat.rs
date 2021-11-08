@@ -184,9 +184,13 @@ impl Chat {
         ExportChatInviteLink::new(self.id)
     }
 
-    // Fixme: create_invite_link
+    pub fn create_invite_link(&self) -> CreateChatInviteLink {
+        CreateChatInviteLink::new(self.id)
+    }
 
-    // Fixme: edit_invite_link
+    pub fn edit_invite_link(&self, invite_link: impl Into<String>) -> EditChatInviteLink {
+        EditChatInviteLink::new(self.id, invite_link)
+    }
 
     pub fn revoke_invite_link(&self, invite_link: impl Into<String>) -> RevokeChatInviteLink {
         RevokeChatInviteLink::new(self.id, invite_link)
