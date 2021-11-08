@@ -10,21 +10,21 @@ Specifically, telbot now supports:
 
 ```toml
 [dependencies]
-telbot-types = { git = "https://github.com/kiwiyou/telbot" }
+telbot-types = "0.2.0"
 ```
 
 - telbot-cf-worker: API wrapper for cloudflare workers
 
 ```toml
 [dependencies]
-telbot-cf-worker = { git = "https://github.com/kiwiyou/telbot" }
+telbot-cf-worker = "0.2.0"
 ```
 
 - telbot-ureq: API wrapper for [ureq](https://github.com/algesten/ureq) client
 
 ```toml
 [dependencies]
-telbot-ureq = { git = "https://github.com/kiwiyou/telbot" }
+telbot-ureq = "0.2.0"
 ```
 
 ## Examples
