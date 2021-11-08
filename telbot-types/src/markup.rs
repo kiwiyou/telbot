@@ -95,6 +95,47 @@ pub struct InlineKeyboardMarkup {
     pub inline_keyboard: Vec<Vec<InlineKeyboardButton>>,
 }
 
+impl InlineKeyboardMarkup {
+    /// Create a new InlineKeyboardMarkup with a row.
+    pub fn new_with_row(row: InlineKeyboardRow) -> Self {
+        Self {
+            inline_keyboard: vec![row.buttons],
+        }
+    }
+
+    /// Add a row
+    pub fn with_row(mut self, row: InlineKeyboardRow) -> Self {
+        self.inline_keyboard.push(row.buttons);
+        self
+    }
+}
+
+pub struct InlineKeyboardRow {
+    pub buttons: Vec<InlineKeyboardButton>,
+}
+
+impl InlineKeyboardRow {
+    /// Create a new InlineKeyboardRow
+    pub fn new_with(button: InlineKeyboardButton) -> Self {
+        Self {
+            buttons: vec![button],
+        }
+    }
+    /// Add a InlineKeyboardButton to the row
+    pub fn with(mut self, button: InlineKeyboardButton) -> Self {
+        self.buttons.push(button);
+        self
+    }
+    /// Create and add a InlineKeyboardButton to the row
+    pub fn emplace(mut self, text: impl Into<String>, kind: InlineKeyboardButtonKind) -> Self {
+        self.buttons.push(InlineKeyboardButton {
+            text: text.into(),
+            kind,
+        });
+        self
+    }
+}
+
 /// This object represents one button of an inline keyboard.
 #[derive(Serialize, Deserialize)]
 pub struct InlineKeyboardButton {
