@@ -7,7 +7,7 @@ repository = "https://github.com/kiwiyou/telbot"
 license = "MIT"
 description = "Telegram API wrapper for cloudflare workers"
 categories = ["network-programming"]
-keywords = ["telbot", "telegram", "bot", "client", "cloudflare", "workers"]
+keywords = ["telbot", "telegram", "bot", "cloudflare", "workers"]
 readme = "../README.md"
 
 [dependencies]
