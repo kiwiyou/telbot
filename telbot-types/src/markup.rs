@@ -344,6 +344,78 @@ pub enum ParseMode {
     Markdown,
 }
 
+impl ParseMode {
+    /// Escape text to fit to given parse mode
+    pub fn escape(&self, text: impl AsRef<str>) -> String {
+        match self {
+            Self::MarkdownV2 => Self::escape_markdown_v2(text.as_ref()),
+            Self::HTML => Self::escape_html(text.as_ref()),
+            Self::Markdown => Self::escape_markdown(text.as_ref()),
+        }
+    }
+
+    fn escape_markdown_v2(text: &str) -> String {
+        const ESCAPE_CHARS: [char; 18] = [
+            '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.',
+            '!',
+        ];
+        let mut output = String::with_capacity(text.len());
+        let mut block_begin = 0;
+        for (index, char) in text.char_indices() {
+            if ESCAPE_CHARS.contains(&char) {
+                output.push_str(&text[block_begin..index]);
+                output.push('\\');
+                output.push(char);
+                block_begin = index + 1;
+            }
+        }
+        if block_begin < output.len() {
+            output.push_str(&text[block_begin..]);
+        }
+        output
+    }
+
+    fn escape_html(text: &str) -> String {
+        let mut output = String::with_capacity(text.len());
+        let mut block_begin = 0;
+        for (index, char) in text.char_indices() {
+            let replacement = match char {
+                '<' => Some("&lt;"),
+                '>' => Some("&gt;"),
+                '&' => Some("&amp;"),
+                _ => None,
+            };
+            if let Some(replacement) = replacement {
+                output.push_str(&text[block_begin..index]);
+                output.push_str(replacement);
+                block_begin = index + 1;
+            }
+        }
+        if block_begin < output.len() {
+            output.push_str(&text[block_begin..]);
+        }
+        output
+    }
+
+    fn escape_markdown(text: &str) -> String {
+        const ESCAPE_CHARS: [char; 4] = ['_', '*', '`', '['];
+        let mut output = String::with_capacity(text.len());
+        let mut block_begin = 0;
+        for (index, char) in text.char_indices() {
+            if ESCAPE_CHARS.contains(&char) {
+                output.push_str(&text[block_begin..index]);
+                output.push('\\');
+                output.push(char);
+                block_begin = index + 1;
+            }
+        }
+        if block_begin < output.len() {
+            output.push_str(&text[block_begin..]);
+        }
+        output
+    }
+}
+
 /// This object represents one special entity in a text message.
 ///
 /// For example, hashtags, usernames, URLs, etc.
