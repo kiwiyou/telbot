@@ -17,14 +17,11 @@ fn main() {
             offset = offset.max(update.update_id as i32 + 1);
             if let Some(message) = update.kind.message() {
                 if matches!(message.kind.text(), Some(text) if text.starts_with("/start")) {
-                    api.send_file(&SendPhoto::new(
-                        message.chat.id,
-                        InputFile {
-                            name: "kiwi.jpg".to_string(),
-                            data: kiwi.to_vec(),
-                            mime: "image/jpg".to_string(),
-                        },
-                    ))
+                    api.send_file(&message.chat.send_photo(InputFile {
+                        name: "kiwi.jpg".to_string(),
+                        data: kiwi.to_vec(),
+                        mime: "image/jpg".to_string(),
+                    }))
                     .unwrap();
                 }
             }

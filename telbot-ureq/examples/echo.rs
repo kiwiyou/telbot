@@ -1,6 +1,5 @@
 use std::env;
 
-use telbot_types::message::SendMessage;
 use telbot_types::update::GetUpdates;
 use telbot_ureq::Api;
 
@@ -15,10 +14,7 @@ fn main() {
             offset = offset.max(update.update_id as i32 + 1);
             if let Some(message) = update.kind.message() {
                 if let Some(text) = message.kind.text() {
-                    api.send_json(
-                        &SendMessage::new(message.chat.id, text).reply_to(message.message_id),
-                    )
-                    .unwrap();
+                    api.send_json(&message.reply_text(text)).unwrap();
                 }
             }
         }
