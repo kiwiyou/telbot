@@ -22,3 +22,4 @@ features = ["client"]
 
 [dependencies.telbot-types]
 path = "../telbot-types"
+version = "0.1.0"
