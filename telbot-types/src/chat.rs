@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::file::{Animation, InputFileVariant};
+use crate::file::InputFileVariant;
 use crate::message::{
     ChatActionKind, Location, Message, SendAnimation, SendAudio, SendChatAction, SendContact,
     SendDice, SendDocument, SendLocation, SendMediaGroup, SendMessage, SendPhoto, SendPoll,
@@ -313,6 +313,214 @@ pub enum ChatMember {
         /// If 0, then the user is banned forever
         until_date: u64,
     },
+}
+
+impl ChatMember {
+    pub fn user(&self) -> &User {
+        match self {
+            ChatMember::Owner { user, .. }
+            | ChatMember::Administrator { user, .. }
+            | ChatMember::Member { user }
+            | ChatMember::Restricted { user, .. }
+            | ChatMember::Left { user }
+            | ChatMember::Banned { user, .. } => user,
+        }
+    }
+
+    pub fn is_anonymous(&self) -> Option<bool> {
+        match self {
+            ChatMember::Owner { is_anonymous, .. }
+            | ChatMember::Administrator { is_anonymous, .. } => Some(*is_anonymous),
+            _ => None,
+        }
+    }
+
+    pub fn custom_title(&self) -> Option<&str> {
+        match self {
+            Self::Owner { custom_title, .. } | Self::Administrator { custom_title, .. } => {
+                custom_title.as_deref()
+            }
+            _ => None,
+        }
+    }
+
+    pub fn can_be_edited(&self) -> Option<bool> {
+        match self {
+            Self::Administrator { can_be_edited, .. } => Some(*can_be_edited),
+            _ => None,
+        }
+    }
+
+    pub fn can_manage_chat(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_manage_chat, ..
+            } => Some(*can_manage_chat),
+            _ => None,
+        }
+    }
+
+    pub fn can_delete_messages(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_delete_messages,
+                ..
+            } => Some(*can_delete_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_manage_voice_chats(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_manage_voice_chats,
+                ..
+            } => Some(*can_manage_voice_chats),
+            _ => None,
+        }
+    }
+
+    pub fn can_restrict_members(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_restrict_members,
+                ..
+            } => Some(*can_restrict_members),
+            _ => None,
+        }
+    }
+
+    pub fn can_promote_members(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_promote_members,
+                ..
+            } => Some(*can_promote_members),
+            _ => None,
+        }
+    }
+
+    pub fn can_change_info(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_change_info, ..
+            }
+            | Self::Restricted {
+                can_change_info, ..
+            } => Some(*can_change_info),
+            _ => None,
+        }
+    }
+
+    pub fn can_invite_users(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_invite_users, ..
+            }
+            | Self::Restricted {
+                can_invite_users, ..
+            } => Some(*can_invite_users),
+            _ => None,
+        }
+    }
+
+    pub fn can_edit_messages(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_edit_messages, ..
+            } => *can_edit_messages,
+            _ => None,
+        }
+    }
+
+    pub fn can_pin_messages(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_pin_messages, ..
+            } => *can_pin_messages,
+            Self::Restricted {
+                can_pin_messages, ..
+            } => Some(*can_pin_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_post_messages(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_post_messages, ..
+            } => *can_post_messages,
+            _ => None,
+        }
+    }
+
+    pub fn can_send_messages(&self) -> Option<bool> {
+        match self {
+            Self::Restricted {
+                can_send_messages, ..
+            } => Some(*can_send_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_send_media_messages(&self) -> Option<bool> {
+        match self {
+            Self::Restricted {
+                can_send_media_messages,
+                ..
+            } => Some(*can_send_media_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_send_polls(&self) -> Option<bool> {
+        match self {
+            Self::Restricted { can_send_polls, .. } => Some(*can_send_polls),
+            _ => None,
+        }
+    }
+
+    pub fn can_send_other_messages(&self) -> Option<bool> {
+        match self {
+            Self::Restricted {
+                can_send_other_messages,
+                ..
+            } => Some(*can_send_other_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_add_web_page_previews(&self) -> Option<bool> {
+        match self {
+            Self::Restricted {
+                can_add_web_page_previews,
+                ..
+            } => Some(*can_add_web_page_previews),
+            _ => None,
+        }
+    }
+
+    pub fn is_member(&self) -> bool {
+        match self {
+            Self::Owner { .. } | Self::Administrator { .. } | Self::Member { .. } => true,
+            Self::Restricted { is_member, .. } => *is_member,
+            ChatMember::Left { .. } | ChatMember::Banned { .. } => false,
+        }
+    }
+
+    pub fn banned_until(&self) -> Option<u64> {
+        match self {
+            Self::Banned { until_date, .. } => Some(*until_date),
+            _ => None,
+        }
+    }
+
+    pub fn restricted_until(&self) -> Option<u64> {
+        match self {
+            Self::Restricted { until_date, .. } => Some(*until_date),
+            _ => None,
+        }
+    }
 }
 
 /// Represents an invite link for a chat.

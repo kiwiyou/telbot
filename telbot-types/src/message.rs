@@ -61,6 +61,20 @@ pub struct Message {
     pub reply_markup: Option<InlineKeyboardMarkup>,
 }
 
+impl Message {
+    pub fn reply_text(&self, text: impl Into<String>) -> SendMessage {
+        SendMessage::new(self.chat.id, text).reply_to(self.message_id)
+    }
+
+    pub fn forward_to(&self, chat_id: impl Into<ChatId>) -> ForwardMessage {
+        ForwardMessage::new(chat_id, self.chat.id, self.message_id)
+    }
+
+    pub fn copy_to(&self, chat_id: impl Into<ChatId>) -> CopyMessage {
+        CopyMessage::new(chat_id, self.chat.id, self.message_id)
+    }
+}
+
 /// Variants of a message.
 #[derive(Deserialize)]
 #[serde(untagged)]
@@ -274,6 +288,407 @@ pub enum MessageKind {
     },
 }
 
+impl MessageKind {
+    pub fn text(&self) -> Option<&str> {
+        match self {
+            Self::Text { text, .. } => Some(text),
+            _ => None,
+        }
+    }
+
+    pub fn entities(&self) -> Option<&[MessageEntity]> {
+        match self {
+            Self::Text { entities, .. } => entities.as_deref(),
+            _ => None,
+        }
+    }
+
+    pub fn animation(&self) -> Option<&Animation> {
+        match self {
+            Self::Animation { animation, .. } => Some(animation),
+            _ => None,
+        }
+    }
+
+    pub fn document(&self) -> Option<&Document> {
+        match self {
+            Self::Animation { document, .. } | Self::Document { document, .. } => Some(document),
+            _ => None,
+        }
+    }
+
+    pub fn caption(&self) -> Option<&str> {
+        match self {
+            Self::Animation { caption, .. }
+            | Self::Audio { caption, .. }
+            | Self::Document { caption, .. }
+            | Self::Photo { caption, .. }
+            | Self::Video { caption, .. }
+            | Self::Voice { caption, .. } => caption.as_deref(),
+            _ => None,
+        }
+    }
+
+    pub fn caption_entities(&self) -> Option<&[MessageEntity]> {
+        match self {
+            Self::Animation {
+                caption_entities, ..
+            }
+            | Self::Audio {
+                caption_entities, ..
+            }
+            | Self::Document {
+                caption_entities, ..
+            }
+            | Self::Photo {
+                caption_entities, ..
+            }
+            | Self::Video {
+                caption_entities, ..
+            }
+            | Self::Voice {
+                caption_entities, ..
+            } => caption_entities.as_deref(),
+            _ => None,
+        }
+    }
+
+    pub fn audio(&self) -> Option<&Audio> {
+        match self {
+            Self::Audio { audio, .. } => Some(audio),
+            _ => None,
+        }
+    }
+
+    pub fn photo(&self) -> Option<&[PhotoSize]> {
+        match self {
+            Self::Photo { photo, .. } => Some(photo.as_ref()),
+            _ => None,
+        }
+    }
+
+    pub fn sticker(&self) -> Option<&Sticker> {
+        match self {
+            Self::Sticker { sticker } => Some(sticker),
+            _ => None,
+        }
+    }
+
+    pub fn video(&self) -> Option<&Video> {
+        match self {
+            Self::Video { video, .. } => Some(video),
+            _ => None,
+        }
+    }
+
+    pub fn video_note(&self) -> Option<&VideoNote> {
+        match self {
+            Self::VideoNote { video_note } => Some(video_note),
+            _ => None,
+        }
+    }
+
+    pub fn voice(&self) -> Option<&Voice> {
+        match self {
+            Self::Voice { voice, .. } => Some(voice),
+            _ => None,
+        }
+    }
+
+    pub fn contact(&self) -> Option<&Contact> {
+        match self {
+            Self::Contact { contact } => Some(contact),
+            _ => None,
+        }
+    }
+
+    pub fn dice(&self) -> Option<&Dice> {
+        match self {
+            Self::Dice { dice } => Some(dice),
+            _ => None,
+        }
+    }
+
+    pub fn game(&self) -> Option<&Game> {
+        match self {
+            Self::Game { game } => Some(game),
+            _ => None,
+        }
+    }
+
+    pub fn poll(&self) -> Option<&Poll> {
+        match self {
+            Self::Poll { poll } => Some(poll),
+            _ => None,
+        }
+    }
+
+    pub fn venue(&self) -> Option<&Venue> {
+        match self {
+            Self::Venue { venue, .. } => Some(venue),
+            _ => None,
+        }
+    }
+
+    pub fn location(&self) -> Option<&Location> {
+        match self {
+            Self::Venue { location, .. } | Self::Location { location } => Some(location),
+            _ => None,
+        }
+    }
+
+    pub fn new_chat_members(&self) -> Option<&[User]> {
+        match self {
+            Self::NewChatMembers { new_chat_members } => Some(new_chat_members.as_ref()),
+            _ => None,
+        }
+    }
+
+    pub fn left_chat_member(&self) -> Option<&User> {
+        match self {
+            Self::LeftChatMember { left_chat_member } => Some(left_chat_member),
+            _ => None,
+        }
+    }
+
+    pub fn new_chat_title(&self) -> Option<&str> {
+        match self {
+            Self::NewChatTitle { new_chat_title } => Some(new_chat_title),
+            _ => None,
+        }
+    }
+
+    pub fn message_auto_delete_timer_changed(&self) -> Option<&MessageAutoDeleteTimerChanged> {
+        match self {
+            Self::MessageAutoDeleteTimerChanged {
+                message_auto_delete_timer_changed,
+            } => Some(message_auto_delete_timer_changed),
+            _ => None,
+        }
+    }
+
+    pub fn migrate_to_chat_id(&self) -> Option<i64> {
+        match self {
+            Self::GroupMigrated {
+                migrate_to_chat_id, ..
+            } => Some(*migrate_to_chat_id),
+            _ => None,
+        }
+    }
+
+    pub fn migrate_from_chat_id(&self) -> Option<i64> {
+        match self {
+            Self::GroupMigrated {
+                migrate_from_chat_id,
+                ..
+            } => Some(*migrate_from_chat_id),
+            _ => None,
+        }
+    }
+
+    pub fn pinned_message(&self) -> Option<&Message> {
+        match self {
+            Self::MessagePinned { pinned_message } => Some(pinned_message.as_ref()),
+            _ => None,
+        }
+    }
+
+    pub fn invoice(&self) -> Option<&Invoice> {
+        match self {
+            Self::Invoice { invoice } => Some(invoice),
+            _ => None,
+        }
+    }
+
+    pub fn successful_payment(&self) -> Option<&SuccessfulPayment> {
+        match self {
+            Self::SuccessfulPayment { successful_payment } => Some(successful_payment),
+            _ => None,
+        }
+    }
+
+    pub fn connected_website(&self) -> Option<&str> {
+        match self {
+            Self::Login {
+                connected_website, ..
+            } => Some(connected_website),
+            _ => None,
+        }
+    }
+
+    pub fn passport_data(&self) -> Option<&PassportData> {
+        match self {
+            Self::Login { passport_data, .. } => Some(passport_data),
+            _ => None,
+        }
+    }
+
+    pub fn proximity_alert_triggered(&self) -> Option<&ProximityAlertTriggered> {
+        match self {
+            Self::ProximityAlertTriggered {
+                proximity_alert_triggered,
+            } => Some(proximity_alert_triggered),
+            _ => None,
+        }
+    }
+
+    pub fn voice_chat_scheduled(&self) -> Option<&VoiceChatScheduled> {
+        match self {
+            Self::VoiceChatScheduled {
+                voice_chat_scheduled,
+            } => Some(voice_chat_scheduled),
+            _ => None,
+        }
+    }
+
+    pub fn voice_chat_started(&self) -> Option<&VoiceChatStarted> {
+        match self {
+            Self::VoiceChatStarted { voice_chat_started } => Some(voice_chat_started),
+            _ => None,
+        }
+    }
+
+    pub fn voice_chat_ended(&self) -> Option<&VoiceChatEnded> {
+        match self {
+            Self::VoiceChatEnded { voice_chat_ended } => Some(voice_chat_ended),
+            _ => None,
+        }
+    }
+
+    pub fn voice_chat_participants_invited(&self) -> Option<&VoiceChatParticipantsInvited> {
+        match self {
+            Self::VoiceChatParticipantsInvited {
+                voice_chat_participants_invited,
+            } => Some(voice_chat_participants_invited),
+            _ => None,
+        }
+    }
+
+    pub fn is_text(&self) -> bool {
+        matches!(self, Self::Text { .. })
+    }
+
+    pub fn is_animation(&self) -> bool {
+        matches!(self, Self::Animation { .. })
+    }
+
+    pub fn is_audio(&self) -> bool {
+        matches!(self, Self::Audio { .. })
+    }
+
+    pub fn is_document(&self) -> bool {
+        matches!(self, Self::Document { .. })
+    }
+
+    pub fn is_photo(&self) -> bool {
+        matches!(self, Self::Photo { .. })
+    }
+
+    pub fn is_sticker(&self) -> bool {
+        matches!(self, Self::Sticker { .. })
+    }
+
+    pub fn is_video(&self) -> bool {
+        matches!(self, Self::Video { .. })
+    }
+
+    pub fn is_video_note(&self) -> bool {
+        matches!(self, Self::VideoNote { .. })
+    }
+
+    pub fn is_voice(&self) -> bool {
+        matches!(self, Self::Voice { .. })
+    }
+
+    pub fn is_contact(&self) -> bool {
+        matches!(self, Self::Contact { .. })
+    }
+
+    pub fn is_dice(&self) -> bool {
+        matches!(self, Self::Dice { .. })
+    }
+
+    pub fn is_game(&self) -> bool {
+        matches!(self, Self::Game { .. })
+    }
+
+    pub fn is_poll(&self) -> bool {
+        matches!(self, Self::Poll { .. })
+    }
+
+    pub fn is_venue(&self) -> bool {
+        matches!(self, Self::Venue { .. })
+    }
+
+    pub fn is_location(&self) -> bool {
+        matches!(self, Self::Location { .. })
+    }
+
+    pub fn is_new_chat_members(&self) -> bool {
+        matches!(self, Self::NewChatMembers { .. })
+    }
+
+    pub fn is_left_chat_member(&self) -> bool {
+        matches!(self, Self::LeftChatMember { .. })
+    }
+
+    pub fn is_new_chat_title(&self) -> bool {
+        matches!(self, Self::NewChatTitle { .. })
+    }
+
+    pub fn is_delete_chat_photo(&self) -> bool {
+        matches!(self, Self::DeleteChatPhoto { .. })
+    }
+
+    pub fn is_group_chat_created(&self) -> bool {
+        matches!(self, Self::GroupChatCreated { .. })
+    }
+
+    pub fn is_supergroup_chat_created(&self) -> bool {
+        matches!(self, Self::SupergroupChatCreated { .. })
+    }
+
+    pub fn is_channel_chat_created(&self) -> bool {
+        matches!(self, Self::ChannelChatCreated { .. })
+    }
+
+    pub fn is_group_migrated(&self) -> bool {
+        matches!(self, Self::GroupMigrated { .. })
+    }
+
+    pub fn is_message_pinned(&self) -> bool {
+        matches!(self, Self::MessagePinned { .. })
+    }
+
+    pub fn is_invoice(&self) -> bool {
+        matches!(self, Self::Invoice { .. })
+    }
+
+    pub fn is_login(&self) -> bool {
+        matches!(self, Self::Login { .. })
+    }
+
+    pub fn is_proximity_alert_triggered(&self) -> bool {
+        matches!(self, Self::ProximityAlertTriggered { .. })
+    }
+
+    pub fn is_voice_chat_scheduled(&self) -> bool {
+        matches!(self, Self::VoiceChatScheduled { .. })
+    }
+
+    pub fn is_voice_chat_started(&self) -> bool {
+        matches!(self, Self::VoiceChatStarted { .. })
+    }
+
+    pub fn is_voice_chat_ended(&self) -> bool {
+        matches!(self, Self::VoiceChatEnded { .. })
+    }
+
+    pub fn is_voice_chat_participants_invited(&self) -> bool {
+        matches!(self, Self::VoiceChatParticipantsInvited { .. })
+    }
+}
+
 /// This object represents a unique message identifier.
 #[derive(Deserialize)]
 pub struct MessageId {
@@ -342,7 +757,7 @@ pub struct PollOption {
 pub struct PollAnswer {
     /// Unique poll identifier
     pub poll_id: String,
-    ///  	The user, who changed the answer to the poll
+    /// The user, who changed the answer to the poll
     pub user: User,
     /// 0-based identifiers of answer options, chosen by the user.
     /// May be empty if the user retracted their vote.
@@ -391,6 +806,42 @@ pub enum PollKind {
         /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
         explanation_entities: Option<Vec<MessageEntity>>,
     },
+}
+
+impl PollKind {
+    pub fn correct_option_id(&self) -> Option<usize> {
+        match self {
+            Self::Quiz {
+                correct_option_id, ..
+            } => *correct_option_id,
+            _ => None,
+        }
+    }
+
+    pub fn explanation(&self) -> Option<&str> {
+        match self {
+            Self::Quiz { explanation, .. } => explanation.as_deref(),
+            _ => None,
+        }
+    }
+
+    pub fn explanation_entities(&self) -> Option<&[MessageEntity]> {
+        match self {
+            Self::Quiz {
+                explanation_entities,
+                ..
+            } => explanation_entities.as_deref(),
+            _ => None,
+        }
+    }
+
+    pub fn is_regular(&self) -> bool {
+        matches!(self, Self::Regular)
+    }
+
+    pub fn is_quiz(&self) -> bool {
+        matches!(self, Self::Quiz { .. })
+    }
 }
 
 /// This object represents a venue.
@@ -1963,27 +2414,6 @@ impl TelegramMethod for SendMediaGroup {
 
     fn name() -> &'static str {
         "sendMediaGroup"
-    }
-}
-
-impl Message {
-    pub fn text(&self) -> Option<&str> {
-        match &self.kind {
-            MessageKind::Text { text, .. } => Some(text),
-            _ => None,
-        }
-    }
-
-    pub fn reply_text(&self, text: impl Into<String>) -> SendMessage {
-        SendMessage::new(self.chat.id, text).reply_to(self.message_id)
-    }
-
-    pub fn forward_to(&self, chat_id: impl Into<ChatId>) -> ForwardMessage {
-        ForwardMessage::new(chat_id, self.chat.id, self.message_id)
-    }
-
-    pub fn copy_to(&self, chat_id: impl Into<ChatId>) -> CopyMessage {
-        CopyMessage::new(chat_id, self.chat.id, self.message_id)
     }
 }
 

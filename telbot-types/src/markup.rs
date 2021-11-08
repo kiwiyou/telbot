@@ -153,6 +153,78 @@ pub enum InlineKeyboardButtonKind {
     },
 }
 
+impl InlineKeyboardButtonKind {
+    pub fn url(&self) -> Option<&str> {
+        match self {
+            Self::Url { url } => Some(url),
+            _ => None,
+        }
+    }
+
+    pub fn login_url(&self) -> Option<&LoginUrl> {
+        match self {
+            Self::Login { login_url } => Some(login_url),
+            _ => None,
+        }
+    }
+
+    pub fn callback_data(&self) -> Option<&str> {
+        match self {
+            Self::Callback { callback_data } => Some(&callback_data),
+            _ => None,
+        }
+    }
+
+    pub fn inline_query_prompt(&self) -> Option<&str> {
+        match self {
+            Self::SwitchInlineQuery {
+                switch_inline_query,
+            } => Some(switch_inline_query),
+            _ => None,
+        }
+    }
+
+    pub fn inline_query_current_chat_prompt(&self) -> Option<&str> {
+        match self {
+            Self::SwitchInlineQueryCurrentChat {
+                switch_inline_query_current_chat,
+            } => Some(switch_inline_query_current_chat),
+            _ => None,
+        }
+    }
+
+    pub fn is_url(&self) -> bool {
+        matches!(self, Self::Url { .. })
+    }
+
+    pub fn is_login(&self) -> bool {
+        matches!(self, Self::Login { .. })
+    }
+
+    pub fn is_callback(&self) -> bool {
+        matches!(self, Self::Callback { .. })
+    }
+
+    pub fn is_switch_inline_query(&self) -> bool {
+        matches!(self, Self::SwitchInlineQuery { .. })
+    }
+
+    pub fn is_switch_inline_query_current_chat(&self) -> bool {
+        matches!(self, Self::SwitchInlineQueryCurrentChat { .. })
+    }
+
+    pub fn is_callback_game(&self) -> bool {
+        matches!(self, Self::CallbackGame { .. })
+    }
+
+    pub fn is_pay(&self) -> bool {
+        match self {
+            Self::Pay { pay } => *pay,
+            _ => false,
+        }
+    }
+}
+
 /// A placeholder, currently holds no information. Use [BotFather](https://t.me/botfather) to set up your game.
 #[derive(Serialize, Deserialize)]
 pub struct CallbackGame;
@@ -276,7 +348,7 @@ pub enum MessageEntityKind {
     /// ```monowidth block```
     Pre {
         /// The programming language of the entity text
-        langauge: String,
+        language: String,
     },
     /// clickable text URLs
     TextLink {
@@ -288,6 +360,88 @@ pub enum MessageEntityKind {
         /// The mentioned user
         user: User,
     },
+}
+
+impl MessageEntityKind {
+    pub fn code_language(&self) -> Option<&str> {
+        match self {
+            Self::Pre { language } => Some(language),
+            _ => None,
+        }
+    }
+
+    pub fn clickable_url(&self) -> Option<&str> {
+        match self {
+            Self::TextLink { url } => Some(url),
+            _ => None,
+        }
+    }
+
+    pub fn text_metioned_user(&self) -> Option<&User> {
+        match self {
+            Self::TextMention { user } => Some(user),
+            _ => None,
+        }
+    }
+
+    pub fn is_mention(&self) -> bool {
+        matches!(self, Self::Mention)
+    }
+
+    pub fn is_hashtag(&self) -> bool {
+        matches!(self, Self::Hashtag)
+    }
+
+    pub fn is_cashtag(&self) -> bool {
+        matches!(self, Self::Cashtag)
+    }
+
+    pub fn is_bot_command(&self) -> bool {
+        matches!(self, Self::BotCommand)
+    }
+
+    pub fn is_url(&self) -> bool {
+        matches!(self, Self::Url)
+    }
+
+    pub fn is_email(&self) -> bool {
+        matches!(self, Self::Email)
+    }
+
+    pub fn is_phone_number(&self) -> bool {
+        matches!(self, Self::PhoneNumber)
+    }
+
+    pub fn is_bold(&self) -> bool {
+        matches!(self, Self::Bold)
+    }
+    pub fn is_italic(&self) -> bool {
+        matches!(self, Self::Italic)
+    }
+
+    pub fn is_underline(&self) -> bool {
+        matches!(self, Self::Underline)
+    }
+
+    pub fn is_strikethrough(&self) -> bool {
+        matches!(self, Self::Strikethrough)
+    }
+
+    pub fn is_inline_code(&self) -> bool {
+        matches!(self, Self::Code)
+    }
+
+    pub fn is_code_block(&self) -> bool {
+        matches!(self, Self::Pre { .. })
+    }
+
+    pub fn is_clickable_link(&self) -> bool {
+        matches!(self, Self::TextLink { .. })
+    }
+
+    pub fn is_text_mention(&self) -> bool {
+        matches!(self, Self::TextMention { .. })
+    }
 }
 
 /// Reply markups
