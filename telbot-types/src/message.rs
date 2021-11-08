@@ -2542,32 +2542,16 @@ impl TelegramMethod for SendLocation {
 
 impl JsonMethod for SendLocation {}
 
-/// Chat message or inline message id
-#[derive(Serialize)]
-#[serde(untagged)]
-pub enum ChatOrInlineMessage {
-    Chat {
-        /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
-        chat_id: ChatId,
-        /// Identifier of the message
-        message_id: i64,
-    },
-    Inline {
-        /// Identifier of the inline message
-        inline_message_id: String,
-    },
-}
-
 /// Use this method to edit live location messages.
 /// A location can be edited until its *live_period* expires
 /// or editing is explicitly disabled by a call to [stopMessageLiveLocation](https://core.telegram.org/bots/api#stopmessagelivelocation).
-/// On success, if the edited message is not an inline message,
-/// the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise True is returned.
+/// On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
 #[derive(Serialize)]
 pub struct EditMessageLiveLocation {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
     /// Identifier of the message to edit
-    #[serde(flatten)]
-    pub target: ChatOrInlineMessage,
+    pub message_id: i64,
     /// Latitude of new location
     pub latitude: f32,
     /// Longitude of new location
@@ -2588,36 +2572,11 @@ pub struct EditMessageLiveLocation {
 }
 
 impl EditMessageLiveLocation {
-    /// Create a new editMessageLiveLocation request from chat message id
-    pub fn from_chat(
-        chat_id: impl Into<ChatId>,
-        message_id: i64,
-        latitude: f32,
-        longitude: f32,
-    ) -> Self {
+    /// Create a new editMessageLiveLocation request
+    pub fn new(chat_id: impl Into<ChatId>, message_id: i64, latitude: f32, longitude: f32) -> Self {
         Self {
-            target: ChatOrInlineMessage::Chat {
-                chat_id: chat_id.into(),
-                message_id,
-            },
-            latitude,
-            longitude,
-            horizontal_accuracy: None,
-            heading: None,
-            proximity_alert_radius: None,
-            reply_markup: None,
-        }
-    }
-    /// Create a new editMessageLiveLocation request from inline message id
-    pub fn from_inline(
-        inline_message_id: impl Into<String>,
-        latitude: f32,
-        longitude: f32,
-    ) -> Self {
-        Self {
-            target: ChatOrInlineMessage::Inline {
-                inline_message_id: inline_message_id.into(),
-            },
+            chat_id: chat_id.into(),
+            message_id,
             latitude,
             longitude,
             horizontal_accuracy: None,
@@ -2656,30 +2615,104 @@ impl EditMessageLiveLocation {
     }
 }
 
-/// Result of editMessageLiveLocation
-#[derive(Deserialize)]
-#[serde(untagged)]
-pub enum EditMessageResult {
-    Success(bool),
-    SuccessWith(Message),
-}
-
 impl TelegramMethod for EditMessageLiveLocation {
-    type Response = EditMessageResult;
+    type Response = Message;
 
     fn name() -> &'static str {
         "editMessageLiveLocation"
     }
 }
 
+impl JsonMethod for EditMessageLiveLocation {}
+
+/// Use this method to edit live location messages.
+/// A location can be edited until its *live_period* expires
+/// or editing is explicitly disabled by a call to [stopMessageLiveLocation](https://core.telegram.org/bots/api#stopmessagelivelocation).
+/// On success, _True_ is returned.
+#[derive(Serialize)]
+pub struct EditInlineMessageLiveLocation {
+    /// Identifier of the inline message
+    pub inline_message_id: String,
+    /// Latitude of new location
+    pub latitude: f32,
+    /// Longitude of new location
+    pub longitude: f32,
+    /// The radius of uncertainty for the location, measured in meters; 0-1500
+    pub horizontal_accuracy: Option<f32>,
+    /// For live locations, a direction in which the user is moving, in degrees.
+    /// Must be between 1 and 360 if specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub heading: Option<u32>,
+    /// For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters.
+    /// Must be between 1 and 100000 if specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub proximity_alert_radius: Option<u32>,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditInlineMessageLiveLocation {
+    /// Create a new editMessageLiveLocation request
+    pub fn new(inline_message_id: impl Into<String>, latitude: f32, longitude: f32) -> Self {
+        Self {
+            inline_message_id: inline_message_id.into(),
+            latitude,
+            longitude,
+            horizontal_accuracy: None,
+            heading: None,
+            proximity_alert_radius: None,
+            reply_markup: None,
+        }
+    }
+    /// Set horizontal accuracy
+    pub fn with_horizontal_accuracy(self, accuracy: f32) -> Self {
+        Self {
+            horizontal_accuracy: Some(accuracy),
+            ..self
+        }
+    }
+    /// Set heading
+    pub fn with_heading(self, direction: u32) -> Self {
+        Self {
+            heading: Some(direction),
+            ..self
+        }
+    }
+    /// Set proximity alert radius
+    pub fn proximity_alert_within(self, radius: u32) -> Self {
+        Self {
+            proximity_alert_radius: Some(radius),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for EditInlineMessageLiveLocation {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "editMessageLiveLocation"
+    }
+}
+
+impl JsonMethod for EditInlineMessageLiveLocation {}
+
 /// Use this method to stop updating a live location message before live_period expires.
-/// On success, if the edited message is not an inline message,
-/// the edited [Message](https://core.telegram.org/bots/api#message) is returned, otherwise True is returned.
+/// On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
 #[derive(Serialize)]
 pub struct StopMessageLiveLocation {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
     /// Identifier of the message to edit
-    #[serde(flatten)]
-    pub target: ChatOrInlineMessage,
+    pub message_id: i64,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<InlineKeyboardMarkup>,
@@ -2689,19 +2722,8 @@ impl StopMessageLiveLocation {
     /// Create a new stopMessageLiveLocation request from chat message id
     pub fn from_chat(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
         Self {
-            target: ChatOrInlineMessage::Chat {
-                chat_id: chat_id.into(),
-                message_id,
-            },
-            reply_markup: None,
-        }
-    }
-    /// Create a new stopMessageLiveLocation request from inline message id
-    pub fn from_inline(inline_message_id: impl Into<String>) -> Self {
-        Self {
-            target: ChatOrInlineMessage::Inline {
-                inline_message_id: inline_message_id.into(),
-            },
+            chat_id: chat_id.into(),
+            message_id,
             reply_markup: None,
         }
     }
@@ -2715,7 +2737,7 @@ impl StopMessageLiveLocation {
 }
 
 impl TelegramMethod for StopMessageLiveLocation {
-    type Response = EditMessageResult;
+    type Response = Message;
 
     fn name() -> &'static str {
         "stopMessageLiveLocation"
@@ -2723,6 +2745,44 @@ impl TelegramMethod for StopMessageLiveLocation {
 }
 
 impl JsonMethod for StopMessageLiveLocation {}
+
+/// Use this method to stop updating a live location message before live_period expires.
+/// On success, _True_ is returned.
+#[derive(Serialize)]
+pub struct StopInlineMessageLiveLocation {
+    /// Identifier of the inline message
+    pub inline_message_id: String,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl StopInlineMessageLiveLocation {
+    /// Create a new stopMessageLiveLocation request
+    pub fn new(inline_message_id: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: inline_message_id.into(),
+            reply_markup: None,
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for StopInlineMessageLiveLocation {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "stopMessageLiveLocation"
+    }
+}
+
+impl JsonMethod for StopInlineMessageLiveLocation {}
 
 /// Use this method to send information about a venue.
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
@@ -3319,3 +3379,611 @@ impl TelegramMethod for SendChatAction {
 }
 
 impl JsonMethod for SendChatAction {}
+
+/// Use this method to edit text and [game](https://core.telegram.org/bots/api#games) messages.
+/// On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api#message) is returned,
+/// otherwise _True_ is returned.
+#[derive(Serialize)]
+pub struct EditMessageText {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Identifier of the message to edit
+    pub message_id: i64,
+    /// New text of the message, 1-4096 characters after entities parsing
+    pub text: String,
+    /// Mode for parsing entities in the message text.
+    /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<ParseMode>,
+    /// List of special entities that appear in message text,
+    /// which can be specified instead of *parse_mode*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entities: Option<Vec<MessageEntity>>,
+    /// Disables link previews for links in the sent message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_web_page_preview: Option<bool>,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditMessageText {
+    /// Create a new editMessageText request
+    pub fn new(chat_id: impl Into<ChatId>, message_id: i64, text: impl Into<String>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+            text: text.into(),
+            parse_mode: None,
+            entities: None,
+            disable_web_page_preview: None,
+            reply_markup: None,
+        }
+    }
+    /// Set parse mode
+    pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
+        Self {
+            parse_mode: Some(parse_mode),
+            ..self
+        }
+    }
+    /// Set entities
+    pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
+        Self {
+            entities: Some(entities),
+            ..self
+        }
+    }
+    /// Add one entity
+    pub fn with_entity(mut self, entity: MessageEntity) -> Self {
+        let entities = self.entities.get_or_insert_with(Default::default);
+        entities.push(entity);
+        self
+    }
+    /// Disable web preview
+    pub fn disable_web_page_preview(self) -> Self {
+        Self {
+            disable_web_page_preview: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for EditMessageText {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "editMessageText"
+    }
+}
+
+impl JsonMethod for EditMessageText {}
+
+/// Use this method to edit text and [game](https://core.telegram.org/bots/api#games) messages.
+/// On success, _True_ is returned.
+#[derive(Serialize)]
+pub struct EditInlineMessageText {
+    /// Identifier of the inline message
+    pub inline_message_id: String,
+    /// New text of the message, 1-4096 characters after entities parsing
+    pub text: String,
+    /// Mode for parsing entities in the message text.
+    /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<ParseMode>,
+    /// List of special entities that appear in message text,
+    /// which can be specified instead of *parse_mode*
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entities: Option<Vec<MessageEntity>>,
+    /// Disables link previews for links in the sent message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_web_page_preview: Option<bool>,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditInlineMessageText {
+    /// Create a new editMessageText request
+    pub fn new(inline_message_id: impl Into<String>, text: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: inline_message_id.into(),
+            text: text.into(),
+            parse_mode: None,
+            entities: None,
+            disable_web_page_preview: None,
+            reply_markup: None,
+        }
+    }
+    /// Set parse mode
+    pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
+        Self {
+            parse_mode: Some(parse_mode),
+            ..self
+        }
+    }
+    /// Set entities
+    pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
+        Self {
+            entities: Some(entities),
+            ..self
+        }
+    }
+    /// Add one entity
+    pub fn with_entity(mut self, entity: MessageEntity) -> Self {
+        let entities = self.entities.get_or_insert_with(Default::default);
+        entities.push(entity);
+        self
+    }
+    /// Disable web preview
+    pub fn disable_web_page_preview(self) -> Self {
+        Self {
+            disable_web_page_preview: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for EditInlineMessageText {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "editMessageText"
+    }
+}
+
+impl JsonMethod for EditInlineMessageText {}
+
+/// Use this method to edit captions of messages. On success, the edited Message is returned.
+#[derive(Serialize)]
+pub struct EditMessageCaption {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Identifier of the message to edit
+    pub message_id: i64,
+    /// New caption of the message, 0-1024 characters after entities parsing
+    pub caption: Option<String>,
+    /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+    pub caption_entities: Option<Vec<MessageEntity>>,
+    /// Mode for parsing entities in the message text.
+    /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<ParseMode>,
+    /// Disables link previews for links in the sent message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_web_page_preview: Option<bool>,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditMessageCaption {
+    /// Create a new editMessageCaption request with no caption
+    pub fn new_empty(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            disable_web_page_preview: None,
+            reply_markup: None,
+        }
+    }
+    /// Create a new editMessageCaption request with caption
+    pub fn new(chat_id: impl Into<ChatId>, message_id: i64, caption: impl Into<String>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+            caption: Some(caption.into()),
+            parse_mode: None,
+            caption_entities: None,
+            disable_web_page_preview: None,
+            reply_markup: None,
+        }
+    }
+    /// Set parse mode
+    pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
+        Self {
+            parse_mode: Some(parse_mode),
+            ..self
+        }
+    }
+    /// Set caption entities
+    pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(entities),
+            ..self
+        }
+    }
+    /// Add one entity
+    pub fn with_entity(mut self, entity: MessageEntity) -> Self {
+        let entities = self.caption_entities.get_or_insert_with(Default::default);
+        entities.push(entity);
+        self
+    }
+    /// Disable web preview
+    pub fn disable_web_page_preview(self) -> Self {
+        Self {
+            disable_web_page_preview: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for EditMessageCaption {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "editMessageCaption"
+    }
+}
+
+impl JsonMethod for EditMessageCaption {}
+
+/// Use this method to edit captions of messages. On success, the edited Message is returned.
+#[derive(Serialize)]
+pub struct EditInlineMessageCaption {
+    /// Identifier of the inline message
+    pub inline_message_id: String,
+    /// New caption of the message, 0-1024 characters after entities parsing
+    pub caption: Option<String>,
+    /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+    pub caption_entities: Option<Vec<MessageEntity>>,
+    /// Mode for parsing entities in the message text.
+    /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parse_mode: Option<ParseMode>,
+    /// Disables link previews for links in the sent message
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_web_page_preview: Option<bool>,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditInlineMessageCaption {
+    /// Create a new editMessageCaption request with no caption
+    pub fn new_empty(inline_message_id: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: inline_message_id.into(),
+            caption: None,
+            parse_mode: None,
+            caption_entities: None,
+            disable_web_page_preview: None,
+            reply_markup: None,
+        }
+    }
+    /// Create a new editMessageCaption request with caption
+    pub fn new(inline_message_id: impl Into<String>, caption: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: inline_message_id.into(),
+            caption: Some(caption.into()),
+            parse_mode: None,
+            caption_entities: None,
+            disable_web_page_preview: None,
+            reply_markup: None,
+        }
+    }
+    /// Set parse mode
+    pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
+        Self {
+            parse_mode: Some(parse_mode),
+            ..self
+        }
+    }
+    /// Set caption entities
+    pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
+        Self {
+            caption_entities: Some(entities),
+            ..self
+        }
+    }
+    /// Add one entity
+    pub fn with_entity(mut self, entity: MessageEntity) -> Self {
+        let entities = self.caption_entities.get_or_insert_with(Default::default);
+        entities.push(entity);
+        self
+    }
+    /// Disable web preview
+    pub fn disable_web_page_preview(self) -> Self {
+        Self {
+            disable_web_page_preview: Some(true),
+            ..self
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for EditInlineMessageCaption {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "editMessageCaption"
+    }
+}
+
+impl JsonMethod for EditInlineMessageCaption {}
+
+/// Use this method to edit animation, audio, document, photo, or video messages.
+/// If a message is part of a message album, then it can be edited only to an audio for audio albums,
+/// only to a document for document albums and to a photo or a video otherwise.
+/// When an inline message is edited, a new file can't be uploaded;
+/// use a previously uploaded file via its file_id or specify a URL.
+/// On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
+#[derive(Serialize)]
+pub struct EditMessageMedia {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Identifier of the message to edit
+    pub message_id: i64,
+    /// A JSON-serialized object for a new media content of the message
+    pub media: InputMedia,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditMessageMedia {
+    /// Create a new editMessageMedia request
+    pub fn new(chat_id: impl Into<ChatId>, message_id: i64, media: impl Into<InputMedia>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+            media: media.into(),
+            reply_markup: None,
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for EditMessageMedia {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "editMessageMedia"
+    }
+}
+
+impl JsonMethod for EditMessageMedia {}
+
+/// Use this method to edit animation, audio, document, photo, or video messages.
+/// If a message is part of a message album, then it can be edited only to an audio for audio albums,
+/// only to a document for document albums and to a photo or a video otherwise.
+/// When an inline message is edited, a new file can't be uploaded;
+/// use a previously uploaded file via its file_id or specify a URL.
+/// On success, _True_ is returned.
+#[derive(Serialize)]
+pub struct EditInlineMessageMedia {
+    /// Identifier of the inline message
+    pub inline_message_id: String,
+    /// A JSON-serialized object for a new media content of the message
+    pub media: InputMedia,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditInlineMessageMedia {
+    /// Create a new editMessageMedia request
+    pub fn new(inline_message_id: impl Into<String>, media: impl Into<InputMedia>) -> Self {
+        Self {
+            inline_message_id: inline_message_id.into(),
+            media: media.into(),
+            reply_markup: None,
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for EditInlineMessageMedia {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "editMessageMedia"
+    }
+}
+
+impl JsonMethod for EditInlineMessageMedia {}
+
+/// Use this method to edit only the reply markup of messages. On success, the edited Message is returned.
+#[derive(Serialize)]
+pub struct EditMessageReplyMarkup {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Identifier of the message to edit
+    pub message_id: i64,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditMessageReplyMarkup {
+    /// Create a new editMessageReplyMarkup request with no reply markup
+    pub fn new_empty(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+            reply_markup: None,
+        }
+    }
+    /// Create a new editMessageReplyMarkup with reply markup
+    pub fn new(
+        chat_id: impl Into<ChatId>,
+        message_id: i64,
+        reply_markup: impl Into<InlineKeyboardMarkup>,
+    ) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+            reply_markup: Some(reply_markup.into()),
+        }
+    }
+}
+
+impl TelegramMethod for EditMessageReplyMarkup {
+    type Response = Message;
+
+    fn name() -> &'static str {
+        "editMessageReplyMarkup"
+    }
+}
+
+impl JsonMethod for EditMessageReplyMarkup {}
+
+/// Use this method to edit only the reply markup of messages. On success, _True_ is returned.
+#[derive(Serialize)]
+pub struct EditInlineMessageReplyMarkup {
+    /// Identifier of the inline message
+    pub inline_message_id: String,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl EditInlineMessageReplyMarkup {
+    /// Create a new editMessageReplyMarkup request with no reply markup
+    pub fn new_empty(inline_message_id: impl Into<String>) -> Self {
+        Self {
+            inline_message_id: inline_message_id.into(),
+            reply_markup: None,
+        }
+    }
+    /// Create a new editMessageReplyMarkup with reply markup
+    pub fn new(
+        inline_message_id: impl Into<String>,
+        reply_markup: impl Into<InlineKeyboardMarkup>,
+    ) -> Self {
+        Self {
+            inline_message_id: inline_message_id.into(),
+            reply_markup: Some(reply_markup.into()),
+        }
+    }
+}
+
+impl TelegramMethod for EditInlineMessageReplyMarkup {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "editMessageReplyMarkup"
+    }
+}
+
+impl JsonMethod for EditInlineMessageReplyMarkup {}
+
+/// Use this method to stop a poll which was sent by the bot.
+/// On success, the stopped [Poll](https://core.telegram.org/bots/api#poll) is returned.
+#[derive(Serialize)]
+pub struct StopPoll {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Identifier of the original message with the poll
+    pub message_id: i64,
+    /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_markup: Option<InlineKeyboardMarkup>,
+}
+
+impl StopPoll {
+    /// Create a new stopPoll request
+    pub fn new(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+            reply_markup: None,
+        }
+    }
+    /// Set reply markup
+    pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
+        Self {
+            reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for StopPoll {
+    type Response = Poll;
+
+    fn name() -> &'static str {
+        "stopPoll"
+    }
+}
+
+impl JsonMethod for StopPoll {}
+
+/// Use this method to delete a message, including service messages, with the following limitations:
+/// - A message can only be deleted if it was sent less than 48 hours ago.
+/// - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
+/// - Bots can delete outgoing messages in private chats, groups, and supergroups.
+/// - Bots can delete incoming messages in private chats.
+/// - Bots granted *can_post_messages* permissions can delete outgoing messages in channels.
+/// - If the bot is an administrator of a group, it can delete any message there.
+/// - If the bot has *can_delete_messages* permission in a supergroup or a channel, it can delete any message there.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct DeleteMessage {
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Identifier of the message to delete
+    pub message_id: i64,
+}
+
+impl DeleteMessage {
+    /// Create a new deleteMessage request
+    pub fn new(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+        }
+    }
+}
+
+impl TelegramMethod for DeleteMessage {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "deleteMessage"
+    }
+}
+
+impl JsonMethod for DeleteMessage {}

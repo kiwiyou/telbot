@@ -16,7 +16,7 @@ pub async fn main(req: Request, env: Env) -> Result<Response> {
         .post_async("/", |mut req, ctx| async move {
             let update = req.json::<Update>().await.unwrap();
             if let UpdateKind::Message { message } = update.kind {
-                if matches!(message.text(), Some(text) if text.starts_with("/start")) {
+                if matches!(message.kind.text(), Some(text) if text.starts_with("/start")) {
                     let clover = include_bytes!("../clover.jpg");
                     let api = ctx.data();
                     api.send_file(&SendPhoto::new(

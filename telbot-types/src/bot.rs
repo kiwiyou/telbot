@@ -1,9 +1,10 @@
 use crate::chat::ChatId;
 use crate::user::User;
 use crate::{JsonMethod, TelegramMethod};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// This object represents a bot command.
+#[derive(Serialize, Deserialize, Clone)]
 pub struct BotCommand {
     /// Text of the command, 1-32 characters.
     /// Can contain only lowercase English letters, digits and underscores.
@@ -50,6 +51,7 @@ pub struct BotCommand {
 /// - botCommandScopeAllGroupChats
 /// - botCommandScopeDefault + language_code
 /// - botCommandScopeDefault
+#[derive(Serialize)]
 pub enum BotCommandScope {
     /// Default commands are used if no commands with a narrower scope are specified for the user.
     Default,
@@ -128,3 +130,150 @@ impl TelegramMethod for Close {
 }
 
 impl JsonMethod for Close {}
+
+/// Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct SetMyCommands {
+    /// A JSON-serialized list of bot commands to be set as the list of the bot's commands.
+    /// At most 100 commands can be specified.
+    pub commands: Vec<BotCommand>,
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant.
+    /// Defaults to [BotCommandScopeDefault](https://core.telegram.org/bots/api#botcommandscopedefault).
+    pub scope: Option<BotCommandScope>,
+    /// A two-letter ISO 639-1 language code.
+    /// If empty, commands will be applied to all users from the given scope,
+    /// for whose language there are no dedicated commands
+    pub language_code: Option<String>,
+}
+
+impl SetMyCommands {
+    /// Create a new setMyCommands request
+    pub fn new(commands: impl Into<Vec<BotCommand>>) -> Self {
+        Self {
+            commands: commands.into(),
+            scope: None,
+            language_code: None,
+        }
+    }
+
+    /// Set command scope
+    pub fn with_scope(self, scope: BotCommandScope) -> Self {
+        Self {
+            scope: Some(scope),
+            ..self
+        }
+    }
+
+    /// Set language code
+    pub fn with_language_code(self, language_code: impl Into<String>) -> Self {
+        Self {
+            language_code: Some(language_code.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for SetMyCommands {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "setMyCommands"
+    }
+}
+
+impl JsonMethod for SetMyCommands {}
+
+/// Use this method to delete the list of the bot's commands for the given scope and user language.
+/// After deletion, higher level commands will be shown to affected users.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct DeleteMyCommands {
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant.
+    /// Defaults to [BotCommandScopeDefault](https://core.telegram.org/bots/api#botcommandscopedefault).
+    pub scope: Option<BotCommandScope>,
+    /// A two-letter ISO 639-1 language code.
+    /// If empty, commands will be applied to all users from the given scope,
+    /// for whose language there are no dedicated commands
+    pub language_code: Option<String>,
+}
+
+impl DeleteMyCommands {
+    /// Create a new deleteMyCommands request
+    pub fn new() -> Self {
+        Self {
+            scope: None,
+            language_code: None,
+        }
+    }
+    /// Set command scope
+    pub fn with_scope(self, scope: BotCommandScope) -> Self {
+        Self {
+            scope: Some(scope),
+            ..self
+        }
+    }
+
+    /// Set language code
+    pub fn with_language_code(self, language_code: impl Into<String>) -> Self {
+        Self {
+            language_code: Some(language_code.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for DeleteMyCommands {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "deleteMyCommands"
+    }
+}
+
+/// Use this method to get the current list of the bot's commands for the given scope and user language.
+/// Returns Array of [BotCommand](https://core.telegram.org/bots/api#botcommand) on success.
+/// If commands aren't set, an empty list is returned.
+#[derive(Serialize)]
+pub struct GetMyCommands {
+    /// A JSON-serialized object, describing scope of users for which the commands are relevant.
+    /// Defaults to [BotCommandScopeDefault](https://core.telegram.org/bots/api#botcommandscopedefault).
+    pub scope: Option<BotCommandScope>,
+    /// A two-letter ISO 639-1 language code.
+    /// If empty, commands will be applied to all users from the given scope,
+    /// for whose language there are no dedicated commands
+    pub language_code: Option<String>,
+}
+
+impl GetMyCommands {
+    /// Create a new getMyCommands request
+    pub fn new() -> Self {
+        Self {
+            scope: None,
+            language_code: None,
+        }
+    }
+    /// Set command scope
+    pub fn with_scope(self, scope: BotCommandScope) -> Self {
+        Self {
+            scope: Some(scope),
+            ..self
+        }
+    }
+
+    /// Set language code
+    pub fn with_language_code(self, language_code: impl Into<String>) -> Self {
+        Self {
+            language_code: Some(language_code.into()),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for GetMyCommands {
+    type Response = Vec<BotCommand>;
+
+    fn name() -> &'static str {
+        "getMyCommands"
+    }
+}

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::file::InputFileVariant;
+use crate::file::{InputFile, InputFileVariant};
 use crate::message::{
     ChatActionKind, Location, Message, SendAnimation, SendAudio, SendChatAction, SendContact,
     SendDice, SendDocument, SendLocation, SendMediaGroup, SendMessage, SendPhoto, SendPoll,
@@ -1175,3 +1175,444 @@ impl TelegramMethod for DeclineChatJoinRequest {
 }
 
 impl JsonMethod for DeclineChatJoinRequest {}
+
+/// Use this method to set a new profile photo for the chat.
+/// Photos can't be changed for private chats.
+/// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct SetChatPhoto {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    pub chat_id: ChatId,
+    /// New chat photo, uploaded using multipart/form-data
+    pub photo: InputFile,
+}
+
+impl SetChatPhoto {
+    /// Create a new setChatPhoto request
+    pub fn new(chat_id: impl Into<ChatId>, photo: InputFile) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            photo,
+        }
+    }
+}
+
+impl TelegramMethod for SetChatPhoto {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "setChatPhoto"
+    }
+}
+
+impl JsonMethod for SetChatPhoto {}
+
+/// Use this method to delete a chat photo.
+/// Photos can't be changed for private chats.
+/// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct DeleteChatPhoto {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    pub chat_id: ChatId,
+}
+
+impl DeleteChatPhoto {
+    /// Create a new deleteChatPhoto request
+    pub fn new(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+        }
+    }
+}
+
+impl TelegramMethod for DeleteChatPhoto {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "deleteChatPhoto"
+    }
+}
+
+impl JsonMethod for DeleteChatPhoto {}
+
+/// Use this method to change the title of a chat.
+/// Titles can't be changed for private chats.
+/// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct SetChatTitle {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    pub chat_id: ChatId,
+    /// New chat title, 1-255 characters
+    pub title: String,
+}
+
+impl SetChatTitle {
+    /// Create a new setChatTitle request
+    pub fn new(chat_id: impl Into<ChatId>, title: impl Into<String>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            title: title.into(),
+        }
+    }
+}
+
+impl TelegramMethod for SetChatTitle {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "setChatTitle"
+    }
+}
+
+impl JsonMethod for SetChatTitle {}
+
+/// Use this method to change the description of a group, a supergroup or a channel.
+/// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct SetChatDescription {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    pub chat_id: ChatId,
+    /// New chat description, 0-255 characters
+    pub description: Option<String>,
+}
+
+impl SetChatDescription {
+    /// Create a new setChatDescription request which empties the description
+    pub fn new_empty(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            description: None,
+        }
+    }
+
+    /// Create a new setChatDescription request with description
+    pub fn new(chat_id: impl Into<ChatId>, description: impl Into<String>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            description: Some(description.into()),
+        }
+    }
+}
+
+impl TelegramMethod for SetChatDescription {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "setChatDescription"
+    }
+}
+
+/// Use this method to add a message to the list of pinned messages in a chat.
+/// If the chat is not a private chat, the bot must be an administrator in the chat for this to work
+/// and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct PinChatMessage {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Identifier of a message to pin
+    pub message_id: i64,
+    /// Pass True, if it is not necessary to send a notification to all chat members about the new pinned message.
+    /// Notifications are always disabled in channels and private chats.
+    pub disable_notification: Option<bool>,
+}
+
+impl PinChatMessage {
+    /// Create a new pinChatMessage request
+    pub fn new(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id,
+            disable_notification: None,
+        }
+    }
+
+    /// Disable notification about the new pinned message
+    pub fn disable_notification(self) -> Self {
+        Self {
+            disable_notification: Some(true),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for PinChatMessage {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "pinChatMessage"
+    }
+}
+
+impl JsonMethod for PinChatMessage {}
+
+/// Use this method to remove a message from the list of pinned messages in a chat.
+/// If the chat is not a private chat, the bot must be an administrator in the chat for this to work
+/// and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct UnpinChatMessage {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned.
+    pub message_id: Option<i64>,
+}
+
+impl UnpinChatMessage {
+    /// Create a new unpinChatMessage request that unpins the most recent pinned message
+    pub fn new_recent(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id: None,
+        }
+    }
+
+    /// Create a new unpinChatMessage request
+    pub fn new(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            message_id: Some(message_id),
+        }
+    }
+}
+
+impl TelegramMethod for UnpinChatMessage {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "unpinChatMessage"
+    }
+}
+
+impl JsonMethod for UnpinChatMessage {}
+
+/// Use this method to clear the list of pinned messages in a chat.
+/// If the chat is not a private chat, the bot must be an administrator in the chat for this to work
+/// and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct UnpinAllChatMessages {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+}
+
+impl UnpinAllChatMessages {
+    /// Create a new unpinAllChatMessages request
+    pub fn new(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+        }
+    }
+}
+
+impl TelegramMethod for UnpinAllChatMessages {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "unpinAllChatMessages"
+    }
+}
+
+impl JsonMethod for UnpinAllChatMessages {}
+
+/// Use this method for your bot to leave a group, supergroup or channel. Returns _True_ on success.
+#[derive(Serialize)]
+pub struct LeaveChat {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+}
+
+impl LeaveChat {
+    /// Create a new leaveChat request
+    pub fn new(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+        }
+    }
+}
+
+impl TelegramMethod for LeaveChat {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "leaveChat"
+    }
+}
+
+impl JsonMethod for LeaveChat {}
+
+/// Use this method to get up to date information about the chat
+/// (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.).
+/// Returns a Chat object on success.
+#[derive(Serialize)]
+pub struct GetChat {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+}
+
+impl GetChat {
+    /// Create a new getChat request
+    pub fn new(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+        }
+    }
+}
+
+impl TelegramMethod for GetChat {
+    type Response = Chat;
+
+    fn name() -> &'static str {
+        "getChat"
+    }
+}
+
+impl JsonMethod for GetChat {}
+
+/// Use this method to get a list of administrators in a chat.
+/// On success, returns an Array of [ChatMember](https://core.telegram.org/bots/api#chatmember) objects
+/// that contains information about all chat administrators except other bots.
+/// If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
+#[derive(Serialize)]
+pub struct GetChatAdministrators {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+}
+
+impl GetChatAdministrators {
+    /// Create a new getChatAdministrators request
+    pub fn new(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+        }
+    }
+}
+
+impl TelegramMethod for GetChatAdministrators {
+    type Response = Vec<ChatMember>;
+
+    fn name() -> &'static str {
+        "getChatAdministrators"
+    }
+}
+
+impl JsonMethod for GetChatAdministrators {}
+
+/// Use this method to get the number of members in a chat. Returns _Int_ on success.
+#[derive(Serialize)]
+pub struct GetChatMemberCount {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+}
+
+impl GetChatMemberCount {
+    /// Create a new getChatMemberCount request
+    pub fn new(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+        }
+    }
+}
+
+impl TelegramMethod for GetChatMemberCount {
+    type Response = u32;
+
+    fn name() -> &'static str {
+        "getChatMemberCount"
+    }
+}
+
+impl JsonMethod for GetChatMemberCount {}
+
+/// Use this method to get information about a member of a chat.
+/// Returns a [ChatMember](https://core.telegram.org/bots/api#chatmember) object on success.
+#[derive(Serialize)]
+pub struct GetChatMember {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Unique identifier of the target user
+    pub user_id: i64,
+}
+
+impl GetChatMember {
+    /// Create a new getChatMember request
+    pub fn new(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            user_id,
+        }
+    }
+}
+
+impl TelegramMethod for GetChatMember {
+    type Response = ChatMember;
+
+    fn name() -> &'static str {
+        "getChatMember"
+    }
+}
+
+/// Use this method to set a new group sticker set for a supergroup.
+/// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// Use the field *can_set_sticker_set* optionally returned in [getChat](https://core.telegram.org/bots/api#getchat) requests to check if the bot can use this method.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct SetChatStickerSet {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+    /// Name of the sticker set to be set as the group sticker set
+    pub sticker_set_name: String,
+}
+
+impl SetChatStickerSet {
+    /// Create a new setChatStickerSet request
+    pub fn new(chat_id: impl Into<ChatId>, sticker_set_name: impl Into<String>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            sticker_set_name: sticker_set_name.into(),
+        }
+    }
+}
+
+impl TelegramMethod for SetChatStickerSet {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "setChatStickerSet"
+    }
+}
+
+impl JsonMethod for SetChatStickerSet {}
+
+/// Use this method to delete a group sticker set from a supergroup.
+/// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// Use the field *can_set_sticker_set* optionally returned in [getChat](https://core.telegram.org/bots/api#getchat) requests to check if the bot can use this method.
+/// Returns _True_ on success.
+#[derive(Serialize)]
+pub struct DeleteChatStickerSet {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    pub chat_id: ChatId,
+}
+
+impl DeleteChatStickerSet {
+    /// Create a new deleteChatStickerSet request
+    pub fn new(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+        }
+    }
+}
+
+impl TelegramMethod for DeleteChatStickerSet {
+    type Response = bool;
+
+    fn name() -> &'static str {
+        "deleteChatStickerSet"
+    }
+}
+
+impl JsonMethod for DeleteChatStickerSet {}
