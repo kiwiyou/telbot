@@ -1,6 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-use crate::message::{Location, Message};
+use crate::file::{Animation, InputFileVariant};
+use crate::message::{
+    ChatActionKind, Location, Message, SendAnimation, SendAudio, SendChatAction, SendContact,
+    SendDice, SendDocument, SendLocation, SendMediaGroup, SendMessage, SendPhoto, SendPoll,
+    SendVenue, SendVideo, SendVideoNote, SendVoice,
+};
 use crate::user::User;
 
 /// This object represents a chat.
@@ -57,6 +62,92 @@ pub struct Chat {
     /// For supergroups, the location to which the supergroup is connected.
     /// Returned only in getChat.
     pub location: Option<ChatLocation>,
+}
+
+impl Chat {
+    pub fn send_animation(&self, animation: impl Into<InputFileVariant>) -> SendAnimation {
+        SendAnimation::new(self.id, animation)
+    }
+
+    pub fn send_audio(&self, audio: impl Into<InputFileVariant>) -> SendAudio {
+        SendAudio::new(self.id, audio)
+    }
+
+    pub fn send_chat_action(&self, action: ChatActionKind) -> SendChatAction {
+        SendChatAction::new(self.id, action)
+    }
+
+    pub fn send_contact(
+        &self,
+        phone_number: impl Into<String>,
+        first_name: impl Into<String>,
+    ) -> SendContact {
+        SendContact::new(self.id, phone_number, first_name)
+    }
+
+    pub fn send_dice(&self) -> SendDice {
+        SendDice::new(self.id)
+    }
+
+    pub fn send_document(&self, document: impl Into<InputFileVariant>) -> SendDocument {
+        SendDocument::new(self.id, document)
+    }
+
+    pub fn send_location(
+        &self,
+        latitude: f32,
+        longitude: f32,
+        horizontal_accuracy: f32,
+    ) -> SendLocation {
+        SendLocation::new(self.id, latitude, longitude, horizontal_accuracy)
+    }
+
+    pub fn send_media_group(&self) -> SendMediaGroup {
+        SendMediaGroup::new(self.id)
+    }
+
+    pub fn send_message(&self, text: impl Into<String>) -> SendMessage {
+        SendMessage::new(self.id, text)
+    }
+
+    pub fn send_photo(&self, photo: impl Into<InputFileVariant>) -> SendPhoto {
+        SendPhoto::new(self.id, photo)
+    }
+
+    pub fn send_poll(&self, question: impl Into<String>, options: Vec<String>) -> SendPoll {
+        SendPoll::new_regular(self.id, question, options)
+    }
+
+    pub fn send_quiz(
+        &self,
+        question: impl Into<String>,
+        options: Vec<String>,
+        correct_option_id: u32,
+    ) -> SendPoll {
+        SendPoll::new_quiz(self.id, question, options, correct_option_id)
+    }
+
+    pub fn send_venue(
+        &self,
+        latitude: f32,
+        longitude: f32,
+        title: impl Into<String>,
+        address: impl Into<String>,
+    ) -> SendVenue {
+        SendVenue::new(self.id, latitude, longitude, title, address)
+    }
+
+    pub fn send_video(&self, video: impl Into<InputFileVariant>) -> SendVideo {
+        SendVideo::new(self.id, video)
+    }
+
+    pub fn send_video_note(&self, video_note: impl Into<InputFileVariant>) -> SendVideoNote {
+        SendVideoNote::new(self.id, video_note)
+    }
+
+    pub fn send_voice(&self, voice: impl Into<InputFileVariant>) -> SendVoice {
+        SendVoice::new(self.id, voice)
+    }
 }
 
 #[derive(Deserialize)]
