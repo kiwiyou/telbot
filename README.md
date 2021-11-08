@@ -10,3 +10,7 @@ Specifically, telbot now supports:
 - telbot-cf-worker: api wrapper for cloudflare workers
   - get-me request example
   - echo bot example
+  - file(photo) send example
+- telbot-ureq: api wrapper for [ureq](https://github.com/algesten/ureq) client
+  - echo example
+  - file(photo) send example
