@@ -1240,6 +1240,131 @@ impl JsonMethod for ExportChatInviteLink {}
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// The link can be revoked using the method [revokeChatInviteLink](https://core.telegram.org/bots/api#revokechatinvitelink).
 /// Returns the new invite link as [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
+#[derive(Serialize)]
+pub struct CreateChatInviteLink {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    pub chat_id: ChatId,
+    /// Invite link name; 0-32 characters
+    pub name: Option<String>,
+    /// Point in time (Unix timestamp) when the link will expire
+    pub expire_date: Option<u64>,
+    /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+    pub member_limit: Option<u32>,
+    /// _True_, if users joining the chat via the link need to be approved by chat administrators. If _True_, *member_limit* can't be specified
+    pub creates_join_request: Option<bool>,
+}
+
+impl CreateChatInviteLink {
+    /// Create a new createChatInviteLink request
+    pub fn new(chat_id: impl Into<ChatId>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            name: None,
+            expire_date: None,
+            member_limit: None,
+            creates_join_request: None,
+        }
+    }
+    /// Set invite link name
+    pub fn with_name(self, name: impl Into<String>) -> Self {
+        Self {
+            name: Some(name.into()),
+            ..self
+        }
+    }
+    /// Set link expire date
+    pub fn with_expire_date(self, expire_date: u64) -> Self {
+        Self {
+            expire_date: Some(expire_date),
+            ..self
+        }
+    }
+    /// Set link member limit
+    pub fn with_member_limit(self, member_limit: u32) -> Self {
+        Self {
+            member_limit: Some(member_limit),
+            ..self
+        }
+    }
+    /// Set `creates_join_request` to `true`
+    pub fn create_join_reqeuest(self) -> Self {
+        Self {
+            creates_join_request: Some(true),
+            ..self
+        }
+    }
+}
+
+impl TelegramMethod for CreateChatInviteLink {
+    type Response = ChatInviteLink;
+
+    fn name() -> &'static str {
+        "createChatInviteLink"
+    }
+}
+
+impl JsonMethod for CreateChatInviteLink {}
+
+/// Use this method to edit a non-primary invite link created by the bot.
+/// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// Returns the edited invite link as a [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
+#[derive(Serialize)]
+pub struct EditChatInviteLink {
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    pub chat_id: ChatId,
+    /// The invite link to edit
+    pub invite_link: String,
+    /// Invite link name; 0-32 characters
+    pub name: Option<String>,
+    /// Point in time (Unix timestamp) when the link will expire
+    pub expire_date: Option<u64>,
+    /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+    pub member_limit: Option<u32>,
+    /// _True_, if users joining the chat via the link need to be approved by chat administrators. If _True_, *member_limit* can't be specified
+    pub creates_join_request: Option<bool>,
+}
+
+impl EditChatInviteLink {
+    /// Create a new editChatInviteLink request
+    pub fn new(chat_id: impl Into<ChatId>, invite_link: impl Into<String>) -> Self {
+        Self {
+            chat_id: chat_id.into(),
+            invite_link: invite_link.into(),
+            name: None,
+            expire_date: None,
+            member_limit: None,
+            creates_join_request: None,
+        }
+    }
+    /// Set invite link name
+    pub fn with_name(self, name: impl Into<String>) -> Self {
+        Self {
+            name: Some(name.into()),
+            ..self
+        }
+    }
+    /// Set link expire date
+    pub fn with_expire_date(self, expire_date: u64) -> Self {
+        Self {
+            expire_date: Some(expire_date),
+            ..self
+        }
+    }
+    /// Set link member limit
+    pub fn with_member_limit(self, member_limit: u32) -> Self {
+        Self {
+            member_limit: Some(member_limit),
+            ..self
+        }
+    }
+    /// Set `creates_join_request` to `true`
+    pub fn create_join_reqeuest(self) -> Self {
+        Self {
+            creates_join_request: Some(true),
+            ..self
+        }
+    }
+}
 
 /// Use this method to revoke an invite link created by the bot.
 /// If the primary link is revoked, a new link is automatically generated.
