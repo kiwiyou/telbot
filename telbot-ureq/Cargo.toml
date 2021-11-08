@@ -1,8 +1,14 @@
 [package]
 name = "telbot-ureq"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2018"
-authors = ["kiwiyou <kiwiyou.dev@gmail.com>"]
+authors = ["kiwiyou <kiwiyou@kiwiyou.dev>"]
+repository = "https://github.com/kiwiyou/telbot"
+license = "MIT"
+description = "Telegram API wrapper for ureq client"
+categories = ["network-programming"]
+keywords = ["telbot", "telegram", "bot", "client", "ureq"]
+readme = "../README.md"
 
 [dependencies]
 serde = "1.0.130"
@@ -16,3 +22,4 @@ features = ["client"]
 
 [dependencies.telbot-types]
 path = "../telbot-types"
+version = "0.2.0"
