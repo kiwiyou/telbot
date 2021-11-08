@@ -8,7 +8,11 @@ authors = ["kiwiyou <kiwiyou.dev@gmail.com>"]
 serde = "1.0.130"
 serde_json = "1.0.68"
 ureq = { version = "2.3.0", features = ["json"] }
-multipart = "0.18.0"
+
+[dependencies.multipart]
+version = "0.18.0"
+default-features = false
+features = ["client"]
 
 [dependencies.telbot-types]
 path = "../telbot-types"
