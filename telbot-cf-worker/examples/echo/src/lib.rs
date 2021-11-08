@@ -14,7 +14,7 @@ pub async fn main(req: Request, env: Env) -> Result<Response> {
         .post_async("/", |mut req, ctx| async move {
             let update = req.json::<Update>().await.unwrap();
             if let UpdateKind::Message { message } = update.kind {
-                if let Some(text) = message.text() {
+                if let Some(text) = message.kind.text() {
                     console_log!("{}", text);
                     let api = ctx.data();
                     api.send_json(&message.reply_text(text))

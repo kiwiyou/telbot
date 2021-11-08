@@ -1,3 +1,5 @@
+pub mod polling;
+
 use std::io;
 
 use multipart::client::lazy::Multipart;

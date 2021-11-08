@@ -1,7 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-use crate::file::InputFile;
-use crate::message::{Location, Message};
+use crate::file::{InputFile, InputFileVariant, InputMedia};
+use crate::markup::InlineKeyboardMarkup;
+use crate::message::{
+    ChatActionKind, DeleteMessage, EditMessageCaption, EditMessageMedia, EditMessageReplyMarkup,
+    EditMessageText, Location, Message, SendAnimation, SendAudio, SendChatAction, SendContact,
+    SendDice, SendDocument, SendLocation, SendMediaGroup, SendMessage, SendPhoto, SendPoll,
+    SendVenue, SendVideo, SendVideoNote, SendVoice, StopPoll,
+};
 use crate::user::User;
 use crate::{JsonMethod, TelegramMethod};
 
@@ -59,6 +65,248 @@ pub struct Chat {
     /// For supergroups, the location to which the supergroup is connected.
     /// Returned only in getChat.
     pub location: Option<ChatLocation>,
+}
+
+impl Chat {
+    pub fn send_animation(&self, animation: impl Into<InputFileVariant>) -> SendAnimation {
+        SendAnimation::new(self.id, animation)
+    }
+
+    pub fn send_audio(&self, audio: impl Into<InputFileVariant>) -> SendAudio {
+        SendAudio::new(self.id, audio)
+    }
+
+    pub fn send_chat_action(&self, action: ChatActionKind) -> SendChatAction {
+        SendChatAction::new(self.id, action)
+    }
+
+    pub fn send_contact(
+        &self,
+        phone_number: impl Into<String>,
+        first_name: impl Into<String>,
+    ) -> SendContact {
+        SendContact::new(self.id, phone_number, first_name)
+    }
+
+    pub fn send_dice(&self) -> SendDice {
+        SendDice::new(self.id)
+    }
+
+    pub fn send_document(&self, document: impl Into<InputFileVariant>) -> SendDocument {
+        SendDocument::new(self.id, document)
+    }
+
+    pub fn send_location(
+        &self,
+        latitude: f32,
+        longitude: f32,
+        horizontal_accuracy: f32,
+    ) -> SendLocation {
+        SendLocation::new(self.id, latitude, longitude, horizontal_accuracy)
+    }
+
+    pub fn send_media_group(&self) -> SendMediaGroup {
+        SendMediaGroup::new(self.id)
+    }
+
+    pub fn send_message(&self, text: impl Into<String>) -> SendMessage {
+        SendMessage::new(self.id, text)
+    }
+
+    pub fn send_photo(&self, photo: impl Into<InputFileVariant>) -> SendPhoto {
+        SendPhoto::new(self.id, photo)
+    }
+
+    pub fn send_poll(&self, question: impl Into<String>, options: Vec<String>) -> SendPoll {
+        SendPoll::new_regular(self.id, question, options)
+    }
+
+    pub fn send_quiz(
+        &self,
+        question: impl Into<String>,
+        options: Vec<String>,
+        correct_option_id: u32,
+    ) -> SendPoll {
+        SendPoll::new_quiz(self.id, question, options, correct_option_id)
+    }
+
+    pub fn send_venue(
+        &self,
+        latitude: f32,
+        longitude: f32,
+        title: impl Into<String>,
+        address: impl Into<String>,
+    ) -> SendVenue {
+        SendVenue::new(self.id, latitude, longitude, title, address)
+    }
+
+    pub fn send_video(&self, video: impl Into<InputFileVariant>) -> SendVideo {
+        SendVideo::new(self.id, video)
+    }
+
+    pub fn send_video_note(&self, video_note: impl Into<InputFileVariant>) -> SendVideoNote {
+        SendVideoNote::new(self.id, video_note)
+    }
+
+    pub fn send_voice(&self, voice: impl Into<InputFileVariant>) -> SendVoice {
+        SendVoice::new(self.id, voice)
+    }
+
+    pub fn ban(&self, user_id: i64) -> BanChatMember {
+        BanChatMember::new(self.id, user_id)
+    }
+
+    pub fn unban(&self, user_id: i64) -> UnbanChatMember {
+        UnbanChatMember::new(self.id, user_id)
+    }
+
+    pub fn restrict(&self, user_id: i64, permissions: ChatPermissions) -> RestrictChatMember {
+        RestrictChatMember::new(self.id, user_id, permissions)
+    }
+
+    pub fn promote(&self, user_id: i64) -> PromoteChatMember {
+        PromoteChatMember::new(self.id, user_id)
+    }
+
+    pub fn set_administrator_title(
+        &self,
+        user_id: i64,
+        custom_title: impl Into<String>,
+    ) -> SetChatAdministratorCustomTitle {
+        SetChatAdministratorCustomTitle::new(self.id, user_id, custom_title)
+    }
+
+    pub fn set_permissions(&self, permissions: ChatPermissions) -> SetChatPermissions {
+        SetChatPermissions::new(self.id, permissions)
+    }
+
+    pub fn export_invite_link(&self) -> ExportChatInviteLink {
+        ExportChatInviteLink::new(self.id)
+    }
+
+    pub fn create_invite_link(&self) -> CreateChatInviteLink {
+        CreateChatInviteLink::new(self.id)
+    }
+
+    pub fn edit_invite_link(&self, invite_link: impl Into<String>) -> EditChatInviteLink {
+        EditChatInviteLink::new(self.id, invite_link)
+    }
+
+    pub fn revoke_invite_link(&self, invite_link: impl Into<String>) -> RevokeChatInviteLink {
+        RevokeChatInviteLink::new(self.id, invite_link)
+    }
+
+    pub fn approve_join(&self, user_id: i64) -> ApproveChatJoinRequest {
+        ApproveChatJoinRequest::new(self.id, user_id)
+    }
+
+    pub fn decline_join(&self, user_id: i64) -> DeclineChatJoinRequest {
+        DeclineChatJoinRequest::new(self.id, user_id)
+    }
+
+    pub fn set_photo(&self, photo: InputFile) -> SetChatPhoto {
+        SetChatPhoto::new(self.id, photo)
+    }
+
+    pub fn delete_photo(&self) -> DeleteChatPhoto {
+        DeleteChatPhoto::new(self.id)
+    }
+
+    pub fn set_title(&self, title: impl Into<String>) -> SetChatTitle {
+        SetChatTitle::new(self.id, title)
+    }
+
+    pub fn set_description(&self, description: impl Into<String>) -> SetChatDescription {
+        SetChatDescription::new(self.id, description)
+    }
+
+    pub fn remove_description(&self) -> SetChatDescription {
+        SetChatDescription::new_empty(self.id)
+    }
+
+    pub fn pin_message(&self, message_id: i64) -> PinChatMessage {
+        PinChatMessage::new(self.id, message_id)
+    }
+
+    pub fn unpin_message(&self, message_id: i64) -> UnpinChatMessage {
+        UnpinChatMessage::new(self.id, message_id)
+    }
+
+    pub fn unpin_latest_message(&self) -> UnpinChatMessage {
+        UnpinChatMessage::new_recent(self.id)
+    }
+
+    pub fn unpin_all_messages(&self) -> UnpinAllChatMessages {
+        UnpinAllChatMessages::new(self.id)
+    }
+
+    pub fn leave(&self) -> LeaveChat {
+        LeaveChat::new(self.id)
+    }
+
+    pub fn get_details(&self) -> GetChat {
+        GetChat::new(self.id)
+    }
+
+    pub fn get_administrators(&self) -> GetChatAdministrators {
+        GetChatAdministrators::new(self.id)
+    }
+
+    pub fn get_member_count(&self) -> GetChatMemberCount {
+        GetChatMemberCount::new(self.id)
+    }
+
+    pub fn get_member(&self, user_id: i64) -> GetChatMember {
+        GetChatMember::new(self.id, user_id)
+    }
+
+    pub fn set_sticker_set(&self, sticker_set_name: impl Into<String>) -> SetChatStickerSet {
+        SetChatStickerSet::new(self.id, sticker_set_name)
+    }
+
+    pub fn delete_sticker_set(&self) -> DeleteChatStickerSet {
+        DeleteChatStickerSet::new(self.id)
+    }
+
+    pub fn edit_text_of(&self, message_id: i64, text: impl Into<String>) -> EditMessageText {
+        EditMessageText::new(self.id, message_id, text)
+    }
+
+    pub fn remove_caption_of(&self, message_id: i64) -> EditMessageCaption {
+        EditMessageCaption::new_empty(self.id, message_id)
+    }
+
+    pub fn edit_caption_of(
+        &self,
+        message_id: i64,
+        caption: impl Into<String>,
+    ) -> EditMessageCaption {
+        EditMessageCaption::new(self.id, message_id, caption)
+    }
+
+    pub fn edit_media_of(&self, message_id: i64, media: impl Into<InputMedia>) -> EditMessageMedia {
+        EditMessageMedia::new(self.id, message_id, media)
+    }
+
+    pub fn remove_reply_markup_of(&self, message_id: i64) -> EditMessageReplyMarkup {
+        EditMessageReplyMarkup::new_empty(self.id, message_id)
+    }
+
+    pub fn edit_reply_markup_of(
+        &self,
+        message_id: i64,
+        reply_markup: impl Into<InlineKeyboardMarkup>,
+    ) -> EditMessageReplyMarkup {
+        EditMessageReplyMarkup::new(self.id, message_id, reply_markup)
+    }
+
+    pub fn stop_poll(&self, message_id: i64) -> StopPoll {
+        StopPoll::new(self.id, message_id)
+    }
+
+    pub fn delete_message(&self, message_id: i64) -> DeleteMessage {
+        DeleteMessage::new(self.id, message_id)
+    }
 }
 
 #[derive(Deserialize)]
@@ -287,6 +535,214 @@ pub enum ChatMember {
         /// If 0, then the user is banned forever
         until_date: u64,
     },
+}
+
+impl ChatMember {
+    pub fn user(&self) -> &User {
+        match self {
+            ChatMember::Owner { user, .. }
+            | ChatMember::Administrator { user, .. }
+            | ChatMember::Member { user }
+            | ChatMember::Restricted { user, .. }
+            | ChatMember::Left { user }
+            | ChatMember::Banned { user, .. } => user,
+        }
+    }
+
+    pub fn is_anonymous(&self) -> Option<bool> {
+        match self {
+            ChatMember::Owner { is_anonymous, .. }
+            | ChatMember::Administrator { is_anonymous, .. } => Some(*is_anonymous),
+            _ => None,
+        }
+    }
+
+    pub fn custom_title(&self) -> Option<&str> {
+        match self {
+            Self::Owner { custom_title, .. } | Self::Administrator { custom_title, .. } => {
+                custom_title.as_deref()
+            }
+            _ => None,
+        }
+    }
+
+    pub fn can_be_edited(&self) -> Option<bool> {
+        match self {
+            Self::Administrator { can_be_edited, .. } => Some(*can_be_edited),
+            _ => None,
+        }
+    }
+
+    pub fn can_manage_chat(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_manage_chat, ..
+            } => Some(*can_manage_chat),
+            _ => None,
+        }
+    }
+
+    pub fn can_delete_messages(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_delete_messages,
+                ..
+            } => Some(*can_delete_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_manage_voice_chats(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_manage_voice_chats,
+                ..
+            } => Some(*can_manage_voice_chats),
+            _ => None,
+        }
+    }
+
+    pub fn can_restrict_members(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_restrict_members,
+                ..
+            } => Some(*can_restrict_members),
+            _ => None,
+        }
+    }
+
+    pub fn can_promote_members(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_promote_members,
+                ..
+            } => Some(*can_promote_members),
+            _ => None,
+        }
+    }
+
+    pub fn can_change_info(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_change_info, ..
+            }
+            | Self::Restricted {
+                can_change_info, ..
+            } => Some(*can_change_info),
+            _ => None,
+        }
+    }
+
+    pub fn can_invite_users(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_invite_users, ..
+            }
+            | Self::Restricted {
+                can_invite_users, ..
+            } => Some(*can_invite_users),
+            _ => None,
+        }
+    }
+
+    pub fn can_edit_messages(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_edit_messages, ..
+            } => *can_edit_messages,
+            _ => None,
+        }
+    }
+
+    pub fn can_pin_messages(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_pin_messages, ..
+            } => *can_pin_messages,
+            Self::Restricted {
+                can_pin_messages, ..
+            } => Some(*can_pin_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_post_messages(&self) -> Option<bool> {
+        match self {
+            Self::Administrator {
+                can_post_messages, ..
+            } => *can_post_messages,
+            _ => None,
+        }
+    }
+
+    pub fn can_send_messages(&self) -> Option<bool> {
+        match self {
+            Self::Restricted {
+                can_send_messages, ..
+            } => Some(*can_send_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_send_media_messages(&self) -> Option<bool> {
+        match self {
+            Self::Restricted {
+                can_send_media_messages,
+                ..
+            } => Some(*can_send_media_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_send_polls(&self) -> Option<bool> {
+        match self {
+            Self::Restricted { can_send_polls, .. } => Some(*can_send_polls),
+            _ => None,
+        }
+    }
+
+    pub fn can_send_other_messages(&self) -> Option<bool> {
+        match self {
+            Self::Restricted {
+                can_send_other_messages,
+                ..
+            } => Some(*can_send_other_messages),
+            _ => None,
+        }
+    }
+
+    pub fn can_add_web_page_previews(&self) -> Option<bool> {
+        match self {
+            Self::Restricted {
+                can_add_web_page_previews,
+                ..
+            } => Some(*can_add_web_page_previews),
+            _ => None,
+        }
+    }
+
+    pub fn is_member(&self) -> bool {
+        match self {
+            Self::Owner { .. } | Self::Administrator { .. } | Self::Member { .. } => true,
+            Self::Restricted { is_member, .. } => *is_member,
+            ChatMember::Left { .. } | ChatMember::Banned { .. } => false,
+        }
+    }
+
+    pub fn banned_until(&self) -> Option<u64> {
+        match self {
+            Self::Banned { until_date, .. } => Some(*until_date),
+            _ => None,
+        }
+    }
+
+    pub fn restricted_until(&self) -> Option<u64> {
+        match self {
+            Self::Restricted { until_date, .. } => Some(*until_date),
+            _ => None,
+        }
+    }
 }
 
 /// Represents an invite link for a chat.

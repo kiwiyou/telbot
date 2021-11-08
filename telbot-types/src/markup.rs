@@ -95,6 +95,47 @@ pub struct InlineKeyboardMarkup {
     pub inline_keyboard: Vec<Vec<InlineKeyboardButton>>,
 }
 
+impl InlineKeyboardMarkup {
+    /// Create a new InlineKeyboardMarkup with a row.
+    pub fn new_with_row(row: InlineKeyboardRow) -> Self {
+        Self {
+            inline_keyboard: vec![row.buttons],
+        }
+    }
+
+    /// Add a row
+    pub fn with_row(mut self, row: InlineKeyboardRow) -> Self {
+        self.inline_keyboard.push(row.buttons);
+        self
+    }
+}
+
+pub struct InlineKeyboardRow {
+    pub buttons: Vec<InlineKeyboardButton>,
+}
+
+impl InlineKeyboardRow {
+    /// Create a new InlineKeyboardRow
+    pub fn new_with(button: InlineKeyboardButton) -> Self {
+        Self {
+            buttons: vec![button],
+        }
+    }
+    /// Add a InlineKeyboardButton to the row
+    pub fn with(mut self, button: InlineKeyboardButton) -> Self {
+        self.buttons.push(button);
+        self
+    }
+    /// Create and add a InlineKeyboardButton to the row
+    pub fn emplace(mut self, text: impl Into<String>, kind: InlineKeyboardButtonKind) -> Self {
+        self.buttons.push(InlineKeyboardButton {
+            text: text.into(),
+            kind,
+        });
+        self
+    }
+}
+
 /// This object represents one button of an inline keyboard.
 #[derive(Serialize, Deserialize)]
 pub struct InlineKeyboardButton {
@@ -151,6 +192,78 @@ pub enum InlineKeyboardButtonKind {
         /// **NOTE:** This type of button **must** always be the first button in the first row.
         pay: bool,
     },
+}
+
+impl InlineKeyboardButtonKind {
+    pub fn url(&self) -> Option<&str> {
+        match self {
+            Self::Url { url } => Some(url),
+            _ => None,
+        }
+    }
+
+    pub fn login_url(&self) -> Option<&LoginUrl> {
+        match self {
+            Self::Login { login_url } => Some(login_url),
+            _ => None,
+        }
+    }
+
+    pub fn callback_data(&self) -> Option<&str> {
+        match self {
+            Self::Callback { callback_data } => Some(&callback_data),
+            _ => None,
+        }
+    }
+
+    pub fn inline_query_prompt(&self) -> Option<&str> {
+        match self {
+            Self::SwitchInlineQuery {
+                switch_inline_query,
+            } => Some(switch_inline_query),
+            _ => None,
+        }
+    }
+
+    pub fn inline_query_current_chat_prompt(&self) -> Option<&str> {
+        match self {
+            Self::SwitchInlineQueryCurrentChat {
+                switch_inline_query_current_chat,
+            } => Some(switch_inline_query_current_chat),
+            _ => None,
+        }
+    }
+
+    pub fn is_url(&self) -> bool {
+        matches!(self, Self::Url { .. })
+    }
+
+    pub fn is_login(&self) -> bool {
+        matches!(self, Self::Login { .. })
+    }
+
+    pub fn is_callback(&self) -> bool {
+        matches!(self, Self::Callback { .. })
+    }
+
+    pub fn is_switch_inline_query(&self) -> bool {
+        matches!(self, Self::SwitchInlineQuery { .. })
+    }
+
+    pub fn is_switch_inline_query_current_chat(&self) -> bool {
+        matches!(self, Self::SwitchInlineQueryCurrentChat { .. })
+    }
+
+    pub fn is_callback_game(&self) -> bool {
+        matches!(self, Self::CallbackGame { .. })
+    }
+
+    pub fn is_pay(&self) -> bool {
+        match self {
+            Self::Pay { pay } => *pay,
+            _ => false,
+        }
+    }
 }
 
 /// A placeholder, currently holds no information. Use [BotFather](https://t.me/botfather) to set up your game.
@@ -231,6 +344,78 @@ pub enum ParseMode {
     Markdown,
 }
 
+impl ParseMode {
+    /// Escape text to fit to given parse mode
+    pub fn escape(&self, text: impl AsRef<str>) -> String {
+        match self {
+            Self::MarkdownV2 => Self::escape_markdown_v2(text.as_ref()),
+            Self::HTML => Self::escape_html(text.as_ref()),
+            Self::Markdown => Self::escape_markdown(text.as_ref()),
+        }
+    }
+
+    fn escape_markdown_v2(text: &str) -> String {
+        const ESCAPE_CHARS: [char; 18] = [
+            '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.',
+            '!',
+        ];
+        let mut output = String::with_capacity(text.len());
+        let mut block_begin = 0;
+        for (index, char) in text.char_indices() {
+            if ESCAPE_CHARS.contains(&char) {
+                output.push_str(&text[block_begin..index]);
+                output.push('\\');
+                output.push(char);
+                block_begin = index + 1;
+            }
+        }
+        if block_begin < output.len() {
+            output.push_str(&text[block_begin..]);
+        }
+        output
+    }
+
+    fn escape_html(text: &str) -> String {
+        let mut output = String::with_capacity(text.len());
+        let mut block_begin = 0;
+        for (index, char) in text.char_indices() {
+            let replacement = match char {
+                '<' => Some("&lt;"),
+                '>' => Some("&gt;"),
+                '&' => Some("&amp;"),
+                _ => None,
+            };
+            if let Some(replacement) = replacement {
+                output.push_str(&text[block_begin..index]);
+                output.push_str(replacement);
+                block_begin = index + 1;
+            }
+        }
+        if block_begin < output.len() {
+            output.push_str(&text[block_begin..]);
+        }
+        output
+    }
+
+    fn escape_markdown(text: &str) -> String {
+        const ESCAPE_CHARS: [char; 4] = ['_', '*', '`', '['];
+        let mut output = String::with_capacity(text.len());
+        let mut block_begin = 0;
+        for (index, char) in text.char_indices() {
+            if ESCAPE_CHARS.contains(&char) {
+                output.push_str(&text[block_begin..index]);
+                output.push('\\');
+                output.push(char);
+                block_begin = index + 1;
+            }
+        }
+        if block_begin < output.len() {
+            output.push_str(&text[block_begin..]);
+        }
+        output
+    }
+}
+
 /// This object represents one special entity in a text message.
 ///
 /// For example, hashtags, usernames, URLs, etc.
@@ -276,7 +461,7 @@ pub enum MessageEntityKind {
     /// ```monowidth block```
     Pre {
         /// The programming language of the entity text
-        langauge: String,
+        language: String,
     },
     /// clickable text URLs
     TextLink {
@@ -288,6 +473,88 @@ pub enum MessageEntityKind {
         /// The mentioned user
         user: User,
     },
+}
+
+impl MessageEntityKind {
+    pub fn code_language(&self) -> Option<&str> {
+        match self {
+            Self::Pre { language } => Some(language),
+            _ => None,
+        }
+    }
+
+    pub fn clickable_url(&self) -> Option<&str> {
+        match self {
+            Self::TextLink { url } => Some(url),
+            _ => None,
+        }
+    }
+
+    pub fn text_metioned_user(&self) -> Option<&User> {
+        match self {
+            Self::TextMention { user } => Some(user),
+            _ => None,
+        }
+    }
+
+    pub fn is_mention(&self) -> bool {
+        matches!(self, Self::Mention)
+    }
+
+    pub fn is_hashtag(&self) -> bool {
+        matches!(self, Self::Hashtag)
+    }
+
+    pub fn is_cashtag(&self) -> bool {
+        matches!(self, Self::Cashtag)
+    }
+
+    pub fn is_bot_command(&self) -> bool {
+        matches!(self, Self::BotCommand)
+    }
+
+    pub fn is_url(&self) -> bool {
+        matches!(self, Self::Url)
+    }
+
+    pub fn is_email(&self) -> bool {
+        matches!(self, Self::Email)
+    }
+
+    pub fn is_phone_number(&self) -> bool {
+        matches!(self, Self::PhoneNumber)
+    }
+
+    pub fn is_bold(&self) -> bool {
+        matches!(self, Self::Bold)
+    }
+    pub fn is_italic(&self) -> bool {
+        matches!(self, Self::Italic)
+    }
+
+    pub fn is_underline(&self) -> bool {
+        matches!(self, Self::Underline)
+    }
+
+    pub fn is_strikethrough(&self) -> bool {
+        matches!(self, Self::Strikethrough)
+    }
+
+    pub fn is_inline_code(&self) -> bool {
+        matches!(self, Self::Code)
+    }
+
+    pub fn is_code_block(&self) -> bool {
+        matches!(self, Self::Pre { .. })
+    }
+
+    pub fn is_clickable_link(&self) -> bool {
+        matches!(self, Self::TextLink { .. })
+    }
+
+    pub fn is_text_mention(&self) -> bool {
+        matches!(self, Self::TextMention { .. })
+    }
 }
 
 /// Reply markups

@@ -63,7 +63,156 @@ pub enum UpdateKind {
     /// A chat member's status was updated in a chat.
     /// The bot must be an administrator in the chat and must explicitly specify “chat_member”
     /// in the list of *allowed_updates* to receive these updates.
-    ChatMemberUpdated { my_chat_member: ChatMemberUpdated },
+    ChatMemberUpdated { chat_member: ChatMemberUpdated },
+}
+
+impl UpdateKind {
+    pub fn message(&self) -> Option<&Message> {
+        match self {
+            Self::Message { message } => Some(message),
+            _ => None,
+        }
+    }
+
+    pub fn edited_message(&self) -> Option<&Message> {
+        match self {
+            Self::EditedMessage { edited_message } => Some(edited_message),
+            _ => None,
+        }
+    }
+
+    pub fn channel_post(&self) -> Option<&Message> {
+        match self {
+            Self::ChannelPost { channel_post } => Some(channel_post),
+            _ => None,
+        }
+    }
+
+    pub fn edited_channel_post(&self) -> Option<&Message> {
+        match self {
+            Self::EditedChannelPost {
+                edited_channel_post,
+            } => Some(edited_channel_post),
+            _ => None,
+        }
+    }
+
+    pub fn inline_query(&self) -> Option<&InlineQuery> {
+        match self {
+            Self::InlineQuery { inline_query } => Some(inline_query),
+            _ => None,
+        }
+    }
+
+    pub fn chosen_inline_result(&self) -> Option<&ChosenInlineResult> {
+        match self {
+            Self::ChosenInlineResult {
+                chosen_inline_result,
+            } => Some(chosen_inline_result),
+            _ => None,
+        }
+    }
+
+    pub fn callback_query(&self) -> Option<&CallbackQuery> {
+        match self {
+            Self::CallbackQuery { callback_query } => Some(callback_query),
+            _ => None,
+        }
+    }
+
+    pub fn shipping_query(&self) -> Option<&ShippingQuery> {
+        match self {
+            Self::ShippingQuery { shipping_query } => Some(shipping_query),
+            _ => None,
+        }
+    }
+
+    pub fn pre_checkout_query(&self) -> Option<&PreCheckoutQuery> {
+        match self {
+            Self::PreCheckoutQuery { pre_checkout_query } => Some(pre_checkout_query),
+            _ => None,
+        }
+    }
+
+    pub fn poll(&self) -> Option<&Poll> {
+        match self {
+            Self::Poll { poll } => Some(poll),
+            _ => None,
+        }
+    }
+
+    pub fn poll_answer(&self) -> Option<&PollAnswer> {
+        match self {
+            Self::PollAnswer { poll_answer } => Some(poll_answer),
+            _ => None,
+        }
+    }
+
+    pub fn my_chat_member(&self) -> Option<&ChatMemberUpdated> {
+        match self {
+            Self::MyChatMemberUpdated { my_chat_member } => Some(my_chat_member),
+            _ => None,
+        }
+    }
+
+    pub fn chat_member(&self) -> Option<&ChatMemberUpdated> {
+        match self {
+            Self::ChatMemberUpdated { chat_member } => Some(chat_member),
+            _ => None,
+        }
+    }
+
+    pub fn is_message(&self) -> bool {
+        matches!(self, Self::Message { .. })
+    }
+
+    pub fn is_edited_message(&self) -> bool {
+        matches!(self, Self::EditedMessage { .. })
+    }
+
+    pub fn is_channel_post(&self) -> bool {
+        matches!(self, Self::ChannelPost { .. })
+    }
+
+    pub fn is_edited_channel_post(&self) -> bool {
+        matches!(self, Self::EditedChannelPost { .. })
+    }
+
+    pub fn is_inline_query(&self) -> bool {
+        matches!(self, Self::InlineQuery { .. })
+    }
+
+    pub fn is_chosen_inline_result(&self) -> bool {
+        matches!(self, Self::ChosenInlineResult { .. })
+    }
+
+    pub fn is_callback_query(&self) -> bool {
+        matches!(self, Self::CallbackQuery { .. })
+    }
+
+    pub fn is_shipping_query(&self) -> bool {
+        matches!(self, Self::ShippingQuery { .. })
+    }
+
+    pub fn is_pre_checkout_query(&self) -> bool {
+        matches!(self, Self::PreCheckoutQuery { .. })
+    }
+
+    pub fn is_poll(&self) -> bool {
+        matches!(self, Self::Poll { .. })
+    }
+
+    pub fn is_poll_answer(&self) -> bool {
+        matches!(self, Self::PollAnswer { .. })
+    }
+
+    pub fn is_my_chat_member_updated(&self) -> bool {
+        matches!(self, Self::MyChatMemberUpdated { .. })
+    }
+
+    pub fn is_chat_member_updated(&self) -> bool {
+        matches!(self, Self::ChatMemberUpdated { .. })
+    }
 }
 
 /// Use this method to receive incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)).
