@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::chat::{Chat, ChatId};
+use crate::chat::{Chat, ChatId, PinChatMessage, UnpinChatMessage};
 use crate::file::{
     Animation, Audio, Document, InputFile, InputFileVariant, InputMedia, PhotoSize, Video,
     VideoNote, Voice,
@@ -72,6 +72,49 @@ impl Message {
 
     pub fn copy_to(&self, chat_id: impl Into<ChatId>) -> CopyMessage {
         CopyMessage::new(chat_id, self.chat.id, self.message_id)
+    }
+
+    pub fn pin(&self) -> PinChatMessage {
+        PinChatMessage::new(self.chat.id, self.message_id)
+    }
+
+    pub fn unpin(&self) -> UnpinChatMessage {
+        UnpinChatMessage::new(self.chat.id, self.message_id)
+    }
+
+    pub fn edit_text(&self, text: impl Into<String>) -> EditMessageText {
+        EditMessageText::new(self.chat.id, self.message_id, text)
+    }
+
+    pub fn remove_caption(&self) -> EditMessageCaption {
+        EditMessageCaption::new_empty(self.chat.id, self.message_id)
+    }
+
+    pub fn edit_caption(&self, caption: impl Into<String>) -> EditMessageCaption {
+        EditMessageCaption::new(self.chat.id, self.message_id, caption)
+    }
+
+    pub fn edit_media(&self, media: impl Into<InputMedia>) -> EditMessageMedia {
+        EditMessageMedia::new(self.chat.id, self.message_id, media)
+    }
+
+    pub fn remove_reply_markup(&self) -> EditMessageReplyMarkup {
+        EditMessageReplyMarkup::new_empty(self.chat.id, self.message_id)
+    }
+
+    pub fn edit_reply_markup(
+        &self,
+        reply_markup: impl Into<InlineKeyboardMarkup>,
+    ) -> EditMessageReplyMarkup {
+        EditMessageReplyMarkup::new(self.chat.id, self.message_id, reply_markup)
+    }
+
+    pub fn stop_poll(&self) -> StopPoll {
+        StopPoll::new(self.chat.id, self.message_id)
+    }
+
+    pub fn delete(&self) -> DeleteMessage {
+        DeleteMessage::new(self.chat.id, self.message_id)
     }
 }
 

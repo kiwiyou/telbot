@@ -1,10 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-use crate::file::{InputFile, InputFileVariant};
+use crate::file::{InputFile, InputFileVariant, InputMedia};
+use crate::markup::InlineKeyboardMarkup;
 use crate::message::{
-    ChatActionKind, Location, Message, SendAnimation, SendAudio, SendChatAction, SendContact,
+    ChatActionKind, DeleteMessage, EditMessageCaption, EditMessageMedia, EditMessageReplyMarkup,
+    EditMessageText, Location, Message, SendAnimation, SendAudio, SendChatAction, SendContact,
     SendDice, SendDocument, SendLocation, SendMediaGroup, SendMessage, SendPhoto, SendPoll,
-    SendVenue, SendVideo, SendVideoNote, SendVoice,
+    SendVenue, SendVideo, SendVideoNote, SendVoice, StopPoll,
 };
 use crate::user::User;
 use crate::{JsonMethod, TelegramMethod};
@@ -148,6 +150,158 @@ impl Chat {
 
     pub fn send_voice(&self, voice: impl Into<InputFileVariant>) -> SendVoice {
         SendVoice::new(self.id, voice)
+    }
+
+    pub fn ban(&self, user_id: i64) -> BanChatMember {
+        BanChatMember::new(self.id, user_id)
+    }
+
+    pub fn unban(&self, user_id: i64) -> UnbanChatMember {
+        UnbanChatMember::new(self.id, user_id)
+    }
+
+    pub fn restrict(&self, user_id: i64, permissions: ChatPermissions) -> RestrictChatMember {
+        RestrictChatMember::new(self.id, user_id, permissions)
+    }
+
+    pub fn promote(&self, user_id: i64) -> PromoteChatMember {
+        PromoteChatMember::new(self.id, user_id)
+    }
+
+    pub fn set_administrator_title(
+        &self,
+        user_id: i64,
+        custom_title: impl Into<String>,
+    ) -> SetChatAdministratorCustomTitle {
+        SetChatAdministratorCustomTitle::new(self.id, user_id, custom_title)
+    }
+
+    pub fn set_permissions(&self, permissions: ChatPermissions) -> SetChatPermissions {
+        SetChatPermissions::new(self.id, permissions)
+    }
+
+    pub fn export_invite_link(&self) -> ExportChatInviteLink {
+        ExportChatInviteLink::new(self.id)
+    }
+
+    // Fixme: create_invite_link
+
+    // Fixme: edit_invite_link
+
+    pub fn revoke_invite_link(&self, invite_link: impl Into<String>) -> RevokeChatInviteLink {
+        RevokeChatInviteLink::new(self.id, invite_link)
+    }
+
+    pub fn approve_join(&self, user_id: i64) -> ApproveChatJoinRequest {
+        ApproveChatJoinRequest::new(self.id, user_id)
+    }
+
+    pub fn decline_join(&self, user_id: i64) -> DeclineChatJoinRequest {
+        DeclineChatJoinRequest::new(self.id, user_id)
+    }
+
+    pub fn set_photo(&self, photo: InputFile) -> SetChatPhoto {
+        SetChatPhoto::new(self.id, photo)
+    }
+
+    pub fn delete_photo(&self) -> DeleteChatPhoto {
+        DeleteChatPhoto::new(self.id)
+    }
+
+    pub fn set_title(&self, title: impl Into<String>) -> SetChatTitle {
+        SetChatTitle::new(self.id, title)
+    }
+
+    pub fn set_description(&self, description: impl Into<String>) -> SetChatDescription {
+        SetChatDescription::new(self.id, description)
+    }
+
+    pub fn remove_description(&self) -> SetChatDescription {
+        SetChatDescription::new_empty(self.id)
+    }
+
+    pub fn pin_message(&self, message_id: i64) -> PinChatMessage {
+        PinChatMessage::new(self.id, message_id)
+    }
+
+    pub fn unpin_message(&self, message_id: i64) -> UnpinChatMessage {
+        UnpinChatMessage::new(self.id, message_id)
+    }
+
+    pub fn unpin_latest_message(&self) -> UnpinChatMessage {
+        UnpinChatMessage::new_recent(self.id)
+    }
+
+    pub fn unpin_all_messages(&self) -> UnpinAllChatMessages {
+        UnpinAllChatMessages::new(self.id)
+    }
+
+    pub fn leave(&self) -> LeaveChat {
+        LeaveChat::new(self.id)
+    }
+
+    pub fn get_details(&self) -> GetChat {
+        GetChat::new(self.id)
+    }
+
+    pub fn get_administrators(&self) -> GetChatAdministrators {
+        GetChatAdministrators::new(self.id)
+    }
+
+    pub fn get_member_count(&self) -> GetChatMemberCount {
+        GetChatMemberCount::new(self.id)
+    }
+
+    pub fn get_member(&self, user_id: i64) -> GetChatMember {
+        GetChatMember::new(self.id, user_id)
+    }
+
+    pub fn set_sticker_set(&self, sticker_set_name: impl Into<String>) -> SetChatStickerSet {
+        SetChatStickerSet::new(self.id, sticker_set_name)
+    }
+
+    pub fn delete_sticker_set(&self) -> DeleteChatStickerSet {
+        DeleteChatStickerSet::new(self.id)
+    }
+
+    pub fn edit_text_of(&self, message_id: i64, text: impl Into<String>) -> EditMessageText {
+        EditMessageText::new(self.id, message_id, text)
+    }
+
+    pub fn remove_caption_of(&self, message_id: i64) -> EditMessageCaption {
+        EditMessageCaption::new_empty(self.id, message_id)
+    }
+
+    pub fn edit_caption_of(
+        &self,
+        message_id: i64,
+        caption: impl Into<String>,
+    ) -> EditMessageCaption {
+        EditMessageCaption::new(self.id, message_id, caption)
+    }
+
+    pub fn edit_media_of(&self, message_id: i64, media: impl Into<InputMedia>) -> EditMessageMedia {
+        EditMessageMedia::new(self.id, message_id, media)
+    }
+
+    pub fn remove_reply_markup_of(&self, message_id: i64) -> EditMessageReplyMarkup {
+        EditMessageReplyMarkup::new_empty(self.id, message_id)
+    }
+
+    pub fn edit_reply_markup_of(
+        &self,
+        message_id: i64,
+        reply_markup: impl Into<InlineKeyboardMarkup>,
+    ) -> EditMessageReplyMarkup {
+        EditMessageReplyMarkup::new(self.id, message_id, reply_markup)
+    }
+
+    pub fn stop_poll(&self, message_id: i64) -> StopPoll {
+        StopPoll::new(self.id, message_id)
+    }
+
+    pub fn delete_message(&self, message_id: i64) -> DeleteMessage {
+        DeleteMessage::new(self.id, message_id)
     }
 }
 
@@ -1081,6 +1235,11 @@ impl TelegramMethod for ExportChatInviteLink {
 }
 
 impl JsonMethod for ExportChatInviteLink {}
+
+/// Use this method to create an additional invite link for a chat.
+/// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
+/// The link can be revoked using the method [revokeChatInviteLink](https://core.telegram.org/bots/api#revokechatinvitelink).
+/// Returns the new invite link as [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
 
 /// Use this method to revoke an invite link created by the bot.
 /// If the primary link is revoked, a new link is automatically generated.
