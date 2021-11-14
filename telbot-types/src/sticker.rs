@@ -2,7 +2,7 @@ use crate::file::PhotoSize;
 use serde::Deserialize;
 
 /// This object represents a sticker.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Sticker {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -28,7 +28,7 @@ pub struct Sticker {
 }
 
 /// This object describes the position on faces where a mask should be placed by default.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct MaskPosition {
     /// The part of the face relative to which the mask should be placed.
     /// One of “forehead”, “eyes”, “mouth”, or “chin”.
@@ -44,7 +44,7 @@ pub struct MaskPosition {
 }
 
 /// The part of the face used in masked stickers.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Hash)]
 pub enum MaskPoint {
     Forehead,
     Eyes,

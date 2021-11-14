@@ -30,7 +30,7 @@ pub trait FileMethod: TelegramMethod + Serialize {
 }
 
 /// Api response
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum ApiResponse<T: DeserializeOwned> {
     Ok {

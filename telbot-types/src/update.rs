@@ -8,7 +8,7 @@ use crate::{JsonMethod, TelegramMethod};
 
 /// This object represents an incoming update.
 /// At most **one** of the optional parameters can be present in any given update.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Update {
     /// The update's unique identifier.
     /// Update identifiers start from a certain positive number and increase sequentially.
@@ -23,7 +23,7 @@ pub struct Update {
 }
 
 /// Update type
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateKind {
     /// New incoming message of any kind — text, photo, sticker, etc.
@@ -216,7 +216,7 @@ impl UpdateKind {
 }
 
 /// Use this method to receive incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)).
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetUpdates {
     /// Identifier of the first update to be returned.
     /// Must be greater by one than the highest among the identifiers of previously received updates.

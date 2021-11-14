@@ -12,7 +12,7 @@ use crate::user::User;
 use crate::{JsonMethod, TelegramMethod};
 
 /// This object represents a chat.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Chat {
     /// Unique identifier for this chat.
     pub id: i64,
@@ -309,7 +309,7 @@ impl Chat {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum ChatKind {
     Private,
@@ -319,7 +319,7 @@ pub enum ChatKind {
 }
 
 /// This object represents a chat photo.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ChatPhoto {
     /// File identifier of small (160x160) chat photo.
     /// This file_id can be used only for photo download
@@ -339,7 +339,7 @@ pub struct ChatPhoto {
     pub big_file_unique_id: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ChatLocation {
     /// The location to which the supergroup is connected.
     /// Can't be a live location.
@@ -349,7 +349,7 @@ pub struct ChatLocation {
 }
 
 /// Describes actions that a non-administrator user is allowed to take in a chat.
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ChatPermissions {
     /// True, if the user is allowed to send text messages, contacts, locations and venues
     pub can_send_messages: Option<bool>,
@@ -437,7 +437,7 @@ impl ChatPermissions {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "status")]
 pub enum ChatMember {
     /// Represents a [chat member](https://core.telegram.org/bots/api#chatmember)
@@ -746,7 +746,7 @@ impl ChatMember {
 }
 
 /// Represents an invite link for a chat.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ChatInviteLink {
     /// The invite link.
     /// If the link was created by another chat administrator,
@@ -765,7 +765,7 @@ pub struct ChatInviteLink {
 }
 
 /// This object represents changes in the status of a chat member.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ChatMemberUpdated {
     /// Chat the user belongs to
     pub chat: Chat,
@@ -783,7 +783,7 @@ pub struct ChatMemberUpdated {
 }
 
 /// Chat identifier
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(untagged)]
 pub enum ChatId {
     Id(i64),
@@ -813,7 +813,7 @@ impl From<&str> for ChatId {
 /// on their own using invite links, etc., unless unbanned first.
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Returns True on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct BanChatMember {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -875,7 +875,7 @@ impl JsonMethod for BanChatMember {}
 /// So if the user is a member of the chat they will also be **removed** from the chat.
 /// If you don't want this, use the parameter *only_if_banned*.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct UnbanChatMember {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -918,7 +918,7 @@ impl JsonMethod for UnbanChatMember {}
 /// The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights.
 /// Pass *True* for all permissions to lift restrictions from a user.
 /// Returns *True* on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct RestrictChatMember {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -966,7 +966,7 @@ impl JsonMethod for RestrictChatMember {}
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Pass _False_ for all boolean parameters to demote a user.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct PromoteChatMember {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1141,7 +1141,7 @@ impl JsonMethod for PromoteChatMember {}
 
 /// Use this method to set a custom title for an administrator in a supergroup promoted by the bot.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SetChatAdministratorCustomTitle {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1175,7 +1175,7 @@ impl JsonMethod for SetChatAdministratorCustomTitle {}
 /// Use this method to set default chat permissions for all members.
 /// The bot must be an administrator in the group or a supergroup for this to work and must have the *can_restrict_members* administrator rights.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SetChatPermissions {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1215,7 +1215,7 @@ impl JsonMethod for SetChatPermissions {}
 /// or by calling the [getChat](https://core.telegram.org/bots/api#getchat) method.
 /// If your bot needs to generate a new primary invite link replacing its previous one,
 /// use [exportChatInviteLink](https://core.telegram.org/bots/api#exportchatinvitelink) again.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct ExportChatInviteLink {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1244,7 +1244,7 @@ impl JsonMethod for ExportChatInviteLink {}
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// The link can be revoked using the method [revokeChatInviteLink](https://core.telegram.org/bots/api#revokechatinvitelink).
 /// Returns the new invite link as [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct CreateChatInviteLink {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1312,7 +1312,7 @@ impl JsonMethod for CreateChatInviteLink {}
 /// Use this method to edit a non-primary invite link created by the bot.
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Returns the edited invite link as a [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditChatInviteLink {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1374,7 +1374,7 @@ impl EditChatInviteLink {
 /// If the primary link is revoked, a new link is automatically generated.
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Returns the revoked invite link as [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct RevokeChatInviteLink {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1405,7 +1405,7 @@ impl JsonMethod for RevokeChatInviteLink {}
 /// Use this method to approve a chat join request.
 /// The bot must be an administrator in the chat for this to work and must have the *can_invite_users* administrator right.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct ApproveChatJoinRequest {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1436,7 +1436,7 @@ impl JsonMethod for ApproveChatJoinRequest {}
 /// Use this method to decline a chat join request.
 /// The bot must be an administrator in the chat for this to work and must have the *can_invite_users* administrator right.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct DeclineChatJoinRequest {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1468,7 +1468,7 @@ impl JsonMethod for DeclineChatJoinRequest {}
 /// Photos can't be changed for private chats.
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SetChatPhoto {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1500,7 +1500,7 @@ impl JsonMethod for SetChatPhoto {}
 /// Photos can't be changed for private chats.
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct DeleteChatPhoto {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1529,7 +1529,7 @@ impl JsonMethod for DeleteChatPhoto {}
 /// Titles can't be changed for private chats.
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SetChatTitle {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1560,7 +1560,7 @@ impl JsonMethod for SetChatTitle {}
 /// Use this method to change the description of a group, a supergroup or a channel.
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SetChatDescription {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
@@ -1598,7 +1598,7 @@ impl TelegramMethod for SetChatDescription {
 /// If the chat is not a private chat, the bot must be an administrator in the chat for this to work
 /// and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct PinChatMessage {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1642,7 +1642,7 @@ impl JsonMethod for PinChatMessage {}
 /// If the chat is not a private chat, the bot must be an administrator in the chat for this to work
 /// and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct UnpinChatMessage {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1682,7 +1682,7 @@ impl JsonMethod for UnpinChatMessage {}
 /// If the chat is not a private chat, the bot must be an administrator in the chat for this to work
 /// and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct UnpinAllChatMessages {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1708,7 +1708,7 @@ impl TelegramMethod for UnpinAllChatMessages {
 impl JsonMethod for UnpinAllChatMessages {}
 
 /// Use this method for your bot to leave a group, supergroup or channel. Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct LeaveChat {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1736,7 +1736,7 @@ impl JsonMethod for LeaveChat {}
 /// Use this method to get up to date information about the chat
 /// (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.).
 /// Returns a Chat object on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetChat {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1765,7 +1765,7 @@ impl JsonMethod for GetChat {}
 /// On success, returns an Array of [ChatMember](https://core.telegram.org/bots/api#chatmember) objects
 /// that contains information about all chat administrators except other bots.
 /// If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetChatAdministrators {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1791,7 +1791,7 @@ impl TelegramMethod for GetChatAdministrators {
 impl JsonMethod for GetChatAdministrators {}
 
 /// Use this method to get the number of members in a chat. Returns _Int_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetChatMemberCount {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1818,7 +1818,7 @@ impl JsonMethod for GetChatMemberCount {}
 
 /// Use this method to get information about a member of a chat.
 /// Returns a [ChatMember](https://core.telegram.org/bots/api#chatmember) object on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetChatMember {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1848,7 +1848,7 @@ impl TelegramMethod for GetChatMember {
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Use the field *can_set_sticker_set* optionally returned in [getChat](https://core.telegram.org/bots/api#getchat) requests to check if the bot can use this method.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SetChatStickerSet {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1880,7 +1880,7 @@ impl JsonMethod for SetChatStickerSet {}
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Use the field *can_set_sticker_set* optionally returned in [getChat](https://core.telegram.org/bots/api#getchat) requests to check if the bot can use this method.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct DeleteChatStickerSet {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,

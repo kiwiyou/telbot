@@ -8,7 +8,7 @@ use crate::{JsonMethod, TelegramMethod};
 
 /// This object represents an incoming inline query.
 /// When the user sends an empty query, your bot could return some default or trending results.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct InlineQuery {
     /// Unique identifier for this query
     pub id: String,
@@ -26,7 +26,7 @@ pub struct InlineQuery {
     pub location: Option<Location>,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ChosenInlineResult {}
 
 /// This object represents an incoming callback query from a callback button in an
@@ -41,7 +41,7 @@ pub struct ChosenInlineResult {}
 /// > Telegram clients will display a progress bar until you call [answerCallbackQuery](https://core.telegram.org/bots/api#answercallbackquery).
 /// > It is, therefore, necessary to react by calling [answerCallbackQuery](https://core.telegram.org/bots/api#answercallbackquery)
 /// > even if no notification to the user is needed (e.g., without specifying any of the optional parameters).
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct CallbackQuery {
     /// Unique identifier for this query
     pub id: String,
@@ -90,7 +90,7 @@ pub struct CallbackQuery {
 ///
 /// **Note:** All URLs passed in inline query results will be available to end users
 /// and therefore must be assumed to be **public**.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct InlineQueryResult {
     /// Unique identifier for this result, 1-64 bytes
     pub id: String,
@@ -115,7 +115,7 @@ impl InlineQueryResult {
 }
 
 /// Inline query result type
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(untagged)]
 pub enum InlineQueryResultKind {
     /// Represents a link to an article or web page.
@@ -737,7 +737,7 @@ impl InlineQueryResultKind {
 /// - [InputContactMessageContent](https://core.telegram.org/bots/api#inputcontactmessagecontent)
 /// - [InputInvoiceMessageContent](https://core.telegram.org/bots/api#inputinvoicemessagecontent)
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(untagged)]
 pub enum InputMessageContent {
     /// Represents the [content](https://core.telegram.org/bots/api#inputmessagecontent)
@@ -913,7 +913,7 @@ pub enum InputMessageContent {
 /// > For this option to work, you must first create a game for your bot via [@Botfather](https://t.me/botfather) and accept the terms.
 ///
 /// Otherwise, you may use links like `t.me/your_bot?start=XXXX` that open your bot with a parameter.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct AnswerCallbackQuery {
     /// Unique identifier for the query to be answered
     pub callback_query_id: String,
@@ -991,7 +991,7 @@ impl JsonMethod for AnswerCallbackQuery {}
 
 /// Use this method to send answers to an inline query. On success, True is returned.
 /// No more than 50 results per query are allowed.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct AnswerInlineQuery {
     /// Unique identifier for the answered query
     pub inline_query_id: String,

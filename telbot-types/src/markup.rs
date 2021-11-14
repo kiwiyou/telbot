@@ -4,7 +4,7 @@ use crate::user::User;
 
 /// This object represents a [custom keyboard](https://core.telegram.org/bots#keyboards) with reply options
 /// (see [Introduction to bots](https://core.telegram.org/bots#keyboards) for details and examples).
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReplyKeyboardMarkup {
     /// Array of button rows, each represented by an Array of [KeyboardButton](https://core.telegram.org/bots/api#keyboardbutton) objects
     pub keyboard: Vec<Vec<KeyboardButton>>,
@@ -39,7 +39,7 @@ pub struct ReplyKeyboardMarkup {
 /// Older clients will display *unsupported message*.
 /// - *request_poll* option will only work in Telegram versions released after 23 January, 2020.
 /// Older clients will display *unsupported message*.
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KeyboardButton {
     /// Text of the button. If none of the optional fields are used,
     /// it will be sent as a message when the button is pressed
@@ -56,7 +56,7 @@ pub struct KeyboardButton {
 }
 
 /// This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KeyboardButtonPollType {
     /// If *quiz* is passed, the user will be allowed to create only polls in the quiz mode.
     /// If *regular* is passed, only regular polls will be allowed.
@@ -69,7 +69,7 @@ pub struct KeyboardButtonPollType {
 ///
 /// By default, custom keyboards are displayed until a new keyboard is sent by a bot.
 /// An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup).
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReplyKeyboardRemove {
     /// Requests clients to remove the custom keyboard
     /// (user will not be able to summon this keyboard;
@@ -89,7 +89,7 @@ pub struct ReplyKeyboardRemove {
 
 /// This object represents an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating)
 /// that appears right next to the message it belongs to.
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InlineKeyboardMarkup {
     /// Array of button rows, each represented by an Array of [InlineKeyboardButton](https://core.telegram.org/bots/api#inlinekeyboardbutton) objects
     pub inline_keyboard: Vec<Vec<InlineKeyboardButton>>,
@@ -137,7 +137,7 @@ impl InlineKeyboardRow {
 }
 
 /// This object represents one button of an inline keyboard.
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InlineKeyboardButton {
     /// Label text on the button
     pub text: String,
@@ -147,7 +147,7 @@ pub struct InlineKeyboardButton {
 }
 
 /// Inline keyboard button type
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineKeyboardButtonKind {
     Url {
@@ -267,7 +267,7 @@ impl InlineKeyboardButtonKind {
 }
 
 /// A placeholder, currently holds no information. Use [BotFather](https://t.me/botfather) to set up your game.
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CallbackGame;
 
 /// This object represents a parameter of the inline keyboard button used to automatically authorize a user.
@@ -278,7 +278,7 @@ pub struct CallbackGame;
 /// ![TITLE](https://core.telegram.org/file/811140015/1734/8VZFkwWXalM.97872/6127fa62d8a0bf2b3c)
 /// Telegram apps support buttons as of [version 5.7](https://telegram.org/blog/privacy-discussions-web-bots#meet-seamless-web-bots)
 /// > Sample bot: [@discussbot](https://t.me/discussbot)
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginUrl {
     /// An HTTP URL to be opened with user authorization data added to the query string when the button is pressed.
     ///
@@ -320,7 +320,7 @@ pub struct LoginUrl {
 /// > it will receive the user's answers even if it only receives replies, commands and mentions
 /// > — without any extra work for the user.
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ForceReply {
     /// Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
     force_reply: bool,
@@ -337,7 +337,7 @@ pub struct ForceReply {
     pub selective: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Clone, Serialize, Deserialize, Copy, PartialEq, Eq, Hash)]
 pub enum ParseMode {
     MarkdownV2,
     HTML,
@@ -419,7 +419,7 @@ impl ParseMode {
 /// This object represents one special entity in a text message.
 ///
 /// For example, hashtags, usernames, URLs, etc.
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageEntity {
     /// Type of the entity
     #[serde(flatten)]
@@ -431,7 +431,7 @@ pub struct MessageEntity {
 }
 
 /// Type of the message entity
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum MessageEntityKind {
     /// `@username`
@@ -558,7 +558,7 @@ impl MessageEntityKind {
 }
 
 /// Reply markups
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(untagged)]
 pub enum ReplyMarkup {
     InlineKeyboard(InlineKeyboardMarkup),

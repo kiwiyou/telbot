@@ -4,7 +4,7 @@ use crate::markup::{MessageEntity, ParseMode};
 use crate::{JsonMethod, TelegramMethod};
 
 /// This object represents an animation file (GIF or H.264/MPEG-4 AVC video without sound).
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Animation {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -28,7 +28,7 @@ pub struct Animation {
 }
 
 /// This object represents an audio file to be treated as music by the Telegram clients.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Audio {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -55,7 +55,7 @@ pub struct Audio {
 /// [photos](https://core.telegram.org/bots/api#photosize),
 /// [voice messages](https://core.telegram.org/bots/api#voice) and
 /// [audio files](https://core.telegram.org/bots/api#audio)).
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Document {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -75,7 +75,7 @@ pub struct Document {
 /// This object represents one size of a photo or a
 /// [file](https://core.telegram.org/bots/api#document) /
 /// [sticker](https://core.telegram.org/bots/api#sticker) thumbnail.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct PhotoSize {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -91,7 +91,7 @@ pub struct PhotoSize {
 }
 
 /// This object represents a video file.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Video {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -116,7 +116,7 @@ pub struct Video {
 
 /// This object represents a [video message](https://telegram.org/blog/video-messages-and-telescope)
 /// (available in Telegram apps as of [v.4.0](https://telegram.org/blog/video-messages-and-telescope)).
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct VideoNote {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -134,7 +134,7 @@ pub struct VideoNote {
 }
 
 /// This object represents a voice note.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Voice {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -154,7 +154,7 @@ pub struct Voice {
 /// The file can be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`.
 /// It is guaranteed that the link will be valid for at least 1 hour.
 /// When the link expires, a new one can be requested by calling [getFile](https://core.telegram.org/bots/api#getfile).
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct File {
     /// Identifier for this file, which can be used to download or reuse the file
     pub file_id: String,
@@ -174,7 +174,7 @@ pub struct File {
 /// - InputMediaAudio
 /// - InputMediaPhoto
 /// - InputMediaVideo
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum InputMedia {
     /// Represents a photo to be sent.
@@ -336,7 +336,7 @@ pub enum InputMedia {
 }
 
 /// Thumbnail type.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(untagged)]
 pub enum InputFileVariant {
     /// Use existing file
@@ -363,6 +363,7 @@ impl From<&str> for InputFileVariant {
     }
 }
 
+#[derive(Clone)]
 pub struct InputFile {
     pub name: String,
     pub data: Vec<u8>,
@@ -387,7 +388,7 @@ impl Serialize for InputFile {
 ///
 /// **Note:** This function may not preserve the original file name and MIME type.
 /// You should save the file's MIME type and name (if available) when the File object is received.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetFile {
     /// File identifier to get info about
     pub file_id: String,

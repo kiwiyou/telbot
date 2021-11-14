@@ -51,7 +51,7 @@ pub struct BotCommand {
 /// - botCommandScopeAllGroupChats
 /// - botCommandScopeDefault + language_code
 /// - botCommandScopeDefault
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub enum BotCommandScope {
     /// Default commands are used if no commands with a narrower scope are specified for the user.
     Default,
@@ -83,7 +83,7 @@ pub enum BotCommandScope {
 /// A simple method for testing your bot's auth token. Requires no parameters.
 ///
 /// Returns basic information about the bot in form of a User object.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetMe;
 
 impl TelegramMethod for GetMe {
@@ -101,7 +101,7 @@ impl JsonMethod for GetMe {}
 /// You **must** log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates.
 /// After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes.
 /// Returns *True* on success. Requires no parameters.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct LogOut;
 
 impl TelegramMethod for LogOut {
@@ -118,7 +118,7 @@ impl JsonMethod for LogOut {}
 /// You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart.
 /// The method will return error 429 in the first 10 minutes after the bot is launched.
 /// Returns True on success. Requires no parameters.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct Close;
 
 impl TelegramMethod for Close {
@@ -133,7 +133,7 @@ impl JsonMethod for Close {}
 
 /// Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SetMyCommands {
     /// A JSON-serialized list of bot commands to be set as the list of the bot's commands.
     /// At most 100 commands can be specified.
@@ -187,7 +187,7 @@ impl JsonMethod for SetMyCommands {}
 /// Use this method to delete the list of the bot's commands for the given scope and user language.
 /// After deletion, higher level commands will be shown to affected users.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct DeleteMyCommands {
     /// A JSON-serialized object, describing scope of users for which the commands are relevant.
     /// Defaults to [BotCommandScopeDefault](https://core.telegram.org/bots/api#botcommandscopedefault).
@@ -234,7 +234,7 @@ impl TelegramMethod for DeleteMyCommands {
 /// Use this method to get the current list of the bot's commands for the given scope and user language.
 /// Returns Array of [BotCommand](https://core.telegram.org/bots/api#botcommand) on success.
 /// If commands aren't set, an empty list is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetMyCommands {
     /// A JSON-serialized object, describing scope of users for which the commands are relevant.
     /// Defaults to [BotCommandScopeDefault](https://core.telegram.org/bots/api#botcommandscopedefault).

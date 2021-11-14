@@ -9,7 +9,7 @@ use crate::file::PhotoSize;
 use crate::{JsonMethod, TelegramMethod};
 
 /// This object represents a Telegram user or bot.
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
     /// Unique identifier for this user or bot.
     pub id: i64,
@@ -81,7 +81,7 @@ impl User {
 }
 
 /// This object represent a user's profile pictures.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct UserProfilePhotos {
     /// Total number of profile pictures the target user has
     pub total_count: usize,
@@ -91,7 +91,7 @@ pub struct UserProfilePhotos {
 
 /// Use this method to get a list of profile pictures for a user.
 /// Returns a [UserProfilePhotos] object.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetUserProfilePhotos {
     /// Unique identifier of the target user
     user_id: i64,

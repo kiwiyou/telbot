@@ -6,7 +6,7 @@ use crate::file::InputFile;
 use crate::{FileMethod, JsonMethod, TelegramMethod};
 
 /// Contains information about the current status of a webhook.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct WebhookInfo {
     /// Webhook URL, may be empty if webhook is not set up
     pub url: String,
@@ -35,7 +35,7 @@ pub struct WebhookInfo {
 /// If you'd like to make sure that the Webhook request comes from Telegram,
 /// we recommend using a secret path in the URL, e.g. `https://www.example.com/<token>`.
 /// Since nobody else knows your bot's token, you can be pretty sure it's us.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SetWebhook {
     /// HTTPS url to send updates to. Use an empty string to remove webhook integration
     pub url: String,
@@ -138,7 +138,7 @@ impl FileMethod for SetWebhook {
 
 /// Use this method to remove webhook integration if you decide to switch back to [getUpdates](https://core.telegram.org/bots/api#getupdates).
 /// Returns True on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct DeleteWebhook {
     /// Pass True to drop all pending updates
     pub drop_pending_updates: Option<bool>,
@@ -172,7 +172,7 @@ impl JsonMethod for DeleteWebhook {}
 /// Use this method to get current webhook status. Requires no parameters.
 /// On success, returns a WebhookInfo object.
 /// If the bot is using getUpdates, will return an object with the url field empty.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct GetWebhookInfo;
 
 impl TelegramMethod for GetWebhookInfo {

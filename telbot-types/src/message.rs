@@ -14,7 +14,7 @@ use crate::user::User;
 use crate::{FileMethod, JsonMethod, TelegramMethod};
 
 /// This object represents a message.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Message {
     /// Unique message identifier inside this chat
     pub message_id: i64,
@@ -119,7 +119,7 @@ impl Message {
 }
 
 /// Variants of a message.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum MessageKind {
     /// Text message
@@ -733,14 +733,14 @@ impl MessageKind {
 }
 
 /// This object represents a unique message identifier.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct MessageId {
     /// Unique message identifier
     pub message_id: i64,
 }
 
 /// This object represents a point on the map.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Location {
     /// Longitude as defined by sender
     pub longitude: f32,
@@ -760,7 +760,7 @@ pub struct Location {
 }
 
 /// This object represents a phone contact.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Contact {
     /// Contact's phone number
     pub phone_number: String,
@@ -775,7 +775,7 @@ pub struct Contact {
 }
 
 /// This object represents an animated emoji that displays a random value.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Dice {
     /// Emoji on which the dice throw animation is based
     pub emoji: String,
@@ -783,11 +783,11 @@ pub struct Dice {
     pub value: i32,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Game {}
 
 /// This object contains information about one answer option in a poll.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct PollOption {
     /// Option text, 1-100 characters
     pub text: String,
@@ -796,7 +796,7 @@ pub struct PollOption {
 }
 
 /// This object represents an answer of a user in a non-anonymous poll.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct PollAnswer {
     /// Unique poll identifier
     pub poll_id: String,
@@ -808,7 +808,7 @@ pub struct PollAnswer {
 }
 
 /// This object contains information about a poll.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Poll {
     /// Unique poll identifier
     pub id: String,
@@ -834,7 +834,7 @@ pub struct Poll {
 }
 
 /// Poll type
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum PollKind {
     Regular,
@@ -888,7 +888,7 @@ impl PollKind {
 }
 
 /// This object represents a venue.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Venue {
     /// Venue location. Can't be a live location
     pub location: Location,
@@ -909,18 +909,18 @@ pub struct Venue {
 }
 
 /// This object represents a service message about a change in auto-delete timer settings.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct MessageAutoDeleteTimerChanged {
     /// New auto-delete time for messages in the chat
     pub message_auto_delete_time: u32,
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct PassportData {}
 
 /// This object represents the content of a service message,
 /// sent whenever a user in the chat triggers a proximity alert set by another user.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ProximityAlertTriggered {
     /// User that triggered the alert
     pub traveler: User,
@@ -931,7 +931,7 @@ pub struct ProximityAlertTriggered {
 }
 
 /// This object represents a service message about a voice chat scheduled in the chat.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct VoiceChatScheduled {
     /// Point in time (Unix timestamp) when the voice chat is supposed to be started by a chat administrator
     pub start_date: u64,
@@ -939,25 +939,25 @@ pub struct VoiceChatScheduled {
 
 /// This object represents a service message about a voice chat started in the chat.
 /// Currently holds no information.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct VoiceChatStarted;
 
 /// This object represents a service message about a voice chat ended in the chat.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct VoiceChatEnded {
     /// Voice chat duration; in seconds
     pub duration: u32,
 }
 
 /// This object represents a service message about new members invited to a voice chat.
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct VoiceChatParticipantsInvited {
     /// New members that were invited to the voice chat
     pub users: Option<Vec<User>>,
 }
 
 /// Use this method to send text messages. On success, the sent Message is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendMessage {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1076,7 +1076,7 @@ impl JsonMethod for SendMessage {}
 
 /// Use this method to forward messages of any kind. Service messages can't be forwarded.
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct ForwardMessage {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1123,7 +1123,7 @@ impl JsonMethod for ForwardMessage {}
 /// Service messages and invoice messages can't be copied.
 /// The method is analogous to the method [forwardMessage](https://core.telegram.org/bots/api#forwardmessage), but the copied message doesn't have a link to the original message.
 /// Returns the [MessageId](https://core.telegram.org/bots/api#messageid) of the sent message on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct CopyMessage {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1242,7 +1242,7 @@ impl JsonMethod for CopyMessage {}
 
 /// Use this method to send photos.
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendPhoto {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1381,7 +1381,7 @@ impl FileMethod for SendPhoto {
 // Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
 ///
 /// For sending voice messages, use the sendVoice method instead.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendAudio {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1566,7 +1566,7 @@ impl FileMethod for SendAudio {
 
 /// Use this method to send general files. On success, the sent Message is returned.
 /// Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendDocument {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1729,7 +1729,7 @@ impl FileMethod for SendDocument {
 /// Use this method to send video files, Telegram clients support mp4 videos (other formats may be sent as [Document](https://core.telegram.org/bots/api#document)).
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
 /// Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendVideo {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -1925,7 +1925,7 @@ impl FileMethod for SendVideo {
 /// Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound).
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
 /// Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendAnimation {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -2112,7 +2112,7 @@ impl FileMethod for SendAnimation {
 /// (other formats may be sent as [Audio](https://core.telegram.org/bots/api#audio) or [Document](https://core.telegram.org/bots/api#document)).
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
 /// Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendVoice {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -2255,7 +2255,7 @@ impl FileMethod for SendVoice {
 /// As of [v.4.0](https://telegram.org/blog/video-messages-and-telescope), Telegram clients support rounded square mp4 videos of up to 1 minute long.
 /// Use this method to send video messages.
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendVideoNote {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -2388,7 +2388,7 @@ impl FileMethod for SendVideoNote {
 
 /// Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type.
 /// On success, an array of Messages that were sent is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendMediaGroup {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -2462,7 +2462,7 @@ impl TelegramMethod for SendMediaGroup {
 
 /// Use this method to send point on the map.
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendLocation {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -2589,7 +2589,7 @@ impl JsonMethod for SendLocation {}
 /// A location can be edited until its *live_period* expires
 /// or editing is explicitly disabled by a call to [stopMessageLiveLocation](https://core.telegram.org/bots/api#stopmessagelivelocation).
 /// On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditMessageLiveLocation {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -2672,7 +2672,7 @@ impl JsonMethod for EditMessageLiveLocation {}
 /// A location can be edited until its *live_period* expires
 /// or editing is explicitly disabled by a call to [stopMessageLiveLocation](https://core.telegram.org/bots/api#stopmessagelivelocation).
 /// On success, _True_ is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditInlineMessageLiveLocation {
     /// Identifier of the inline message
     pub inline_message_id: String,
@@ -2750,7 +2750,7 @@ impl JsonMethod for EditInlineMessageLiveLocation {}
 
 /// Use this method to stop updating a live location message before live_period expires.
 /// On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct StopMessageLiveLocation {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -2791,7 +2791,7 @@ impl JsonMethod for StopMessageLiveLocation {}
 
 /// Use this method to stop updating a live location message before live_period expires.
 /// On success, _True_ is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct StopInlineMessageLiveLocation {
     /// Identifier of the inline message
     pub inline_message_id: String,
@@ -2829,7 +2829,7 @@ impl JsonMethod for StopInlineMessageLiveLocation {}
 
 /// Use this method to send information about a venue.
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendVenue {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -2954,7 +2954,7 @@ impl TelegramMethod for SendVenue {
 impl JsonMethod for SendVenue {}
 
 /// Use this method to send text messages. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendContact {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -3060,7 +3060,7 @@ impl TelegramMethod for SendContact {
 impl JsonMethod for SendContact {}
 
 /// Use this method to send a native poll. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendPoll {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -3284,7 +3284,7 @@ impl JsonMethod for SendPoll {}
 
 /// Use this method to send an animated emoji that will display a random value.
 /// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendDice {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -3371,7 +3371,7 @@ impl TelegramMethod for SendDice {
 impl JsonMethod for SendDice {}
 
 /// Chat action type
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ChatActionKind {
     Typing,
@@ -3395,7 +3395,7 @@ pub enum ChatActionKind {
 /// > The user will see a “sending photo” status for the bot.
 ///
 /// It is recommended to use this method only when a response from the bot will take a noticeable amount of time to arrive.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct SendChatAction {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -3426,7 +3426,7 @@ impl JsonMethod for SendChatAction {}
 /// Use this method to edit text and [game](https://core.telegram.org/bots/api#games) messages.
 /// On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api#message) is returned,
 /// otherwise _True_ is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditMessageText {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -3511,7 +3511,7 @@ impl JsonMethod for EditMessageText {}
 
 /// Use this method to edit text and [game](https://core.telegram.org/bots/api#games) messages.
 /// On success, _True_ is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditInlineMessageText {
     /// Identifier of the inline message
     pub inline_message_id: String,
@@ -3592,7 +3592,7 @@ impl TelegramMethod for EditInlineMessageText {
 impl JsonMethod for EditInlineMessageText {}
 
 /// Use this method to edit captions of messages. On success, the edited Message is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditMessageCaption {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -3686,7 +3686,7 @@ impl TelegramMethod for EditMessageCaption {
 impl JsonMethod for EditMessageCaption {}
 
 /// Use this method to edit captions of messages. On success, the edited Message is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditInlineMessageCaption {
     /// Identifier of the inline message
     pub inline_message_id: String,
@@ -3781,7 +3781,7 @@ impl JsonMethod for EditInlineMessageCaption {}
 /// When an inline message is edited, a new file can't be uploaded;
 /// use a previously uploaded file via its file_id or specify a URL.
 /// On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditMessageMedia {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -3829,7 +3829,7 @@ impl JsonMethod for EditMessageMedia {}
 /// When an inline message is edited, a new file can't be uploaded;
 /// use a previously uploaded file via its file_id or specify a URL.
 /// On success, _True_ is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditInlineMessageMedia {
     /// Identifier of the inline message
     pub inline_message_id: String,
@@ -3869,7 +3869,7 @@ impl TelegramMethod for EditInlineMessageMedia {
 impl JsonMethod for EditInlineMessageMedia {}
 
 /// Use this method to edit only the reply markup of messages. On success, the edited Message is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditMessageReplyMarkup {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -3914,7 +3914,7 @@ impl TelegramMethod for EditMessageReplyMarkup {
 impl JsonMethod for EditMessageReplyMarkup {}
 
 /// Use this method to edit only the reply markup of messages. On success, _True_ is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct EditInlineMessageReplyMarkup {
     /// Identifier of the inline message
     pub inline_message_id: String,
@@ -3955,7 +3955,7 @@ impl JsonMethod for EditInlineMessageReplyMarkup {}
 
 /// Use this method to stop a poll which was sent by the bot.
 /// On success, the stopped [Poll](https://core.telegram.org/bots/api#poll) is returned.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct StopPoll {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
@@ -4003,7 +4003,7 @@ impl JsonMethod for StopPoll {}
 /// - If the bot is an administrator of a group, it can delete any message there.
 /// - If the bot has *can_delete_messages* permission in a supergroup or a channel, it can delete any message there.
 /// Returns _True_ on success.
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 pub struct DeleteMessage {
     /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
     pub chat_id: ChatId,
