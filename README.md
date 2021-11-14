@@ -27,6 +27,13 @@ telbot-cf-worker = "0.2.0"
 telbot-ureq = "0.2.0"
 ```
 
+- telbot-reqwest: API wrapper for [reqwest](https://github.com/seanmonstar/reqwest) client
+
+```toml
+[dependencies]
+telbot-reqwest = "0.1.0"
+```
+
 ## Examples
 
 - [cloudflare workers](https://github.com/kiwiyou/telbot/tree/main/telbot-cf-worker/examples)
@@ -36,6 +43,8 @@ telbot-ureq = "0.2.0"
 - [ureq](https://github.com/kiwiyou/telbot/tree/main/telbot-ureq/examples)
   - [echo example](https://github.com/kiwiyou/telbot/blob/main/telbot-ureq/examples/echo.rs)
   - [file(photo) send example](https://github.com/kiwiyou/telbot/blob/main/telbot-ureq/examples/file.rs)
+- [reqwest](https://github.com/kiwiyou/telbot/tree/main/telbot-reqwest/examples)
+  - [echo example](https://github.com/kiwiyou/telbot/blob/main/telbot-reqwest/examples/echo.rs)
 
 ## Extending telbot
 
