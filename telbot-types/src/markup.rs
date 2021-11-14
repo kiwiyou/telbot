@@ -369,7 +369,7 @@ impl ParseMode {
                 block_begin = index + 1;
             }
         }
-        if block_begin < output.len() {
+        if block_begin < text.len() {
             output.push_str(&text[block_begin..]);
         }
         output
@@ -391,7 +391,7 @@ impl ParseMode {
                 block_begin = index + 1;
             }
         }
-        if block_begin < output.len() {
+        if block_begin < text.len() {
             output.push_str(&text[block_begin..]);
         }
         output
@@ -409,7 +409,7 @@ impl ParseMode {
                 block_begin = index + 1;
             }
         }
-        if block_begin < output.len() {
+        if block_begin < text.len() {
             output.push_str(&text[block_begin..]);
         }
         output
