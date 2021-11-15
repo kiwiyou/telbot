@@ -119,6 +119,7 @@ impl InlineKeyboardMarkup {
     }
 }
 
+#[derive(Clone)]
 pub struct InlineKeyboardRow {
     pub buttons: Vec<InlineKeyboardButton>,
 }
@@ -128,6 +129,15 @@ impl InlineKeyboardRow {
     pub fn new_with(button: InlineKeyboardButton) -> Self {
         Self {
             buttons: vec![button],
+        }
+    }
+    /// Create a new InlineKeyboardRow, emplacing a new button
+    pub fn new_emplace(text: impl Into<String>, kind: InlineKeyboardButtonKind) -> Self {
+        Self {
+            buttons: vec![InlineKeyboardButton {
+                text: text.into(),
+                kind,
+            }],
         }
     }
     /// Add a InlineKeyboardButton to the row
