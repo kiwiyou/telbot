@@ -3601,6 +3601,7 @@ pub struct EditMessageCaption {
     /// New caption of the message, 0-1024 characters after entities parsing
     pub caption: Option<String>,
     /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// Mode for parsing entities in the message text.
     /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
@@ -3691,8 +3692,10 @@ pub struct EditInlineMessageCaption {
     /// Identifier of the inline message
     pub inline_message_id: String,
     /// New caption of the message, 0-1024 characters after entities parsing
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<String>,
     /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// Mode for parsing entities in the message text.
     /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.

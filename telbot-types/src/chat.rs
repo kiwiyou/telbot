@@ -352,25 +352,33 @@ pub struct ChatLocation {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ChatPermissions {
     /// True, if the user is allowed to send text messages, contacts, locations and venues
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_messages: Option<bool>,
     /// True, if the user is allowed to send audios, documents,
     /// photos, videos, video notes and voice notes, implies can_send_messages
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_media_messages: Option<bool>,
     /// True, if the user is allowed to send polls, implies can_send_messages
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_polls: Option<bool>,
     /// True, if the user is allowed to send animations, games, stickers
     /// and use inline bots, implies can_send_media_messages
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_other_messages: Option<bool>,
     /// True, if the user is allowed to add web page previews to their messages,
     /// implies can_send_media_messages
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_add_web_page_previews: Option<bool>,
     /// True, if the user is allowed to change the chat title, photo and other settings.
     /// Ignored in public supergroups
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_change_info: Option<bool>,
     /// True, if the user is allowed to invite new users to the chat
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_invite_users: Option<bool>,
     /// True, if the user is allowed to pin messages.
     /// Ignored in public supergroups
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_pin_messages: Option<bool>,
 }
 
@@ -823,10 +831,12 @@ pub struct BanChatMember {
     /// If user is banned for more than 366 days or less than 30 seconds from the current time
     /// they are considered to be banned forever.
     /// Applied for supergroups and channels only.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub until_date: Option<u64>,
     /// Pass _True_ to delete all messages from the chat for the user that is being removed.
     /// If _False_, the user will be able to see messages in the group that were sent before the user was removed.
     /// Always _True_ for supergroups and channels.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub revoke_messages: Option<bool>,
 }
 
@@ -882,6 +892,7 @@ pub struct UnbanChatMember {
     /// Unique identifier of the target user
     pub user_id: i64,
     /// Do nothing if the user is not banned
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub only_if_banned: Option<bool>,
 }
 
@@ -929,6 +940,7 @@ pub struct RestrictChatMember {
     /// Date when restrictions will be lifted for the user, unix time.
     /// If user is restricted for more than 366 days or less than 30 seconds from the current time,
     /// they are considered to be restricted forever
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub until_date: Option<u64>,
 }
 
@@ -973,29 +985,40 @@ pub struct PromoteChatMember {
     /// Unique identifier of the target user
     pub user_id: i64,
     /// Pass _True_, if the administrator's presence in the chat is hidden
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_anonymous: Option<bool>,
     /// Pass _True_, if the administrator can access the chat event log, chat statistics, message statistics in channels,
     /// see channel members, see anonymous administrators in supergroups and ignore slow mode.
     /// Implied by any other administrator privilege
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_chat: Option<bool>,
     /// Pass _True_, if the administrator can delete messages of other users
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_delete_messages: Option<bool>,
     /// Pass _True_, if the administrator can manage voice chats
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_voice_chats: Option<bool>,
     /// Pass _True_, if the administrator can restrict, ban or unban chat members
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_restrict_members: Option<bool>,
     /// Pass _True_, if the administrator can add new administrators with a subset of their own privileges or demote administrators that he has promoted,
     /// directly or indirectly (promoted by administrators that were appointed by him)
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_promote_members: Option<bool>,
     /// Pass _True_, if the administrator can change chat title, photo and other settings
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_change_info: Option<bool>,
     /// Pass _True_, if the administrator can invite new users to the chat
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_invite_users: Option<bool>,
     /// Pass _True_, if the administrator can create channel posts, channels only
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_post_messages: Option<bool>,
     /// Pass _True_, if the administrator can edit messages of other users and can pin messages, channels only
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_edit_messages: Option<bool>,
     /// Pass _True_, if the administrator can pin messages, supergroups only
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_pin_messages: Option<bool>,
 }
 
@@ -1249,12 +1272,16 @@ pub struct CreateChatInviteLink {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
     /// Invite link name; 0-32 characters
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// Point in time (Unix timestamp) when the link will expire
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub expire_date: Option<u64>,
     /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub member_limit: Option<u32>,
     /// _True_, if users joining the chat via the link need to be approved by chat administrators. If _True_, *member_limit* can't be specified
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub creates_join_request: Option<bool>,
 }
 
@@ -1319,12 +1346,16 @@ pub struct EditChatInviteLink {
     /// The invite link to edit
     pub invite_link: String,
     /// Invite link name; 0-32 characters
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// Point in time (Unix timestamp) when the link will expire
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub expire_date: Option<u64>,
     /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub member_limit: Option<u32>,
     /// _True_, if users joining the chat via the link need to be approved by chat administrators. If _True_, *member_limit* can't be specified
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub creates_join_request: Option<bool>,
 }
 
@@ -1565,6 +1596,7 @@ pub struct SetChatDescription {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
     pub chat_id: ChatId,
     /// New chat description, 0-255 characters
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }
 
@@ -1606,6 +1638,7 @@ pub struct PinChatMessage {
     pub message_id: i64,
     /// Pass True, if it is not necessary to send a notification to all chat members about the new pinned message.
     /// Notifications are always disabled in channels and private chats.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
 }
 
@@ -1647,6 +1680,7 @@ pub struct UnpinChatMessage {
     /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
     pub chat_id: ChatId,
     /// Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub message_id: Option<i64>,
 }
 

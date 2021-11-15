@@ -18,19 +18,25 @@ pub struct User {
     /// User's or bot's first name
     pub first_name: String,
     /// User's or bot's last name
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub last_name: Option<String>,
     /// User's or bot's username
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub username: Option<String>,
     /// [IETF language tag](https://en.wikipedia.org/wiki/IETF_language_tag) of the user's language
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub language_code: Option<String>,
     /// True, if the bot can be invited to groups.
     /// Returned only in getMe.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_join_groups: Option<bool>,
     /// True, if [privacy mode](https://core.telegram.org/bots#privacy-mode) is disabled for the bot.
     /// Returned only in getMe.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub can_read_all_group_messages: Option<bool>,
     /// True, if the bot supports inline queries.
     /// Returned only in getMe.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub supports_inline_queries: Option<bool>,
 }
 
@@ -96,8 +102,10 @@ pub struct GetUserProfilePhotos {
     /// Unique identifier of the target user
     user_id: i64,
     /// Sequential number of the first photo to be returned. By default, all photos are returned.
+    #[serde(skip_serializing_if = "Option::is_none")]
     offset: Option<u32>,
     /// Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100.
+    #[serde(skip_serializing_if = "Option::is_none")]
     limit: Option<u32>,
 }
 

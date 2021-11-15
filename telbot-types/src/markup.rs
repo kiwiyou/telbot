@@ -11,13 +11,16 @@ pub struct ReplyKeyboardMarkup {
     /// Requests clients to resize the keyboard vertically for optimal fit
     // (e.g., make the keyboard smaller if there are just two rows of buttons).
     /// Defaults to false, in which case the custom keyboard is always of the same height as the app's standard keyboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub reisze_keyboard: Option<bool>,
     /// Requests clients to hide the keyboard as soon as it's been used.
     /// The keyboard will still be available, but clients will automatically display the usual letter-keyboard in the chat
     /// – the user can press a special button in the input field to see the custom keyboard again.
     /// Defaults to _false_.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub one_time_keyboard: Option<bool>,
     /// The placeholder to be shown in the input field when the keyboard is active; 1-64 characters
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub input_field_placeholder: Option<String>,
     /// Use this parameter if you want to show the keyboard to specific users only.
     ///
@@ -27,6 +30,7 @@ pub struct ReplyKeyboardMarkup {
     ///
     /// Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language.
     /// Other users in the group don't see the keyboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub selective: Option<bool>,
 }
 
@@ -46,12 +50,15 @@ pub struct KeyboardButton {
     pub text: String,
     /// If True, the user's phone number will be sent as a contact when the button is pressed.
     /// Available in private chats only
+    #[serde(skip_serializing_if = "Option::is_none")]
     request_contact: Option<bool>,
     /// If True, the user's current location will be sent when the button is pressed.
     /// Available in private chats only
+    #[serde(skip_serializing_if = "Option::is_none")]
     request_location: Option<bool>,
     /// If specified, the user will be asked to create a poll and send it to the bot when the button is pressed.
     /// Available in private chats only
+    #[serde(skip_serializing_if = "Option::is_none")]
     request_poll: Option<KeyboardButtonPollType>,
 }
 
@@ -62,6 +69,7 @@ pub struct KeyboardButtonPollType {
     /// If *regular* is passed, only regular polls will be allowed.
     /// Otherwise, the user will be allowed to create a poll of any type.
     #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     kind: Option<String>,
 }
 
@@ -84,6 +92,7 @@ pub struct ReplyKeyboardRemove {
     ///
     /// Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language.
     /// Other users in the group don't see the keyboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub selective: Option<bool>,
 }
 
@@ -289,14 +298,17 @@ pub struct LoginUrl {
     /// and the integrity of the data as described in [Checking authorization](https://core.telegram.org/widgets/login#checking-authorization).
     pub url: String,
     /// New text of the button in forwarded messages.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub forward_text: Option<String>,
     /// Username of a bot, which will be used for user authorization.
     /// See Setting up a bot for more details.
     /// If not specified, the current bot's username will be assumed.
     /// The url's domain must be the same as the domain linked with the bot.
     /// See Linking your domain to the bot for more details.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub bot_username: Option<String>,
     /// Pass True to request the permission for your bot to send messages to the user.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub request_write_access: Option<bool>,
 }
 
@@ -325,6 +337,7 @@ pub struct ForceReply {
     /// Shows reply interface to the user, as if they manually selected the bot's message and tapped 'Reply'
     force_reply: bool,
     /// The placeholder to be shown in the input field when the reply is active; 1-64 characters
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub input_field_placeholder: Option<String>,
     /// Use this parameter if you want to show the keyboard to specific users only.
     ///
@@ -334,6 +347,7 @@ pub struct ForceReply {
     ///
     /// Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language.
     /// Other users in the group don't see the keyboard.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub selective: Option<bool>,
 }
 
