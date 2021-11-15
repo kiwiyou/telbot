@@ -24,15 +24,9 @@ impl Api {
 #[derive(Debug)]
 pub enum Error {
     TelegramError(TelegramError),
-    Ureq(ureq::Error),
+    Ureq(ureq::Transport),
     Serde(serde_json::Error),
     Io(std::io::Error),
-}
-
-impl From<ureq::Error> for Error {
-    fn from(error: ureq::Error) -> Self {
-        Self::Ureq(error)
-    }
 }
 
 impl From<serde_json::Error> for Error {
@@ -53,8 +47,7 @@ impl Api {
     /// Send a JSON-serializable API request
     pub fn send_json<Method: JsonMethod>(&self, method: &Method) -> Result<Method::Response> {
         let value = serde_json::to_value(method)?;
-        let response =
-            ureq::post(&format!("{}{}", self.base_url, Method::name())).send_json(value)?;
+        let response = ureq::post(&format!("{}{}", self.base_url, Method::name())).send_json(value);
         Self::parse_response::<Method>(response)
     }
 
@@ -82,11 +75,19 @@ impl Api {
                 "Content-Type",
                 &format!("multipart/form-data; boundary={}", prepared.boundary()),
             )
-            .send(prepared)?;
+            .send(prepared);
         Self::parse_response::<Method>(response)
     }
 
-    fn parse_response<Method: TelegramMethod>(response: Response) -> Result<Method::Response> {
+    fn parse_response<Method: TelegramMethod>(
+        response: std::result::Result<Response, ureq::Error>,
+    ) -> Result<Method::Response> {
+        let response = match response {
+            Ok(response) => response,
+            Err(ureq::Error::Status(_, response)) => response,
+            Err(ureq::Error::Transport(e)) => return Err(Error::Ureq(e)),
+        };
+
         let tg_response: ApiResponse<_> = response.into_json()?;
         match tg_response {
             ApiResponse::Ok { result } => Ok(result),
