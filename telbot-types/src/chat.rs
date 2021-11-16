@@ -790,11 +790,13 @@ pub struct ChatMemberUpdated {
     pub invite_link: Option<ChatInviteLink>,
 }
 
-/// Chat identifier
+/// Identifier of the chat or username of the supergroup (in the format `@supergroupusername`)
 #[derive(Clone, Serialize)]
 #[serde(untagged)]
 pub enum ChatId {
+    /// Identifier of the chat
     Id(i64),
+    /// Username of the supergroup (`@supergroupname`)
     Username(String),
 }
 

@@ -9,7 +9,7 @@
 //! - `telbot-reqwest` for `reqwest` backend
 //!
 //! ## Extending backends
-//! 
+//!
 //! Every API request type implements either [`JsonMethod`] or [`FileMethod`],
 //! representing those should be serialized into JSON format and multipart format, respectively.
 //! Your backend should take these two types of request and deserialize the response body into [`ApiResponse<T>`].
@@ -39,7 +39,7 @@ pub trait TelegramMethod {
     type Response: DeserializeOwned;
 
     /// Gets the name of the method.
-    /// 
+    ///
     /// Used in request URL, like `https://api.telegram.org/bot<BOT TOKEN>/<METHOD NAME>`.
     fn name() -> &'static str;
 }
@@ -54,7 +54,7 @@ pub trait FileMethod: TelegramMethod + Serialize {
 }
 
 /// Telegram API response.
-/// 
+///
 /// Response body should be deserialized into [`ApiResponse<T>`] to handle error correctly.
 /// On a successful request, the response value will be in the `result` field.
 /// On request failure, the error value will be in the `Err` variant with bad HTTP status code.
