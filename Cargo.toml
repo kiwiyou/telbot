@@ -7,4 +7,5 @@ members = [
     "telbot-cf-worker/examples/file",
     "telbot-ureq",
     "telbot-reqwest",
+    "telbot-hyper",
 ]
