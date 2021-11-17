@@ -11,7 +11,7 @@ use crate::message::{
 use crate::user::User;
 use crate::{JsonMethod, TelegramMethod};
 
-/// This object represents a chat.
+/// A chat room including supergroup, channel, and private chat.
 #[derive(Debug, Deserialize)]
 pub struct Chat {
     /// Unique identifier for this chat.
@@ -21,65 +21,70 @@ pub struct Chat {
     pub kind: ChatKind,
     /// Title, for supergroups, channels and group chats
     pub title: Option<String>,
-    /// Username, for private chats, supergroups and channels if available
+    /// Username, for private chats, supergroups and channels if availablWe
     pub username: Option<String>,
     /// First name of the other party in a private chat
     pub first_name: Option<String>,
     /// Last name of the other party in a private chat
     pub last_name: Option<String>,
     /// Chat photo.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub photo: Option<ChatPhoto>,
     /// Bio of the other party in a private chat.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub bio: Option<String>,
     /// Description, for groups, supergroups and channel chats.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub description: Option<String>,
     /// Primary invite link, for groups, supergroups and channel chats.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub invite_link: Option<String>,
     /// The most recent pinned message (by sending date).
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub pinned_message: Option<Box<Message>>,
     /// Default chat member permissions, for groups and supergroups.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub permissions: Option<ChatPermissions>,
     /// Default chat member permissions, for groups and supergroups.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub slow_mode_delay: Option<i32>,
     /// The time after which all messages sent to the chat will be automatically deleted; in seconds.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub message_auto_delete_time: Option<i32>,
     /// For supergroups, name of group sticker set.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub sticker_set_name: Option<String>,
-    /// True, if the bot can change the group sticker set.
-    /// Returned only in getChat.
+    /// `true` if the bot can change the group sticker set.
+    /// Returned only in [`GetChat`].
     pub can_get_sticker_set: Option<bool>,
     /// Unique identifier for the linked chat,
     /// i.e. the discussion group identifier for a channel and vice versa;
     /// for supergroups and channel chats.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub linked_chat_id: Option<i32>,
     /// For supergroups, the location to which the supergroup is connected.
-    /// Returned only in getChat.
+    /// Returned only in [`GetChat`].
     pub location: Option<ChatLocation>,
 }
 
 impl Chat {
+    /// Creates a [`SendAnimation`] request which will send an animation to this chat.
     pub fn send_animation(&self, animation: impl Into<InputFileVariant>) -> SendAnimation {
         SendAnimation::new(self.id, animation)
     }
 
+    /// Creates a [`SendAudio`] request which will send an audio to this chat.
     pub fn send_audio(&self, audio: impl Into<InputFileVariant>) -> SendAudio {
         SendAudio::new(self.id, audio)
     }
 
+    /// Creates a [`SendChatAction`] request which will send a chat action to this chat.
     pub fn send_chat_action(&self, action: ChatActionKind) -> SendChatAction {
         SendChatAction::new(self.id, action)
     }
 
+    /// Creates a [`SendContact`] request with given phone number and first name
+    /// which will send a contact to this chat.
     pub fn send_contact(
         &self,
         phone_number: impl Into<String>,
@@ -88,14 +93,18 @@ impl Chat {
         SendContact::new(self.id, phone_number, first_name)
     }
 
+    /// Creates a [`SendDice`] request which will send a dice to this chat.
     pub fn send_dice(&self) -> SendDice {
         SendDice::new(self.id)
     }
 
+    /// Creates a [`SendChatAction`] request which will send an chat action to this chat.
     pub fn send_document(&self, document: impl Into<InputFileVariant>) -> SendDocument {
         SendDocument::new(self.id, document)
     }
 
+    /// Creates a [`SendLocation`] request with given latitude, longitude, and horizontal accuracy
+    /// which will send a location to this chat.
     pub fn send_location(
         &self,
         latitude: f32,
@@ -105,22 +114,28 @@ impl Chat {
         SendLocation::new(self.id, latitude, longitude, horizontal_accuracy)
     }
 
+    /// Creates a [`SendMediaGroup`] request which will send a group of media to this chat.
     pub fn send_media_group(&self) -> SendMediaGroup {
         SendMediaGroup::new(self.id)
     }
 
+    /// Creates a [`SendMessage`] request which will send a text message to this chat.
     pub fn send_message(&self, text: impl Into<String>) -> SendMessage {
         SendMessage::new(self.id, text)
     }
 
+    /// Creates a [`SendPhoto`] request which will send a photo to this chat.
     pub fn send_photo(&self, photo: impl Into<InputFileVariant>) -> SendPhoto {
         SendPhoto::new(self.id, photo)
     }
 
+    /// Creates a [`SendPoll`] request with given question and options which will send a poll to this chat.
     pub fn send_poll(&self, question: impl Into<String>, options: Vec<String>) -> SendPoll {
         SendPoll::new_regular(self.id, question, options)
     }
 
+    /// Creates a [`SendPoll`] request with given question, options and correct option id
+    /// which will send a quiz to this chat.
     pub fn send_quiz(
         &self,
         question: impl Into<String>,
@@ -130,6 +145,8 @@ impl Chat {
         SendPoll::new_quiz(self.id, question, options, correct_option_id)
     }
 
+    /// Creates a [`SendVenue`] request with given latitude, longitude, title, and address
+    /// which will send a live location to this chat.
     pub fn send_venue(
         &self,
         latitude: f32,
@@ -140,34 +157,44 @@ impl Chat {
         SendVenue::new(self.id, latitude, longitude, title, address)
     }
 
+    /// Creates a [`SendVideo`] request which will send a video to this chat.
     pub fn send_video(&self, video: impl Into<InputFileVariant>) -> SendVideo {
         SendVideo::new(self.id, video)
     }
 
+    /// Creates a [`SendVideoNote`] request which will send
+    /// a [video note](https://telegram.org/blog/video-messages-and-telescope) to this chat.
     pub fn send_video_note(&self, video_note: impl Into<InputFileVariant>) -> SendVideoNote {
         SendVideoNote::new(self.id, video_note)
     }
 
+    /// Creates a [`SendVoice`] request which will send a voice message to this chat.
     pub fn send_voice(&self, voice: impl Into<InputFileVariant>) -> SendVoice {
         SendVoice::new(self.id, voice)
     }
 
+    /// Creates a [`BanChatMember`] request which will ban a user from this chat.
     pub fn ban(&self, user_id: i64) -> BanChatMember {
         BanChatMember::new(self.id, user_id)
     }
 
+    /// Creates a [`UnbanChatMember`] request which will unban a user from this chat.
     pub fn unban(&self, user_id: i64) -> UnbanChatMember {
         UnbanChatMember::new(self.id, user_id)
     }
 
+    /// Creates a [`RestrictChatMember`] request which will restrict permissions of a user from this chat.
     pub fn restrict(&self, user_id: i64, permissions: ChatPermissions) -> RestrictChatMember {
         RestrictChatMember::new(self.id, user_id, permissions)
     }
 
+    /// Creates a [`PromoteChatMember`] request which will promote a user to an administrator from this chat.
     pub fn promote(&self, user_id: i64) -> PromoteChatMember {
         PromoteChatMember::new(self.id, user_id)
     }
 
+    /// Creates a [`SetChatAdministratorCustomTitle`] request which will set a custom title for
+    /// an administrator from this chat.
     pub fn set_administrator_title(
         &self,
         user_id: i64,
@@ -176,86 +203,111 @@ impl Chat {
         SetChatAdministratorCustomTitle::new(self.id, user_id, custom_title)
     }
 
+    /// Creates a [`SetChatPermissions`] request which will ban a user from this chat.
     pub fn set_permissions(&self, permissions: ChatPermissions) -> SetChatPermissions {
         SetChatPermissions::new(self.id, permissions)
     }
 
+    /// Creates a [`ExportChatInviteLink`] request which will create a new primary invite link to this chat.
+    /// 
+    /// Previously generated primary invite link will be revoked.
     pub fn export_invite_link(&self) -> ExportChatInviteLink {
         ExportChatInviteLink::new(self.id)
     }
 
+    /// Creates a [`CreateChatInviteLink`] request which will create a new additional invite link to this chat.
     pub fn create_invite_link(&self) -> CreateChatInviteLink {
         CreateChatInviteLink::new(self.id)
     }
 
+    /// Creates a [`EditChatInviteLink`] request which will edit the given invite link of this chat.
     pub fn edit_invite_link(&self, invite_link: impl Into<String>) -> EditChatInviteLink {
         EditChatInviteLink::new(self.id, invite_link)
     }
 
+    /// Creates a [`RevokeChatInviteLink`] request which will revoke the given invite link of this chat.
+    /// 
+    /// If the primary invite link is revoked, a new link will be automatically generated.
     pub fn revoke_invite_link(&self, invite_link: impl Into<String>) -> RevokeChatInviteLink {
         RevokeChatInviteLink::new(self.id, invite_link)
     }
 
+    /// Creates a [`ApproveChatJoinRequest`] request which will approve the join request of the given user.
     pub fn approve_join(&self, user_id: i64) -> ApproveChatJoinRequest {
         ApproveChatJoinRequest::new(self.id, user_id)
     }
 
+    /// Creates a [`DeclineChatJoinRequest`] request which will decline the join request of the given user.
     pub fn decline_join(&self, user_id: i64) -> DeclineChatJoinRequest {
         DeclineChatJoinRequest::new(self.id, user_id)
     }
 
+    /// Creates a [`SetChatPhoto`] request which will set the photo of this chat.
     pub fn set_photo(&self, photo: InputFile) -> SetChatPhoto {
         SetChatPhoto::new(self.id, photo)
     }
 
+    /// Creates a [`DeleteChatPhoto`] request which will delete the photo of this chat.
     pub fn delete_photo(&self) -> DeleteChatPhoto {
         DeleteChatPhoto::new(self.id)
     }
 
+    /// Creates a [`SetChatTitle`] request which will set the title of this chat.
     pub fn set_title(&self, title: impl Into<String>) -> SetChatTitle {
         SetChatTitle::new(self.id, title)
     }
 
+    /// Creates a [`SetChatDescription`] request which will set the description of this chat to the given string.
     pub fn set_description(&self, description: impl Into<String>) -> SetChatDescription {
         SetChatDescription::new(self.id, description)
     }
 
+    /// Creates a [`SetChatDescription`] request which will remove the chat description.
     pub fn remove_description(&self) -> SetChatDescription {
         SetChatDescription::new_empty(self.id)
     }
 
+    /// Creates a [`PinChatMessage`] request which will pin the given message to this chat.
     pub fn pin_message(&self, message_id: i64) -> PinChatMessage {
         PinChatMessage::new(self.id, message_id)
     }
 
+    /// Creates a [`UnpinChatMessage`] request which will unpin the pinned message from this chat.
     pub fn unpin_message(&self, message_id: i64) -> UnpinChatMessage {
         UnpinChatMessage::new(self.id, message_id)
     }
 
+    /// Creates a [`UnpinChatMessage`] request which will unpin the latest pinned message from this chat.
     pub fn unpin_latest_message(&self) -> UnpinChatMessage {
         UnpinChatMessage::new_recent(self.id)
     }
 
+    /// Creates a [`UnpinAllChatMessage`] request which will unpin all pinned messages from this chat.
     pub fn unpin_all_messages(&self) -> UnpinAllChatMessages {
         UnpinAllChatMessages::new(self.id)
     }
 
+    /// Creates a [`LeaveChat`] request which will make the bot leave from this chat.
     pub fn leave(&self) -> LeaveChat {
         LeaveChat::new(self.id)
     }
 
+    /// Creates a [`GetChat`] request which will return a detailed information of this chat.
     pub fn get_details(&self) -> GetChat {
         GetChat::new(self.id)
     }
 
+    /// Creates a [`GetChatAdministrators`] request which will return a list of administrators in this chat.
     pub fn get_administrators(&self) -> GetChatAdministrators {
         GetChatAdministrators::new(self.id)
     }
 
+    /// Creates a [`GetChatMemberCount`] request which will return the number of members in this chat.
     pub fn get_member_count(&self) -> GetChatMemberCount {
         GetChatMemberCount::new(self.id)
     }
 
+    /// Creates a [`GetChatMember`] request which will return the information obout the given member in this chat.
     pub fn get_member(&self, user_id: i64) -> GetChatMember {
         GetChatMember::new(self.id, user_id)
     }
