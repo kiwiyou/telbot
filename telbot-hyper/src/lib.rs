@@ -1,3 +1,9 @@
+//! Telegram bot API client, built upon [`hyper`](https://crates.io/crates/hyper).
+//!
+//! You can import related types from [`types`] module, build a request,
+//! send it to the Telegram server, and get a response.
+//! Sending request will be done with [`Api::send_json`] and [`Api::send_file`] methods.
+
 use std::io::Cursor;
 
 use hyper::{body::Buf, client::HttpConnector, Body, Client, Request, Response};
@@ -6,12 +12,14 @@ use hyper_tls::HttpsConnector;
 pub use telbot_types as types;
 use types::{ApiResponse, FileMethod, JsonMethod, TelegramError, TelegramMethod};
 
+/// Telegram API requester.
 #[derive(Clone)]
 pub struct Api {
     base_url: String,
     client: Client<HttpsConnector<HttpConnector>>,
 }
 
+/// Error that can occur while requesting and responding to the server.
 #[derive(Debug)]
 pub enum Error {
     Telegram(TelegramError),
@@ -20,6 +28,7 @@ pub enum Error {
     Mime(mime::FromStrError),
 }
 
+/// Result having [`Error`] as error type.
 pub type Result<T> = std::result::Result<T, Error>;
 
 impl From<hyper::Error> for Error {
@@ -41,6 +50,7 @@ impl From<mime::FromStrError> for Error {
 }
 
 impl Api {
+    /// Creates a new API requester with bot token.
     pub fn new(token: impl AsRef<str>) -> Self {
         Self {
             base_url: format!("https://api.telegram.org/bot{}/", token.as_ref()),
@@ -48,6 +58,7 @@ impl Api {
         }
     }
 
+    /// Sends a JSON-serializable API request.
     pub async fn send_json<Method: JsonMethod>(&self, method: &Method) -> Result<Method::Response> {
         let body = serde_json::to_vec(method)?;
 
@@ -62,6 +73,7 @@ impl Api {
         Self::parse_response::<Method>(response).await
     }
 
+    /// Sends a API request with files.
     pub async fn send_file<Method: FileMethod>(&self, method: &Method) -> Result<Method::Response> {
         let url = format!("{}{}", self.base_url, Method::name());
         let files = method.files();
