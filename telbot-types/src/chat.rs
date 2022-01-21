@@ -1,3 +1,5 @@
+//! Types, requests, and responses related to chats.
+
 use serde::{Deserialize, Serialize};
 
 use crate::file::{InputFile, InputFileVariant, InputMedia};
@@ -312,22 +314,27 @@ impl Chat {
         GetChatMember::new(self.id, user_id)
     }
 
+    /// Creates a [`SetChatStickerSet`] request which will set this chat's sticker set.
     pub fn set_sticker_set(&self, sticker_set_name: impl Into<String>) -> SetChatStickerSet {
         SetChatStickerSet::new(self.id, sticker_set_name)
     }
 
+    /// Creates a [`DeleteChatStickerSet`] request which will delete this chat's sticker set.
     pub fn delete_sticker_set(&self) -> DeleteChatStickerSet {
         DeleteChatStickerSet::new(self.id)
     }
 
+    /// Creates an [`EditMessageText`] request which will change the text of given message in this chat.
     pub fn edit_text_of(&self, message_id: i64, text: impl Into<String>) -> EditMessageText {
         EditMessageText::new(self.id, message_id, text)
     }
 
+    /// Creates an [`EditMessageCaption`] request which will remove the caption of given message in this chat.
     pub fn remove_caption_of(&self, message_id: i64) -> EditMessageCaption {
         EditMessageCaption::new_empty(self.id, message_id)
     }
 
+    /// Creates an [`EditMessageCaption`] request which will change the caption of given message in this chat.
     pub fn edit_caption_of(
         &self,
         message_id: i64,
@@ -336,14 +343,17 @@ impl Chat {
         EditMessageCaption::new(self.id, message_id, caption)
     }
 
+    /// Creates an [`EditMessageMedia`] request which will change the media content of given message in this chat.
     pub fn edit_media_of(&self, message_id: i64, media: impl Into<InputMedia>) -> EditMessageMedia {
         EditMessageMedia::new(self.id, message_id, media)
     }
 
+    /// Creates an [`EditMessageReplyMarkup`] request which will remove the reply markup of the given message in this chat.
     pub fn remove_reply_markup_of(&self, message_id: i64) -> EditMessageReplyMarkup {
         EditMessageReplyMarkup::new_empty(self.id, message_id)
     }
 
+    /// Creates an [`EditMessageReplyMarkup`] request which will change the reply markup of the given message in this chat.
     pub fn edit_reply_markup_of(
         &self,
         message_id: i64,
@@ -352,15 +362,18 @@ impl Chat {
         EditMessageReplyMarkup::new(self.id, message_id, reply_markup)
     }
 
+    /// Creates a [`StopPoll`] request which will stop the poll with given message id in this chat.
     pub fn stop_poll(&self, message_id: i64) -> StopPoll {
         StopPoll::new(self.id, message_id)
     }
 
+    /// Creates a [`DeleteMessage`] request which will delete the given message from this chat.
     pub fn delete_message(&self, message_id: i64) -> DeleteMessage {
         DeleteMessage::new(self.id, message_id)
     }
 }
 
+/// Kinds of chat.
 #[derive(Debug, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum ChatKind {
@@ -370,31 +383,37 @@ pub enum ChatKind {
     Channel,
 }
 
-/// This object represents a chat photo.
+/// A chat photo.
 #[derive(Debug, Deserialize)]
 pub struct ChatPhoto {
     /// File identifier of small (160x160) chat photo.
-    /// This file_id can be used only for photo download
+    /// 
+    /// This can be used only for photo download
     /// and only for as long as the photo is not changed.
     pub small_file_id: String,
-    /// Unique file identifier of small (160x160) chat photo,
-    /// which is supposed to be the same over time and for different bots.
+    /// Unique file identifier of small (160x160) chat photo.
+    /// 
+    /// This is supposed to be the same over time and for different bots.
     /// Can't be used to download or reuse the file.
     pub small_file_unique_id: String,
     /// File identifier of big (640x640) chat photo.
-    /// This file_id can be used only for photo download
+    /// 
+    /// This can be used only for photo download
     /// and only for as long as the photo is not changed.
     pub big_file_id: String,
-    /// Unique file identifier of big (640x640) chat photo,
-    /// which is supposed to be the same over time and for different bots.
+    /// Unique file identifier of big (640x640) chat photo.
+    /// 
+    /// This is supposed to be the same over time and for different bots.
     /// Can't be used to download or reuse the file.
     pub big_file_unique_id: String,
 }
 
+/// Location of a chat, especially supergroup.
 #[derive(Debug, Deserialize)]
 pub struct ChatLocation {
     /// The location to which the supergroup is connected.
-    /// Can't be a live location.
+    /// 
+    /// It can't be a live location.
     pub location: Location,
     /// Location address; 1-64 characters, as defined by the chat owner
     pub address: String,
@@ -403,92 +422,105 @@ pub struct ChatLocation {
 /// Describes actions that a non-administrator user is allowed to take in a chat.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ChatPermissions {
-    /// True, if the user is allowed to send text messages, contacts, locations and venues
+    /// `true` if the user is allowed to send text messages, contacts, locations and venues.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_messages: Option<bool>,
-    /// True, if the user is allowed to send audios, documents,
-    /// photos, videos, video notes and voice notes, implies can_send_messages
+    /// `true`, if the user is allowed to send audios, documents,
+    /// photos, videos, video notes and voice notes, implies [`ChatPermissions::can_send_messages`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_media_messages: Option<bool>,
-    /// True, if the user is allowed to send polls, implies can_send_messages
+    /// `true` if the user is allowed to send polls, implies [`ChatPermissions::can_send_messages`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_polls: Option<bool>,
-    /// True, if the user is allowed to send animations, games, stickers
-    /// and use inline bots, implies can_send_media_messages
+    /// `true` if the user is allowed to send animations, games, stickers
+    /// and use inline bots, implies [`ChatPermissions::can_send_media_messages`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_send_other_messages: Option<bool>,
-    /// True, if the user is allowed to add web page previews to their messages,
-    /// implies can_send_media_messages
+    /// `true` if the user is allowed to add web page previews to their messages,
+    /// implies [`ChatPermissions::can_send_media_messages`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_add_web_page_previews: Option<bool>,
-    /// True, if the user is allowed to change the chat title, photo and other settings.
-    /// Ignored in public supergroups
+    /// `true` if the user is allowed to change the chat title, photo and other settings.
+    /// 
+    /// Ignored in public supergroups.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_change_info: Option<bool>,
-    /// True, if the user is allowed to invite new users to the chat
+    /// `true` if the user is allowed to invite new users to the chat.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_invite_users: Option<bool>,
-    /// True, if the user is allowed to pin messages.
-    /// Ignored in public supergroups
+    /// `true` if the user is allowed to pin messages.
+    /// 
+    /// Ignored in public supergroups.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_pin_messages: Option<bool>,
 }
 
 impl ChatPermissions {
-    /// Create a new ChatPermissions object
+    /// Creates a new [`ChatPermissions`] object with no option set
     pub fn new() -> Self {
         Default::default()
     }
-    /// Set can_send_messages to `true`
+
+    /// Allows sending text messages, contacts, locations and venues.
     pub fn allow_send_messages(self) -> Self {
         Self {
             can_send_messages: Some(true),
             ..self
         }
     }
-    /// Set can_send_media_messages to `true`
+
+    /// Allows sending audios, documents,
+    /// photos, videos, video notes and voice notes.
     pub fn allow_send_media_messages(self) -> Self {
         Self {
             can_send_media_messages: Some(true),
             ..self
         }
     }
-    /// Set can_send_polls to `true`
+
+    /// Allows sending polls, implies [`ChatPermissions::can_send_media_messages`].
     pub fn allow_send_polls(self) -> Self {
         Self {
             can_send_polls: Some(true),
             ..self
         }
     }
-    /// Set can_send_other_messages to `true`
+
+    /// Allows sending animations, games, and stickers and using inline bots,
+    /// implies [`ChatPermissions::can_send_media_messages`].
     pub fn allow_send_other_messages(self) -> Self {
         Self {
             can_send_other_messages: Some(true),
             ..self
         }
     }
-    /// Set can_add_web_page_previews to `true`
+
+    /// Allows adding web page previews to messages,
+    /// implies [`ChatPermissions::can_send_media_messages`].
     pub fn allow_add_web_page_previews(self) -> Self {
         Self {
             can_add_web_page_previews: Some(true),
             ..self
         }
     }
-    /// Set can_change_info to `true`
+
+    /// Allows changing chat title, photo, and other settings, ignored in public supergroups.
     pub fn allow_change_info(self) -> Self {
         Self {
             can_change_info: Some(true),
             ..self
         }
     }
-    /// Set can_invite_users to `true`
+
+    /// Allows inviting new users to the chat.
     pub fn allow_invite_users(self) -> Self {
         Self {
             can_invite_users: Some(true),
             ..self
         }
     }
-    /// Set can_pin_messages to `true`
+    
+    /// Allows pinning messages, ignored in public supergroups.
     pub fn allow_pin_messages(self) -> Self {
         Self {
             can_pin_messages: Some(true),
@@ -497,107 +529,114 @@ impl ChatPermissions {
     }
 }
 
+/// Detailed information of a chat member.
+/// 
+/// Can be obtained with [`GetChatMember`]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "status")]
 pub enum ChatMember {
-    /// Represents a [chat member](https://core.telegram.org/bots/api#chatmember)
-    /// that owns the chat and has all administrator privileges.
+    /// The owner of the chat with all privileges.
     #[serde(rename = "creator")]
     Owner {
-        /// Information about the user
+        /// Information about the user.
         user: User,
-        /// True, if the user's presence in the chat is hidden
+        /// `true` if the user's presence in the chat is hidden.
         is_anonymous: bool,
-        /// Custom title for this user
+        /// Custom title for this user.
         custom_title: Option<String>,
     },
-    /// Represents a [chat member](https://core.telegram.org/bots/api#chatmember)
-    /// that has some additional privileges.
+    /// An administrator of the chat with some additional privileges.
     Administrator {
-        /// Information about the user
+        /// Information about the user.
         user: User,
-        /// True, if the bot is allowed to edit administrator privileges of that user
+        /// `true` if the bot is allowed to edit administrator privileges of that user.
         can_be_edited: bool,
-        /// True, if the user's presence in the chat is hidden
+        /// `true` if the user's presence in the chat is hidden.
         is_anonymous: bool,
-        /// True, if the administrator can access the chat event log, chat statistics,
-        /// message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode.
-        /// Implied by any other administrator privilege
+        /// `true` if the administrator can "manage" the chat.
+        /// 
+        /// With this privilege, the administrator can:
+        /// - access the chat event log, chat statistics, and message statistics in channels
+        /// - see channel members and anonymous administrators in supergroups
+        /// - ignore slow mode
+        /// 
+        /// Implied by any other administrator privilege.
         can_manage_chat: bool,
-        /// True, if the administrator can delete messages of other users
+        /// `true` if the administrator can delete messages of other users.
         can_delete_messages: bool,
-        /// True, if the administrator can manage voice chats
+        /// `true` if the administrator can manage voice chats.
         can_manage_voice_chats: bool,
-        /// True, if the administrator can restrict, ban or unban chat members
+        /// `true` if the administrator can restrict, ban or unban chat members.
         can_restrict_members: bool,
-        /// True, if the administrator can add new administrators with a subset of their own privileges or demote administrators that he has promoted,
-        /// directly or indirectly (promoted by administrators that were appointed by the user)
+        /// `true` if the administrator can promote members.
+        /// 
+        /// With this privilege, the administrator can:
+        /// - add new administrators with a subset of their own privilege
+        /// - demote administrators that they has promoted directly
+        /// - demote administrators promoted by other administrators they has appointed
         can_promote_members: bool,
-        /// True, if the user is allowed to change the chat title, photo and other settings
+        /// `true` if the user is allowed to change the chat title, photo and other settings.
         can_change_info: bool,
-        /// True, if the user is allowed to invite new users to the chat
+        /// `true` if the user is allowed to invite new users to the chat.
         can_invite_users: bool,
-        /// True, if the administrator can post in the channel; channels only
+        /// `true` if the administrator can post in the channel; channels only.
         can_post_messages: Option<bool>,
-        /// True, if the administrator can edit messages of other users and can pin messages; channels only
+        /// `true` if the administrator can edit messages of other users and can pin messages; channels only.
         can_edit_messages: Option<bool>,
-        /// True, if the user is allowed to pin messages; groups and supergroups only
+        /// `true` if the user is allowed to pin messages; groups and supergroups only.
         can_pin_messages: Option<bool>,
-        /// Custom title for this user
+        /// Custom title for this user.
         custom_title: Option<String>,
     },
-    /// Represents a [chat member](https://core.telegram.org/bots/api#chatmember)
-    /// that has no additional privileges or restrictions.
+    /// A chat member without additional privileges or restrictions.
     Member {
-        /// Information about the user
+        /// Information about the user.
         user: User,
     },
-    /// Represents a [chat member](https://core.telegram.org/bots/api#chatmember)
-    /// that is under certain restrictions in the chat. Supergroups only.
+    /// A chat member under some restrictions. Supergroups only.
     Restricted {
-        /// Information about the user
+        /// Information about the user.
         user: User,
-        /// True, if the user is a member of the chat at the moment of the request
+        /// `true` if the user is a member of the chat at the moment of the request.
         is_member: bool,
-        /// True, if the user is allowed to change the chat title, photo and other settings
+        /// `true` if the user is allowed to change the chat title, photo and other settings.
         can_change_info: bool,
-        /// True, if the user is allowed to invite new users to the chat
+        /// `true` if the user is allowed to invite new users to the chat.
         can_invite_users: bool,
-        /// True, if the user is allowed to pin messages
+        /// `true` if the user is allowed to pin messages.
         can_pin_messages: bool,
-        /// True, if the user is allowed to send text messages, contacts, locations and venues
+        /// `true` if the user is allowed to send text messages, contacts, locations and venues.
         can_send_messages: bool,
-        /// True, if the user is allowed to send audios, documents, photos, videos, video notes and voice notes
+        /// `true` if the user is allowed to send audios, documents, photos, videos, video notes and voice notes.
         can_send_media_messages: bool,
-        /// True, if the user is allowed to send polls
+        /// `true` if the user is allowed to send polls.
         can_send_polls: bool,
-        /// True, if the user is allowed to send animations, games, stickers and use inline bots
+        /// `true` if the user is allowed to send animations, games, stickers and use inline bots.
         can_send_other_messages: bool,
-        /// True, if the user is allowed to add web page previews to their messages
+        /// `true` if the user is allowed to add web page previews to their messages.
         can_add_web_page_previews: bool,
         /// Date when restrictions will be lifted for this user; unix time.
-        /// If 0, then the user is restricted forever
+        /// If 0, then the user is restricted forever.
         until_date: u64,
     },
-    /// Represents a [chat member](https://core.telegram.org/bots/api#chatmember)
-    /// that isn't currently a member of the chat, but may join it themselves.
+    /// A chat member that isn't currently a member of the chat, but may join it themselves.
     Left {
-        /// Information about the user
+        /// Information about the user.
         user: User,
     },
-    /// Represents a [chat member](https://core.telegram.org/bots/api#chatmember)
-    /// that was banned in the chat and can't return to the chat or view chat messages.
+    /// A chat member that was banned in the chat and can't return to the chat or view chat messages.
     #[serde(rename = "kicked")]
     Banned {
-        /// Information about the user
+        /// Information about the user.
         user: User,
         /// Date when restrictions will be lifted for this user; unix time.
-        /// If 0, then the user is banned forever
+        /// If 0, then the user is banned forever.
         until_date: u64,
     },
 }
 
 impl ChatMember {
+    /// Gets information about the user.
     pub fn user(&self) -> &User {
         match self {
             ChatMember::Owner { user, .. }
@@ -609,6 +648,7 @@ impl ChatMember {
         }
     }
 
+    /// `true` if the user's presence in the chat is hidden.
     pub fn is_anonymous(&self) -> Option<bool> {
         match self {
             ChatMember::Owner { is_anonymous, .. }
@@ -617,6 +657,7 @@ impl ChatMember {
         }
     }
 
+    /// Custom title for this user.
     pub fn custom_title(&self) -> Option<&str> {
         match self {
             Self::Owner { custom_title, .. } | Self::Administrator { custom_title, .. } => {
