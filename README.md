@@ -10,28 +10,28 @@ Specifically, telbot now supports:
 
 ```toml
 [dependencies]
-telbot-types = "0.2.0"
+telbot-types = "0.3.0"
 ```
 
 - telbot-cf-worker: API wrapper for cloudflare workers
 
 ```toml
 [dependencies]
-telbot-cf-worker = "0.2.0"
+telbot-cf-worker = "0.3.0"
 ```
 
 - telbot-ureq: API wrapper for [ureq](https://github.com/algesten/ureq) client
 
 ```toml
 [dependencies]
-telbot-ureq = "0.2.0"
+telbot-ureq = "0.3.0"
 ```
 
-- telbot-reqwest: API wrapper for [reqwest](https://github.com/seanmonstar/reqwest) client
+- telbot-hyper: API wrapper for [hyper](https://github.com/hyperium/hyper) client
 
 ```toml
 [dependencies]
-telbot-reqwest = "0.1.0"
+telbot-hyper = "0.3.0"
 ```
 
 ## Examples
@@ -43,8 +43,10 @@ telbot-reqwest = "0.1.0"
 - [ureq](https://github.com/kiwiyou/telbot/tree/main/telbot-ureq/examples)
   - [echo example](https://github.com/kiwiyou/telbot/blob/main/telbot-ureq/examples/echo.rs)
   - [file(photo) send example](https://github.com/kiwiyou/telbot/blob/main/telbot-ureq/examples/file.rs)
-- [reqwest](https://github.com/kiwiyou/telbot/tree/main/telbot-reqwest/examples)
-  - [echo example](https://github.com/kiwiyou/telbot/blob/main/telbot-reqwest/examples/echo.rs)
+- [hyper](https://github.com/kiwiyou/telbot/tree/main/telbot-hyper/examples)
+  - [echo example](https://github.com/kiwiyou/telbot/blob/main/telbot-hyper/examples/echo.rs)
+  - [file(photo) send example](https://github.com/kiwiyou/telbot/blob/main/telbot-hyper/examples/file.rs)
+
 
 ## Extending telbot
 

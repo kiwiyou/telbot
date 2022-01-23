@@ -990,6 +990,9 @@ pub struct SendMessage {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendMessage {
@@ -1005,6 +1008,7 @@ impl SendMessage {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set parse mode
@@ -1062,6 +1066,13 @@ impl SendMessage {
             ..self
         }
     }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
+            ..self
+        }
+    }
 }
 
 impl TelegramMethod for SendMessage {
@@ -1088,6 +1099,9 @@ pub struct ForwardMessage {
     pub disable_notification: Option<bool>,
     /// Message identifier in the chat specified in *from_chat_id*
     pub message_id: i64,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl ForwardMessage {
@@ -1098,12 +1112,20 @@ impl ForwardMessage {
             from_chat_id: from.into(),
             disable_notification: None,
             message_id: message,
+            protect_content: None,
         }
     }
     /// Disable notification
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }
@@ -1155,6 +1177,9 @@ pub struct CopyMessage {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl CopyMessage {
@@ -1171,6 +1196,7 @@ impl CopyMessage {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set caption
@@ -1225,6 +1251,13 @@ impl CopyMessage {
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }
@@ -1281,6 +1314,9 @@ pub struct SendPhoto {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendPhoto {
@@ -1296,6 +1332,7 @@ impl SendPhoto {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set caption
@@ -1350,6 +1387,13 @@ impl SendPhoto {
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }
@@ -1433,6 +1477,9 @@ pub struct SendAudio {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendAudio {
@@ -1452,6 +1499,7 @@ impl SendAudio {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set duration
@@ -1537,6 +1585,13 @@ impl SendAudio {
             ..self
         }
     }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
+            ..self
+        }
+    }
 }
 
 impl TelegramMethod for SendAudio {
@@ -1611,6 +1666,9 @@ pub struct SendDocument {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendDocument {
@@ -1628,6 +1686,7 @@ impl SendDocument {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set thumbnail
@@ -1696,6 +1755,13 @@ impl SendDocument {
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }
@@ -1783,6 +1849,9 @@ pub struct SendVideo {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendVideo {
@@ -1803,6 +1872,7 @@ impl SendVideo {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set duration
@@ -1895,6 +1965,13 @@ impl SendVideo {
             ..self
         }
     }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
+            ..self
+        }
+    }
 }
 
 impl TelegramMethod for SendVideo {
@@ -1976,6 +2053,9 @@ pub struct SendAnimation {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendAnimation {
@@ -1995,6 +2075,7 @@ impl SendAnimation {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set duration
@@ -2080,6 +2161,13 @@ impl SendAnimation {
             ..self
         }
     }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
+            ..self
+        }
+    }
 }
 
 impl TelegramMethod for SendAnimation {
@@ -2150,6 +2238,9 @@ pub struct SendVoice {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendVoice {
@@ -2166,6 +2257,7 @@ impl SendVoice {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set duration
@@ -2227,6 +2319,13 @@ impl SendVoice {
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }
@@ -2293,6 +2392,9 @@ pub struct SendVideoNote {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    // Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendVideoNote {
@@ -2308,6 +2410,7 @@ impl SendVideoNote {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set duration
@@ -2359,6 +2462,13 @@ impl SendVideoNote {
             ..self
         }
     }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
+            ..self
+        }
+    }
 }
 
 impl TelegramMethod for SendVideoNote {
@@ -2404,6 +2514,9 @@ pub struct SendMediaGroup {
     /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendMediaGroup {
@@ -2415,6 +2528,7 @@ impl SendMediaGroup {
             disable_notification: None,
             reply_to_message_id: None,
             allow_sending_without_reply: None,
+            protect_content: None,
         }
     }
     /// Set media group
@@ -2447,6 +2561,13 @@ impl SendMediaGroup {
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }
@@ -2500,6 +2621,9 @@ pub struct SendLocation {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendLocation {
@@ -2522,6 +2646,7 @@ impl SendLocation {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set live period
@@ -2570,6 +2695,13 @@ impl SendLocation {
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }
@@ -2870,6 +3002,9 @@ pub struct SendVenue {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendVenue {
@@ -2895,6 +3030,7 @@ impl SendVenue {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set foursquare id and type
@@ -2941,6 +3077,13 @@ impl SendVenue {
             ..self
         }
     }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
+            ..self
+        }
+    }
 }
 
 impl TelegramMethod for SendVenue {
@@ -2984,6 +3127,9 @@ pub struct SendContact {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendContact {
@@ -3003,6 +3149,7 @@ impl SendContact {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set last name
@@ -3044,6 +3191,13 @@ impl SendContact {
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }
@@ -3120,6 +3274,9 @@ pub struct SendPoll {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendPoll {
@@ -3147,6 +3304,7 @@ impl SendPoll {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Create a new sendPoll request to send a quiz
@@ -3174,6 +3332,7 @@ impl SendPoll {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set the poll as anonymous
@@ -3270,6 +3429,13 @@ impl SendPoll {
             ..self
         }
     }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
+            ..self
+        }
+    }
 }
 
 impl TelegramMethod for SendPoll {
@@ -3309,6 +3475,9 @@ pub struct SendDice {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendDice {
@@ -3321,6 +3490,7 @@ impl SendDice {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set emoji
@@ -3355,6 +3525,13 @@ impl SendDice {
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }

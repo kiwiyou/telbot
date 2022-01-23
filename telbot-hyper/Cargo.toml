@@ -1,25 +1,28 @@
 [package]
-name = "telbot-reqwest"
-version = "0.1.0"
+name = "telbot-hyper"
+version = "0.3.0"
 edition = "2018"
 authors = ["kiwiyou <kiwiyou@kiwiyou.dev>"]
 repository = "https://github.com/kiwiyou/telbot"
 license = "MIT"
-description = "Telegram API wrapper for reqwest client"
+description = "Telegram API wrapper for hyper client"
 categories = ["network-programming"]
-keywords = ["telbot", "telegram", "bot", "client", "reqwest"]
+keywords = ["telbot", "telegram", "bot", "client", "hyper"]
 readme = "../README.md"
 
 [dependencies]
 serde_json = "1.0.70"
+hyper-tls = "0.5.0"
+hyper-multipart-rfc7578 = "0.5.1"
+mime = "0.3.16"
 
-[dependencies.reqwest]
-version = "0.11.6"
-features = ["json", "multipart"]
+[dependencies.hyper]
+version = "0.14.14"
+features = ["client", "http1"]
 
 [dependencies.telbot-types]
 path = "../telbot-types"
-version = "0.2.0"
+version = "0.3.0"
 
 [dev-dependencies]
 tokio = { version = "1.13.0", features = ["full"] }

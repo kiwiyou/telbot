@@ -1,6 +1,6 @@
 use std::env;
 
-use telbot_reqwest::{types::update::GetUpdates, Api};
+use telbot_hyper::{types::update::GetUpdates, Api};
 
 #[tokio::main]
 async fn main() {
