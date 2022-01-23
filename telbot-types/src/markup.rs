@@ -497,6 +497,8 @@ pub enum MessageEntityKind {
         /// The mentioned user
         user: User,
     },
+    /// spoiler message
+    Spoiler,
 }
 
 impl MessageEntityKind {
