@@ -3332,6 +3332,7 @@ impl SendPoll {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Set the poll as anonymous
