@@ -104,6 +104,9 @@ pub struct SendSticker {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
+    /// Protects the contents of the sent message from forwarding and saving
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub protect_content: Option<bool>,
 }
 
 impl SendSticker {
@@ -116,6 +119,7 @@ impl SendSticker {
             reply_to_message_id: None,
             allow_sending_without_reply: None,
             reply_markup: None,
+            protect_content: None,
         }
     }
     /// Disable notification
@@ -143,6 +147,13 @@ impl SendSticker {
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
+            ..self
+        }
+    }
+    /// Protect content
+    pub fn protect_content(self) -> Self {
+        Self {
+            protect_content: Some(true),
             ..self
         }
     }
