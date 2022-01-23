@@ -1,6 +1,6 @@
 [package]
 name = "telbot-cf-worker"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2018"
 authors = ["kiwiyou <kiwiyou@kiwiyou.dev>"]
 repository = "https://github.com/kiwiyou/telbot"
@@ -23,7 +23,7 @@ features = ["client"]
 
 [dependencies.telbot-types]
 path = "../telbot-types"
-version = "0.2.0"
+version = "0.3.0"
 
 [dependencies.worker]
 version = "0.0.7"

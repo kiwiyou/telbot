@@ -10,21 +10,21 @@ Specifically, telbot now supports:
 
 ```toml
 [dependencies]
-telbot-types = "0.2.0"
+telbot-types = "0.3.0"
 ```
 
 - telbot-cf-worker: API wrapper for cloudflare workers
 
 ```toml
 [dependencies]
-telbot-cf-worker = "0.2.0"
+telbot-cf-worker = "0.3.0"
 ```
 
 - telbot-ureq: API wrapper for [ureq](https://github.com/algesten/ureq) client
 
 ```toml
 [dependencies]
-telbot-ureq = "0.2.0"
+telbot-ureq = "0.3.0"
 ```
 
 - telbot-hyper: API wrapper for [hyper](https://github.com/hyperium/hyper) client
