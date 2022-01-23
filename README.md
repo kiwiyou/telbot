@@ -31,7 +31,7 @@ telbot-ureq = "0.3.0"
 
 ```toml
 [dependencies]
-telbot-hyper = "0.1.0"
+telbot-hyper = "0.3.0"
 ```
 
 ## Examples
