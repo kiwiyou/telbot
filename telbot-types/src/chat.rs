@@ -211,7 +211,7 @@ impl Chat {
     }
 
     /// Creates a [`ExportChatInviteLink`] request which will create a new primary invite link to this chat.
-    /// 
+    ///
     /// Previously generated primary invite link will be revoked.
     pub fn export_invite_link(&self) -> ExportChatInviteLink {
         ExportChatInviteLink::new(self.id)
@@ -228,7 +228,7 @@ impl Chat {
     }
 
     /// Creates a [`RevokeChatInviteLink`] request which will revoke the given invite link of this chat.
-    /// 
+    ///
     /// If the primary invite link is revoked, a new link will be automatically generated.
     pub fn revoke_invite_link(&self, invite_link: impl Into<String>) -> RevokeChatInviteLink {
         RevokeChatInviteLink::new(self.id, invite_link)
@@ -387,22 +387,22 @@ pub enum ChatKind {
 #[derive(Debug, Deserialize)]
 pub struct ChatPhoto {
     /// File identifier of small (160x160) chat photo.
-    /// 
+    ///
     /// This can be used only for photo download
     /// and only for as long as the photo is not changed.
     pub small_file_id: String,
     /// Unique file identifier of small (160x160) chat photo.
-    /// 
+    ///
     /// This is supposed to be the same over time and for different bots.
     /// Can't be used to download or reuse the file.
     pub small_file_unique_id: String,
     /// File identifier of big (640x640) chat photo.
-    /// 
+    ///
     /// This can be used only for photo download
     /// and only for as long as the photo is not changed.
     pub big_file_id: String,
     /// Unique file identifier of big (640x640) chat photo.
-    /// 
+    ///
     /// This is supposed to be the same over time and for different bots.
     /// Can't be used to download or reuse the file.
     pub big_file_unique_id: String,
@@ -412,7 +412,7 @@ pub struct ChatPhoto {
 #[derive(Debug, Deserialize)]
 pub struct ChatLocation {
     /// The location to which the supergroup is connected.
-    /// 
+    ///
     /// It can't be a live location.
     pub location: Location,
     /// Location address; 1-64 characters, as defined by the chat owner
@@ -441,7 +441,7 @@ pub struct ChatPermissions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_add_web_page_previews: Option<bool>,
     /// `true` if the user is allowed to change the chat title, photo and other settings.
-    /// 
+    ///
     /// Ignored in public supergroups.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_change_info: Option<bool>,
@@ -449,7 +449,7 @@ pub struct ChatPermissions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_invite_users: Option<bool>,
     /// `true` if the user is allowed to pin messages.
-    /// 
+    ///
     /// Ignored in public supergroups.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_pin_messages: Option<bool>,
@@ -519,7 +519,7 @@ impl ChatPermissions {
             ..self
         }
     }
-    
+
     /// Allows pinning messages, ignored in public supergroups.
     pub fn allow_pin_messages(self) -> Self {
         Self {
@@ -530,7 +530,7 @@ impl ChatPermissions {
 }
 
 /// Detailed information of a chat member.
-/// 
+///
 /// Can be obtained with [`GetChatMember`]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "status")]
@@ -554,12 +554,12 @@ pub enum ChatMember {
         /// `true` if the user's presence in the chat is hidden.
         is_anonymous: bool,
         /// `true` if the administrator can "manage" the chat.
-        /// 
+        ///
         /// With this privilege, the administrator can:
         /// - access the chat event log, chat statistics, and message statistics in channels
         /// - see channel members and anonymous administrators in supergroups
         /// - ignore slow mode
-        /// 
+        ///
         /// Implied by any other administrator privilege.
         can_manage_chat: bool,
         /// `true` if the administrator can delete messages of other users.
@@ -569,7 +569,7 @@ pub enum ChatMember {
         /// `true` if the administrator can restrict, ban or unban chat members.
         can_restrict_members: bool,
         /// `true` if the administrator can promote members.
-        /// 
+        ///
         /// With this privilege, the administrator can:
         /// - add new administrators with a subset of their own privilege
         /// - demote administrators that they has promoted directly
@@ -649,7 +649,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the user's presence in the chat is hidden.
-    /// 
+    ///
     /// Returns `None` if the user is not the owner or an administrator.
     pub fn is_anonymous(&self) -> Option<bool> {
         match self {
@@ -670,7 +670,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the bot is allowed to edit administrator privileges of this user.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator.
     pub fn can_be_edited(&self) -> Option<bool> {
         match self {
@@ -680,9 +680,9 @@ impl ChatMember {
     }
 
     /// Returns `true` if the administrator can "manage" the chat.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator.
-    /// 
+    ///
     /// See also [`ChatMember::Administrator::can_manage_chat`].
     pub fn can_manage_chat(&self) -> Option<bool> {
         match self {
@@ -694,7 +694,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the administrator can delete messages of other users.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator.
     pub fn can_delete_messages(&self) -> Option<bool> {
         match self {
@@ -707,7 +707,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the administrator can manage voice chats.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator.
     pub fn can_manage_voice_chats(&self) -> Option<bool> {
         match self {
@@ -720,7 +720,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the administrator can restrict, ban or unban chat members.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator.
     pub fn can_restrict_members(&self) -> Option<bool> {
         match self {
@@ -733,9 +733,9 @@ impl ChatMember {
     }
 
     /// Returns `true` if the administrator can promote members.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator.
-    /// 
+    ///
     /// See also [`ChatMember::Administrator::can_promote_members`].
     pub fn can_promote_members(&self) -> Option<bool> {
         match self {
@@ -748,7 +748,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the user is allowed to change the chat title, photo and other settings.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator or a restricted user.
     pub fn can_change_info(&self) -> Option<bool> {
         match self {
@@ -763,7 +763,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the user is allowed to invite new users to the chat.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator or a restricted user.
     pub fn can_invite_users(&self) -> Option<bool> {
         match self {
@@ -778,7 +778,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the administrator can edit messages of other users and can pin messages; channels only.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator or the privilege is not explicitly set.
     pub fn can_edit_messages(&self) -> Option<bool> {
         match self {
@@ -790,7 +790,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the user is allowed to pin messages; groups and supergroups only.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator or a restricted user,
     /// or the privilege is not explicitly set.
     pub fn can_pin_messages(&self) -> Option<bool> {
@@ -806,7 +806,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the administrator can post in the channel; channels only.
-    /// 
+    ///
     /// Returns `None` if the user is not an administrator or the privilege is not explicitly set.
     pub fn can_post_messages(&self) -> Option<bool> {
         match self {
@@ -818,7 +818,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the user is allowed to send text messages, contacts, locations and venues.
-    /// 
+    ///
     /// Returns `None` if the user is not restricted.
     pub fn can_send_messages(&self) -> Option<bool> {
         match self {
@@ -830,7 +830,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the user is allowed to send audios, documents, photos, videos, video notes and voice notes.
-    /// 
+    ///
     /// Returns `None` if the user is not restricted.
     pub fn can_send_media_messages(&self) -> Option<bool> {
         match self {
@@ -843,7 +843,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the user is allowed to send polls.
-    /// 
+    ///
     /// Returns `None `if the user is not restricted.
     pub fn can_send_polls(&self) -> Option<bool> {
         match self {
@@ -853,7 +853,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the user is allowed to send animations, games, stickers and use inline bots.
-    /// 
+    ///
     /// Returns `None` if the user is not restricted.
     pub fn can_send_other_messages(&self) -> Option<bool> {
         match self {
@@ -866,7 +866,7 @@ impl ChatMember {
     }
 
     /// Returns `true` if the user is allowed to add web page previews to their messages.
-    /// 
+    ///
     /// Returns `None` if the user is not restricted.
     pub fn can_add_web_page_previews(&self) -> Option<bool> {
         match self {
@@ -888,9 +888,9 @@ impl ChatMember {
     }
 
     /// Returns the date when ban will be lifted for this user in unix time.
-    /// 
+    ///
     /// Returns `None` if the user is not banned.
-    /// 
+    ///
     /// See also [`ChatMember::Banned::until_date`].
     pub fn banned_until(&self) -> Option<u64> {
         match self {
@@ -900,9 +900,9 @@ impl ChatMember {
     }
 
     /// Returns the date when restrictions will be lifted for this user in unix time.
-    /// 
+    ///
     /// Returns `None` if the user is not restricted.
-    /// 
+    ///
     /// See also [`ChatMember::Restricted::until_date`].
     pub fn restricted_until(&self) -> Option<u64> {
         match self {
@@ -916,7 +916,7 @@ impl ChatMember {
 #[derive(Debug, Deserialize)]
 pub struct ChatInviteLink {
     /// The invite link.
-    /// 
+    ///
     /// If the link was created by another chat administrator,
     /// then the second part of the link will be replaced with “…”.
     pub invite_link: String,
@@ -951,9 +951,9 @@ pub struct ChatMemberUpdated {
 }
 
 /// Identifier of the chat or username of the supergroup (in the format `@supergroupusername`)
-/// 
+///
 /// You can pass values of type `i64`, `&str`, and `String` to parameters of type `impl Into<ChatId>`.
-/// 
+///
 /// ```
 /// # use telbot_types::chat::SetChatTitle;
 /// let set_chat_title = SetChatTitle::new(123, "title");
@@ -986,32 +986,37 @@ impl From<&str> for ChatId {
     }
 }
 
-/// Use this method to ban a user in a group, a supergroup or a channel.
+/// Bans a user in a group, a supergroup or a channel.
+///
 /// In the case of supergroups and channels, the user will not be able to return to the chat
 /// on their own using invite links, etc., unless unbanned first.
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Returns True on success.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct BanChatMember {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
-    /// Unique identifier of the target user
+    /// Unique identifier of the target user.
     pub user_id: i64,
     /// Date when the user will be unbanned, unix time.
+    ///
     /// If user is banned for more than 366 days or less than 30 seconds from the current time
     /// they are considered to be banned forever.
     /// Applied for supergroups and channels only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub until_date: Option<u64>,
-    /// Pass _True_ to delete all messages from the chat for the user that is being removed.
-    /// If _False_, the user will be able to see messages in the group that were sent before the user was removed.
-    /// Always _True_ for supergroups and channels.
+    /// Set `true` to delete all messages from the chat for the user that is being removed.
+    ///
+    /// If `false`, the user will be able to see messages in the group that were sent before the user was removed.
+    /// Always `true` for supergroups and channels.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub revoke_messages: Option<bool>,
 }
 
 impl BanChatMember {
-    /// Create a new banChatMember request
+    /// Creates a new [`BanChatMember`] request which will ban the user from the chat.
     pub fn new(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1021,7 +1026,9 @@ impl BanChatMember {
         }
     }
 
-    /// Set the date at which the user will be unbanned
+    /// Sets the date at which the user will be unbanned in unix time.
+    ///
+    /// See also [`BanChatMember::until_date`].
     pub fn until_date(self, date: u64) -> Self {
         Self {
             until_date: Some(date),
@@ -1029,7 +1036,9 @@ impl BanChatMember {
         }
     }
 
-    /// Set revoke_messages to `true`
+    /// Deletes all messages from the chat for the user that is being removed.
+    ///
+    /// See also [`BanChatMember::revoke_messages`].
     pub fn revoke_messages(self) -> Self {
         Self {
             revoke_messages: Some(true),
@@ -1048,26 +1057,30 @@ impl TelegramMethod for BanChatMember {
 
 impl JsonMethod for BanChatMember {}
 
-/// Use this method to unban a previously banned user in a supergroup or channel.
+/// Unbans a previously banned user in a supergroup or channel.
+///
 /// The user will **not** return to the group or channel automatically, but will be able to join via link, etc.
+///
 /// The bot must be an administrator for this to work.
+///
 /// By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it.
 /// So if the user is a member of the chat they will also be **removed** from the chat.
-/// If you don't want this, use the parameter *only_if_banned*.
-/// Returns _True_ on success.
+/// If you don't want this, use the parameter [`UnbanChatMember::only_if_banned`] or [`UnbanChatMember::only_if_banned()`].
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct UnbanChatMember {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// Unique identifier of the target user
+    /// Unique identifier of the target user.
     pub user_id: i64,
-    /// Do nothing if the user is not banned
+    /// If `true`, do nothing if the user is not banned.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub only_if_banned: Option<bool>,
 }
 
 impl UnbanChatMember {
-    /// Create a new unbanChatMember request
+    /// Creates a new [`UnbanChatMember`] request which will unban the user from the chat.
     pub fn new(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1076,7 +1089,7 @@ impl UnbanChatMember {
         }
     }
 
-    /// Set only_if_banned to `true`
+    /// Do nothing if the user is not banned.
     pub fn only_if_banned(self) -> Self {
         Self {
             only_if_banned: Some(true),
@@ -1095,27 +1108,31 @@ impl TelegramMethod for UnbanChatMember {
 
 impl JsonMethod for UnbanChatMember {}
 
-/// Use this method to restrict a user in a supergroup.
+/// Restricts a user in a supergroup.
+///
 /// The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights.
-/// Pass *True* for all permissions to lift restrictions from a user.
-/// Returns *True* on success.
+///
+/// Pass `true` for all permissions to lift restrictions from a user.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct RestrictChatMember {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
-    /// Unique identifier of the target user
+    /// Unique identifier of the target user.
     pub user_id: i64,
-    /// A JSON-serialized object for new user permissions
+    /// A JSON-serialized object for new user permissions.
     pub permissions: ChatPermissions,
     /// Date when restrictions will be lifted for the user, unix time.
+    ///
     /// If user is restricted for more than 366 days or less than 30 seconds from the current time,
-    /// they are considered to be restricted forever
+    /// they are considered to be restricted forever.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub until_date: Option<u64>,
 }
 
 impl RestrictChatMember {
-    /// Create a new restrictChatMember request
+    /// Creates a new [`RestrictChatMember`] request which will restrict the user permissions in the chat.
     pub fn new(chat_id: impl Into<ChatId>, user_id: i64, permissions: ChatPermissions) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1125,7 +1142,26 @@ impl RestrictChatMember {
         }
     }
 
-    /// Set the date at which the restriction wil be lifted
+    pub fn new_lift(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
+        Self::new(
+            chat_id,
+            user_id,
+            ChatPermissions {
+                can_send_messages: Some(true),
+                can_send_media_messages: Some(true),
+                can_send_polls: Some(true),
+                can_send_other_messages: Some(true),
+                can_add_web_page_previews: Some(true),
+                can_change_info: Some(true),
+                can_invite_users: Some(true),
+                can_pin_messages: Some(true),
+            },
+        )
+    }
+
+    /// Sets the date at which the restriction wil be lifted.
+    /// 
+    /// See also [`RestrictChatMember::until_date`].
     pub fn until_date(self, date: u64) -> Self {
         Self {
             until_date: Some(date),
@@ -1144,56 +1180,60 @@ impl TelegramMethod for RestrictChatMember {
 
 impl JsonMethod for RestrictChatMember {}
 
-/// Use this method to promote or demote a user in a supergroup or a channel.
+/// Promotes or demotes a user in a supergroup or a channel.
+/// 
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Pass _False_ for all boolean parameters to demote a user.
-/// Returns _True_ on success.
+/// 
+/// Pass `false` for all boolean parameters to demote a user.
+/// 
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct PromoteChatMember {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// Unique identifier of the target user
+    /// Unique identifier of the target user.
     pub user_id: i64,
-    /// Pass _True_, if the administrator's presence in the chat is hidden
+    /// Set `true` if the administrator's presence in the chat is hidden.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_anonymous: Option<bool>,
-    /// Pass _True_, if the administrator can access the chat event log, chat statistics, message statistics in channels,
-    /// see channel members, see anonymous administrators in supergroups and ignore slow mode.
-    /// Implied by any other administrator privilege
+    /// Set `true` if the administrator can "manage" the chat.
+    /// 
+    /// See also [`ChatMember::Administrator::can_manage_chat`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_chat: Option<bool>,
-    /// Pass _True_, if the administrator can delete messages of other users
+    /// Set `true` if the administrator can delete messages of other users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_delete_messages: Option<bool>,
-    /// Pass _True_, if the administrator can manage voice chats
+    /// Set `true` if the administrator can manage voice chats.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_voice_chats: Option<bool>,
-    /// Pass _True_, if the administrator can restrict, ban or unban chat members
+    /// Set `true` if the administrator can restrict, ban or unban chat members.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_restrict_members: Option<bool>,
-    /// Pass _True_, if the administrator can add new administrators with a subset of their own privileges or demote administrators that he has promoted,
-    /// directly or indirectly (promoted by administrators that were appointed by him)
+    /// Set `true` if the administrator can promote members.
+    /// 
+    /// See also [`ChatMember::Administrator::cna_promote_members`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_promote_members: Option<bool>,
-    /// Pass _True_, if the administrator can change chat title, photo and other settings
+    /// Set `true` if the administrator can change chat title, photo and other settings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_change_info: Option<bool>,
-    /// Pass _True_, if the administrator can invite new users to the chat
+    /// Set `true` if the administrator can invite new users to the chat.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_invite_users: Option<bool>,
-    /// Pass _True_, if the administrator can create channel posts, channels only
+    /// Set `true` if the administrator can create channel posts, channels only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_post_messages: Option<bool>,
-    /// Pass _True_, if the administrator can edit messages of other users and can pin messages, channels only
+    /// Set `true` if the administrator can edit messages of other users and can pin messages, channels only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_edit_messages: Option<bool>,
-    /// Pass _True_, if the administrator can pin messages, supergroups only
+    /// Set `true` if the administrator can pin messages, supergroups only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_pin_messages: Option<bool>,
 }
 
 impl PromoteChatMember {
-    /// Create a new promoteChatMember request
+    /// Creates a new [`PromoteChatMember`] request which will promote the user in the chat.
     pub fn new(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1212,9 +1252,9 @@ impl PromoteChatMember {
         }
     }
 
-    /// Create a new promoteChatMember request that demotes the user
+    /// Creates a new [`PromoteChatMember`] request which will demote the user in the chat.
     ///
-    /// It creates a new promoteChatMember request with all options disabled.
+    /// It creates a new [`PromoteChatMember`] request with all options disabled.
     pub fn demote(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1233,90 +1273,94 @@ impl PromoteChatMember {
         }
     }
 
-    /// Set `is_anonymous` to `true`
-    pub fn anonymous(self) -> Self {
+    /// Sets if the user's presence in the chat is hidden.
+    pub fn with_anonymous(self, is_anonymous: bool) -> Self {
         Self {
-            is_anonymous: Some(true),
+            is_anonymous: Some(is_anonymous),
             ..self
         }
     }
 
-    /// Set `can_manage_chat` to `true`
-    pub fn allow_manage_chat(self) -> Self {
+    /// Sets if the user can "manage" the chat.
+    /// 
+    /// See also [`ChatMember::Administrator::can_manage_chat`].
+    pub fn with_manage_chat(self, can_manage_chat: bool) -> Self {
         Self {
-            can_manage_chat: Some(true),
+            can_manage_chat: Some(can_manage_chat),
             ..self
         }
     }
 
-    /// Set `can_delete_messages` to `true`
-    pub fn allow_delete_messages(self) -> Self {
+    /// Sets if the user can delete messages of other users.
+    pub fn with_delete_messages(self, can_delete_messages: bool) -> Self {
         Self {
-            can_delete_messages: Some(true),
+            can_delete_messages: Some(can_delete_messages),
             ..self
         }
     }
 
-    /// Set `can_manage_voice_chats` to `true`
-    pub fn allow_manage_voice_chats(self) -> Self {
+    /// Sets if the user can manage voice chats.
+    pub fn with_manage_voice_chats(self, can_manage_voice_chats: bool) -> Self {
         Self {
-            can_manage_voice_chats: Some(true),
+            can_manage_voice_chats: Some(can_manage_voice_chats),
             ..self
         }
     }
 
-    /// Set `can_restrict_members` to `true`
-    pub fn allow_restrict_members(self) -> Self {
+    /// Sets if the user can restrict, ban or unban chat members.
+    pub fn with_restrict_members(self, can_restrict_members: bool) -> Self {
         Self {
-            can_restrict_members: Some(true),
+            can_restrict_members: Some(can_restrict_members),
             ..self
         }
     }
 
-    /// Set `can_promote_members` to `true`
-    pub fn allow_promote_members(self) -> Self {
+    /// Sets if the user can promote members.
+    /// 
+    /// See also [`ChatMember::Administrator::can_promote_members`].
+    pub fn with_promote_members(self, can_promote_members: bool) -> Self {
         Self {
-            can_promote_members: Some(true),
+            can_promote_members: Some(can_promote_members),
             ..self
         }
     }
 
-    /// Set `can_change_info` to `true`
-    pub fn allow_change_info(self) -> Self {
+    /// Sets if the user can change the chat title, photo and other settings.
+    pub fn with_change_info(self, can_change_info: bool) -> Self {
         Self {
-            can_change_info: Some(true),
+            can_change_info: Some(can_change_info),
             ..self
         }
     }
 
-    /// Set `can_invite_users` to `true`
-    pub fn allow_invite_users(self) -> Self {
+    /// Sets if the user can invite new users to the chat.
+    pub fn with_invite_users(self, can_invite_users: bool) -> Self {
         Self {
-            can_invite_users: Some(true),
+            can_invite_users: Some(can_invite_users),
             ..self
         }
     }
 
-    /// Set `can_post_messages` to `true`
-    pub fn allow_post_messages(self) -> Self {
+    /// Sets if the user can post in the channel; channels only.
+    pub fn with_post_messages(self, can_post_messages: bool) -> Self {
         Self {
-            can_post_messages: Some(true),
+            can_post_messages: Some(can_post_messages),
             ..self
         }
     }
 
-    /// Set `can_edit_messages` to `true`
-    pub fn allow_edit_messages(self) -> Self {
+    /// Sets if the user can edit messages of other users and can pin messages; channels only.
+    pub fn with_edit_messages(self, can_edit_messages: bool) -> Self {
         Self {
-            can_edit_messages: Some(true),
+            can_edit_messages: Some(can_edit_messages),
             ..self
         }
     }
 
-    /// Set `can_pin_messages` to `true`
-    pub fn allow_pin_messages(self) -> Self {
+    /// Sets if the user can pin messages; groups and supergroups only.
+    pub fn with_pin_messages(self, can_pin_messages: bool) -> Self {
         Self {
-            can_pin_messages: Some(true),
+            can_pin_messages: Some(can_pin_messages),
             ..self
         }
     }
@@ -1332,20 +1376,21 @@ impl TelegramMethod for PromoteChatMember {
 
 impl JsonMethod for PromoteChatMember {}
 
-/// Use this method to set a custom title for an administrator in a supergroup promoted by the bot.
-/// Returns _True_ on success.
+/// Sets a custom title for an administrator in a supergroup promoted by the bot.
+/// 
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct SetChatAdministratorCustomTitle {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// Unique identifier of the target user
+    /// Unique identifier of the target user.
     pub user_id: i64,
-    /// New custom title for the administrator; 0-16 characters, emoji are not allowed
+    /// New custom title for the administrator; 0-16 characters, emoji are not allowed.
     pub custom_title: String,
 }
 
 impl SetChatAdministratorCustomTitle {
-    /// Create a new setChatAdministratorCustomTitle request
+    /// Creates a new [`SetChatAdministratorCustomTitle`] request which will set the user's title in the chat.
     pub fn new(chat_id: impl Into<ChatId>, user_id: i64, custom_title: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1365,19 +1410,22 @@ impl TelegramMethod for SetChatAdministratorCustomTitle {
 
 impl JsonMethod for SetChatAdministratorCustomTitle {}
 
-/// Use this method to set default chat permissions for all members.
-/// The bot must be an administrator in the group or a supergroup for this to work and must have the *can_restrict_members* administrator rights.
-/// Returns _True_ on success.
+/// Sets default chat permissions for all members.
+/// 
+/// The bot must be an administrator in the group or a supergroup for this to work
+/// and must have the [`ChatMember::Administrator::can_restrict_members`] administrator rights.
+/// 
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct SetChatPermissions {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// A JSON-serialized object for new user permissions
+    /// New user permissions.
     pub permissions: ChatPermissions,
 }
 
 impl SetChatPermissions {
-    /// Create a new setChatPermissions request
+    /// Creates a new [`SetChatPermissions`] request which will set default chat permissions in the chat.
     pub fn new(chat_id: impl Into<ChatId>, permissions: ChatPermissions) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1396,26 +1444,27 @@ impl TelegramMethod for SetChatPermissions {
 
 impl JsonMethod for SetChatPermissions {}
 
-/// Use this method to generate a new primary invite link for a chat;
+/// Generates a new primary invite link for a chat;
 /// any previously generated primary link is revoked.
+/// 
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Returns the new invite link as _String_ on success.
+/// Returns the new invite link as `String` on success.
 ///
 /// Note: Each administrator in a chat generates their own invite links.
 /// Bots can't use invite links generated by other administrators.
 /// If you want your bot to work with invite links,
-/// it will need to generate its own link using [exportChatInviteLink](https://core.telegram.org/bots/api#exportchatinvitelink)
-/// or by calling the [getChat](https://core.telegram.org/bots/api#getchat) method.
+/// it will need to generate its own link using [`ExportChatInviteLink`]
+/// or by calling the [`GetChat`] method.
 /// If your bot needs to generate a new primary invite link replacing its previous one,
-/// use [exportChatInviteLink](https://core.telegram.org/bots/api#exportchatinvitelink) again.
+/// use [`ExportChatInviteLink`] again.
 #[derive(Clone, Serialize)]
 pub struct ExportChatInviteLink {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
 }
 
 impl ExportChatInviteLink {
-    /// Create a new exportChatInviteLink request
+    /// Creates a new [`ExportChatInviteLink`] request which will generate a new primary invite link for the chat.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1433,30 +1482,35 @@ impl TelegramMethod for ExportChatInviteLink {
 
 impl JsonMethod for ExportChatInviteLink {}
 
-/// Use this method to create an additional invite link for a chat.
+/// Creates an additional invite link for a chat.
+/// 
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// The link can be revoked using the method [revokeChatInviteLink](https://core.telegram.org/bots/api#revokechatinvitelink).
-/// Returns the new invite link as [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
+/// 
+/// The link can be revoked using the method [`RevokeChatInviteLink`].
+/// 
+/// Returns the new invite link as [`ChatInviteLink`] object.
 #[derive(Clone, Serialize)]
 pub struct CreateChatInviteLink {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// Invite link name; 0-32 characters
+    /// Invite link name; 0-32 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Point in time (Unix timestamp) when the link will expire
+    /// Point in time (Unix timestamp) when the link will expire.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expire_date: Option<u64>,
-    /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+    /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub member_limit: Option<u32>,
-    /// _True_, if users joining the chat via the link need to be approved by chat administrators. If _True_, *member_limit* can't be specified
+    /// `true` if users joining the chat via the link need to be approved by chat administrators.
+    /// 
+    /// If `true`, the member limit can't be specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creates_join_request: Option<bool>,
 }
 
 impl CreateChatInviteLink {
-    /// Create a new createChatInviteLink request
+    /// Creates a new [`CreateChatInviteLink`] request which will create a new additional invite link for the chat.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1466,29 +1520,37 @@ impl CreateChatInviteLink {
             creates_join_request: None,
         }
     }
-    /// Set invite link name
+
+    /// Sets the name of invite link.
     pub fn with_name(self, name: impl Into<String>) -> Self {
         Self {
             name: Some(name.into()),
             ..self
         }
     }
-    /// Set link expire date
+
+    /// Sets the time at which the invite link is expired in unix time.
     pub fn with_expire_date(self, expire_date: u64) -> Self {
         Self {
             expire_date: Some(expire_date),
             ..self
         }
     }
-    /// Set link member limit
+
+    /// Sets the maximum number of users the chat can have after the user joins the chat.
+    /// 
+    /// If set, join request cannot be created.
     pub fn with_member_limit(self, member_limit: u32) -> Self {
         Self {
             member_limit: Some(member_limit),
             ..self
         }
     }
-    /// Set `creates_join_request` to `true`
-    pub fn create_join_reqeuest(self) -> Self {
+
+    /// Makes users joining the chat via the link need to be approved by chat administrators.
+    /// 
+    /// If used, member limit cannot be set.
+    pub fn create_join_request(self) -> Self {
         Self {
             creates_join_request: Some(true),
             ..self
