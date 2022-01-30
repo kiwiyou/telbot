@@ -912,37 +912,38 @@ impl ChatMember {
     }
 }
 
-/// Represents an invite link for a chat.
+/// An invite link for a chat.
 #[derive(Debug, Deserialize)]
 pub struct ChatInviteLink {
     /// The invite link.
+    /// 
     /// If the link was created by another chat administrator,
     /// then the second part of the link will be replaced with “…”.
     pub invite_link: String,
-    /// Creator of the link
+    /// Creator of the link.
     pub creator: User,
-    /// True, if the link is primary
+    /// `true` if the link is primary.
     pub is_primary: bool,
-    /// True, if the link is revoked
+    /// `true` if the link is revoked.
     pub is_revoked: bool,
-    /// Point in time (Unix timestamp) when the link will expire or has been expired
+    /// Point in time (Unix timestamp) when the link will expire or has been expired.
     pub expire_date: Option<u64>,
-    /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+    /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999.
     pub member_limit: Option<u32>,
 }
 
-/// This object represents changes in the status of a chat member.
+/// Changes in the status of a chat member.
 #[derive(Debug, Deserialize)]
 pub struct ChatMemberUpdated {
-    /// Chat the user belongs to
+    /// Chat the user belongs to.
     pub chat: Chat,
-    /// Performer of the action, which resulted in the change
+    /// Performer of the action, which resulted in the change.
     pub from: User,
-    /// Date the change was done in Unix time
+    /// Date the change was done in Unix time.
     pub date: u64,
-    /// Previous information about the chat member
+    /// Previous information about the chat member.
     pub old_chat_member: ChatMember,
-    /// New information about the chat member
+    /// New information about the chat member.
     pub new_chat_member: ChatMember,
     /// Chat invite link, which was used by the user to join the chat;
     /// for joining by invite link events only.
@@ -950,12 +951,20 @@ pub struct ChatMemberUpdated {
 }
 
 /// Identifier of the chat or username of the supergroup (in the format `@supergroupusername`)
+/// 
+/// You can pass values of type `i64`, `&str`, and `String` to parameters of type `impl Into<ChatId>`.
+/// 
+/// ```
+/// # use telbot_types::chat::SetChatTitle;
+/// let set_chat_title = SetChatTitle::new(123, "title");
+/// let set_chat_title = SetChatTitle::new("@abcde", "title");
+/// ```
 #[derive(Clone, Serialize)]
 #[serde(untagged)]
 pub enum ChatId {
-    /// Identifier of the chat
+    /// Identifier of the chat.
     Id(i64),
-    /// Username of the supergroup (`@supergroupname`)
+    /// Username of the supergroup (`@supergroupname`).
     Username(String),
 }
 
