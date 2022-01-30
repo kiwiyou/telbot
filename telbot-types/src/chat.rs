@@ -648,7 +648,9 @@ impl ChatMember {
         }
     }
 
-    /// `true` if the user's presence in the chat is hidden.
+    /// Returns `true` if the user's presence in the chat is hidden.
+    /// 
+    /// Returns `None` if the user is not the owner or an administrator.
     pub fn is_anonymous(&self) -> Option<bool> {
         match self {
             ChatMember::Owner { is_anonymous, .. }
@@ -657,7 +659,7 @@ impl ChatMember {
         }
     }
 
-    /// Custom title for this user.
+    /// Returns custom title for this user.
     pub fn custom_title(&self) -> Option<&str> {
         match self {
             Self::Owner { custom_title, .. } | Self::Administrator { custom_title, .. } => {
@@ -667,6 +669,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the bot is allowed to edit administrator privileges of this user.
+    /// 
+    /// Returns `None` if the user is not an administrator.
     pub fn can_be_edited(&self) -> Option<bool> {
         match self {
             Self::Administrator { can_be_edited, .. } => Some(*can_be_edited),
@@ -674,6 +679,11 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the administrator can "manage" the chat.
+    /// 
+    /// Returns `None` if the user is not an administrator.
+    /// 
+    /// See also [`ChatMember::Administrator::can_manage_chat`].
     pub fn can_manage_chat(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -683,6 +693,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the administrator can delete messages of other users.
+    /// 
+    /// Returns `None` if the user is not an administrator.
     pub fn can_delete_messages(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -693,6 +706,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the administrator can manage voice chats.
+    /// 
+    /// Returns `None` if the user is not an administrator.
     pub fn can_manage_voice_chats(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -703,6 +719,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the administrator can restrict, ban or unban chat members.
+    /// 
+    /// Returns `None` if the user is not an administrator.
     pub fn can_restrict_members(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -713,6 +732,11 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the administrator can promote members.
+    /// 
+    /// Returns `None` if the user is not an administrator.
+    /// 
+    /// See also [`ChatMember::Administrator::can_promote_members`].
     pub fn can_promote_members(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -723,6 +747,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the user is allowed to change the chat title, photo and other settings.
+    /// 
+    /// Returns `None` if the user is not an administrator or a restricted user.
     pub fn can_change_info(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -735,6 +762,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the user is allowed to invite new users to the chat.
+    /// 
+    /// Returns `None` if the user is not an administrator or a restricted user.
     pub fn can_invite_users(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -747,6 +777,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the administrator can edit messages of other users and can pin messages; channels only.
+    /// 
+    /// Returns `None` if the user is not an administrator or the privilege is not explicitly set.
     pub fn can_edit_messages(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -756,6 +789,10 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the user is allowed to pin messages; groups and supergroups only.
+    /// 
+    /// Returns `None` if the user is not an administrator or a restricted user,
+    /// or the privilege is not explicitly set.
     pub fn can_pin_messages(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -768,6 +805,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the administrator can post in the channel; channels only.
+    /// 
+    /// Returns `None` if the user is not an administrator or the privilege is not explicitly set.
     pub fn can_post_messages(&self) -> Option<bool> {
         match self {
             Self::Administrator {
@@ -777,6 +817,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the user is allowed to send text messages, contacts, locations and venues.
+    /// 
+    /// Returns `None` if the user is not restricted.
     pub fn can_send_messages(&self) -> Option<bool> {
         match self {
             Self::Restricted {
@@ -786,6 +829,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the user is allowed to send audios, documents, photos, videos, video notes and voice notes.
+    /// 
+    /// Returns `None` if the user is not restricted.
     pub fn can_send_media_messages(&self) -> Option<bool> {
         match self {
             Self::Restricted {
@@ -796,6 +842,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the user is allowed to send polls.
+    /// 
+    /// Returns `None `if the user is not restricted.
     pub fn can_send_polls(&self) -> Option<bool> {
         match self {
             Self::Restricted { can_send_polls, .. } => Some(*can_send_polls),
@@ -803,6 +852,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the user is allowed to send animations, games, stickers and use inline bots.
+    /// 
+    /// Returns `None` if the user is not restricted.
     pub fn can_send_other_messages(&self) -> Option<bool> {
         match self {
             Self::Restricted {
@@ -813,6 +865,9 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the user is allowed to add web page previews to their messages.
+    /// 
+    /// Returns `None` if the user is not restricted.
     pub fn can_add_web_page_previews(&self) -> Option<bool> {
         match self {
             Self::Restricted {
@@ -823,6 +878,7 @@ impl ChatMember {
         }
     }
 
+    /// Returns `true` if the user is currently a member of the chat.
     pub fn is_member(&self) -> bool {
         match self {
             Self::Owner { .. } | Self::Administrator { .. } | Self::Member { .. } => true,
@@ -831,6 +887,11 @@ impl ChatMember {
         }
     }
 
+    /// Returns the date when ban will be lifted for this user in unix time.
+    /// 
+    /// Returns `None` if the user is not banned.
+    /// 
+    /// See also [`ChatMember::Banned::until_date`].
     pub fn banned_until(&self) -> Option<u64> {
         match self {
             Self::Banned { until_date, .. } => Some(*until_date),
@@ -838,6 +899,11 @@ impl ChatMember {
         }
     }
 
+    /// Returns the date when restrictions will be lifted for this user in unix time.
+    /// 
+    /// Returns `None` if the user is not restricted.
+    /// 
+    /// See also [`ChatMember::Restricted::until_date`].
     pub fn restricted_until(&self) -> Option<u64> {
         match self {
             Self::Restricted { until_date, .. } => Some(*until_date),
