@@ -58,7 +58,7 @@ pub struct Chat {
     pub sticker_set_name: Option<String>,
     /// `true` if the bot can change the group sticker set.
     /// Returned only in [`GetChat`].
-    pub can_get_sticker_set: Option<bool>,
+    pub can_set_sticker_set: Option<bool>,
     /// Unique identifier for the linked chat,
     /// i.e. the discussion group identifier for a channel and vice versa;
     /// for supergroups and channel chats.
@@ -284,7 +284,7 @@ impl Chat {
         UnpinChatMessage::new_recent(self.id)
     }
 
-    /// Creates a [`UnpinAllChatMessage`] request which will unpin all pinned messages from this chat.
+    /// Creates a [`UnpinAllChatMessages`] request which will unpin all pinned messages from this chat.
     pub fn unpin_all_messages(&self) -> UnpinAllChatMessages {
         UnpinAllChatMessages::new(self.id)
     }
@@ -1160,7 +1160,7 @@ impl RestrictChatMember {
     }
 
     /// Sets the date at which the restriction wil be lifted.
-    /// 
+    ///
     /// See also [`RestrictChatMember::until_date`].
     pub fn until_date(self, date: u64) -> Self {
         Self {
@@ -1181,11 +1181,11 @@ impl TelegramMethod for RestrictChatMember {
 impl JsonMethod for RestrictChatMember {}
 
 /// Promotes or demotes a user in a supergroup or a channel.
-/// 
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// 
+///
 /// Pass `false` for all boolean parameters to demote a user.
-/// 
+///
 /// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct PromoteChatMember {
@@ -1197,7 +1197,7 @@ pub struct PromoteChatMember {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_anonymous: Option<bool>,
     /// Set `true` if the administrator can "manage" the chat.
-    /// 
+    ///
     /// See also [`ChatMember::Administrator::can_manage_chat`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_manage_chat: Option<bool>,
@@ -1211,8 +1211,8 @@ pub struct PromoteChatMember {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_restrict_members: Option<bool>,
     /// Set `true` if the administrator can promote members.
-    /// 
-    /// See also [`ChatMember::Administrator::cna_promote_members`].
+    ///
+    /// See also [`ChatMember::Administrator::can_promote_members`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub can_promote_members: Option<bool>,
     /// Set `true` if the administrator can change chat title, photo and other settings.
@@ -1282,7 +1282,7 @@ impl PromoteChatMember {
     }
 
     /// Sets if the user can "manage" the chat.
-    /// 
+    ///
     /// See also [`ChatMember::Administrator::can_manage_chat`].
     pub fn with_manage_chat(self, can_manage_chat: bool) -> Self {
         Self {
@@ -1316,7 +1316,7 @@ impl PromoteChatMember {
     }
 
     /// Sets if the user can promote members.
-    /// 
+    ///
     /// See also [`ChatMember::Administrator::can_promote_members`].
     pub fn with_promote_members(self, can_promote_members: bool) -> Self {
         Self {
@@ -1377,7 +1377,7 @@ impl TelegramMethod for PromoteChatMember {
 impl JsonMethod for PromoteChatMember {}
 
 /// Sets a custom title for an administrator in a supergroup promoted by the bot.
-/// 
+///
 /// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct SetChatAdministratorCustomTitle {
@@ -1411,10 +1411,10 @@ impl TelegramMethod for SetChatAdministratorCustomTitle {
 impl JsonMethod for SetChatAdministratorCustomTitle {}
 
 /// Sets default chat permissions for all members.
-/// 
+///
 /// The bot must be an administrator in the group or a supergroup for this to work
 /// and must have the [`ChatMember::Administrator::can_restrict_members`] administrator rights.
-/// 
+///
 /// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct SetChatPermissions {
@@ -1446,7 +1446,7 @@ impl JsonMethod for SetChatPermissions {}
 
 /// Generates a new primary invite link for a chat;
 /// any previously generated primary link is revoked.
-/// 
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 /// Returns the new invite link as `String` on success.
 ///
@@ -1483,11 +1483,11 @@ impl TelegramMethod for ExportChatInviteLink {
 impl JsonMethod for ExportChatInviteLink {}
 
 /// Creates an additional invite link for a chat.
-/// 
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// 
+///
 /// The link can be revoked using the method [`RevokeChatInviteLink`].
-/// 
+///
 /// Returns the new invite link as [`ChatInviteLink`] object.
 #[derive(Clone, Serialize)]
 pub struct CreateChatInviteLink {
@@ -1503,7 +1503,7 @@ pub struct CreateChatInviteLink {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub member_limit: Option<u32>,
     /// `true` if users joining the chat via the link need to be approved by chat administrators.
-    /// 
+    ///
     /// If `true`, the member limit can't be specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creates_join_request: Option<bool>,
@@ -1538,7 +1538,7 @@ impl CreateChatInviteLink {
     }
 
     /// Sets the maximum number of users the chat can have after the user joins the chat.
-    /// 
+    ///
     /// If set, join request cannot be created.
     pub fn with_member_limit(self, member_limit: u32) -> Self {
         Self {
@@ -1548,7 +1548,7 @@ impl CreateChatInviteLink {
     }
 
     /// Makes users joining the chat via the link need to be approved by chat administrators.
-    /// 
+    ///
     /// If used, member limit cannot be set.
     pub fn create_join_request(self) -> Self {
         Self {
@@ -1568,31 +1568,35 @@ impl TelegramMethod for CreateChatInviteLink {
 
 impl JsonMethod for CreateChatInviteLink {}
 
-/// Use this method to edit a non-primary invite link created by the bot.
+/// Edits a non-primary invite link created by the bot.
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Returns the edited invite link as a [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
+///
+/// Returns the edited invite link as a [`ChatInviteLink`] object.
 #[derive(Clone, Serialize)]
 pub struct EditChatInviteLink {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// The invite link to edit
+    /// The invite link to edit.
     pub invite_link: String,
-    /// Invite link name; 0-32 characters
+    /// Invite link name; 0-32 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    /// Point in time (Unix timestamp) when the link will expire
+    /// Point in time (Unix timestamp) when the link will expire.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expire_date: Option<u64>,
-    /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
+    /// Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub member_limit: Option<u32>,
-    /// _True_, if users joining the chat via the link need to be approved by chat administrators. If _True_, *member_limit* can't be specified
+    /// `true` if users joining the chat via the link need to be approved by chat administrators.
+    ///
+    /// If `true`, the member limit can't be specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub creates_join_request: Option<bool>,
 }
 
 impl EditChatInviteLink {
-    /// Create a new editChatInviteLink request
+    /// Creates a new [`EditChatInviteLink`] request which will edit an existing invite link for the chat.
     pub fn new(chat_id: impl Into<ChatId>, invite_link: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1603,28 +1607,32 @@ impl EditChatInviteLink {
             creates_join_request: None,
         }
     }
-    /// Set invite link name
+    /// Sets the name of invite link.
     pub fn with_name(self, name: impl Into<String>) -> Self {
         Self {
             name: Some(name.into()),
             ..self
         }
     }
-    /// Set link expire date
+    /// Sets the time at which the invite link is expired in unix time.
     pub fn with_expire_date(self, expire_date: u64) -> Self {
         Self {
             expire_date: Some(expire_date),
             ..self
         }
     }
-    /// Set link member limit
+    /// Sets the maximum number of users the chat can have after the user joins the chat.
+    ///
+    /// If set, join request cannot be created.
     pub fn with_member_limit(self, member_limit: u32) -> Self {
         Self {
             member_limit: Some(member_limit),
             ..self
         }
     }
-    /// Set `creates_join_request` to `true`
+    /// Makes users joining the chat via the link need to be approved by chat administrators.
+    ///
+    /// If used, member limit cannot be set.
     pub fn create_join_reqeuest(self) -> Self {
         Self {
             creates_join_request: Some(true),
@@ -1633,20 +1641,23 @@ impl EditChatInviteLink {
     }
 }
 
-/// Use this method to revoke an invite link created by the bot.
+/// Revokes an invite link created by the bot.
+///
 /// If the primary link is revoked, a new link is automatically generated.
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Returns the revoked invite link as [ChatInviteLink](https://core.telegram.org/bots/api#chatinvitelink) object.
+///
+/// Returns the revoked invite link as [`ChatInviteLink`] object.
 #[derive(Clone, Serialize)]
 pub struct RevokeChatInviteLink {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// The invite link to revoke
+    /// The invite link to revoke.
     pub invite_link: String,
 }
 
 impl RevokeChatInviteLink {
-    /// Create a new revokeChatInviteLink object
+    /// Creates a new [`RevokeChatInviteLink`] request which will revoke an existing invite link for the chat.
     pub fn new(chat_id: impl Into<ChatId>, invite_link: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1665,19 +1676,21 @@ impl TelegramMethod for RevokeChatInviteLink {
 
 impl JsonMethod for RevokeChatInviteLink {}
 
-/// Use this method to approve a chat join request.
-/// The bot must be an administrator in the chat for this to work and must have the *can_invite_users* administrator right.
-/// Returns _True_ on success.
+/// Approves a chat join request.
+///
+/// The bot must be an administrator in the chat for this to work and must have the [`ChatPermissions::can_invite_users`] administrator right.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct ApproveChatJoinRequest {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target chat or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// Unique identifier of the target user
+    /// Unique identifier of the target user.
     pub user_id: i64,
 }
 
 impl ApproveChatJoinRequest {
-    /// Create a new approveChatJoinRequest request
+    /// Creates a new [`ApproveChatJoinRequest`] request which will approve a chat join request to the chat of the target user.
     pub fn new(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1696,19 +1709,21 @@ impl TelegramMethod for ApproveChatJoinRequest {
 
 impl JsonMethod for ApproveChatJoinRequest {}
 
-/// Use this method to decline a chat join request.
-/// The bot must be an administrator in the chat for this to work and must have the *can_invite_users* administrator right.
-/// Returns _True_ on success.
+/// Declines a chat join request.
+///
+/// The bot must be an administrator in the chat for this to work and must have the [`ChatPermissions::can_invite_users`] administrator right.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct DeclineChatJoinRequest {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// Unique identifier of the target user
+    /// Unique identifier of the target user.
     pub user_id: i64,
 }
 
 impl DeclineChatJoinRequest {
-    /// Create a new declineChatJoinRequest request
+    /// Creates a new [`DeclineChatJoinRequest`] request which will decline a chat join request to the chat of the target user.
     pub fn new(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1727,20 +1742,23 @@ impl TelegramMethod for DeclineChatJoinRequest {
 
 impl JsonMethod for DeclineChatJoinRequest {}
 
-/// Use this method to set a new profile photo for the chat.
+/// Sets a new profile photo for the chat.
+///
 /// Photos can't be changed for private chats.
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Returns _True_ on success.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct SetChatPhoto {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// New chat photo, uploaded using multipart/form-data
+    /// New chat photo, uploaded using multipart/form-data.
     pub photo: InputFile,
 }
 
 impl SetChatPhoto {
-    /// Create a new setChatPhoto request
+    /// Creates a new [`SetChatPhoto`] request which will set a new profile photo for the chat.
     pub fn new(chat_id: impl Into<ChatId>, photo: InputFile) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1759,18 +1777,21 @@ impl TelegramMethod for SetChatPhoto {
 
 impl JsonMethod for SetChatPhoto {}
 
-/// Use this method to delete a chat photo.
+/// Deletes a chat photo.
+///
 /// Photos can't be changed for private chats.
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Returns _True_ on success.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct DeleteChatPhoto {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
 }
 
 impl DeleteChatPhoto {
-    /// Create a new deleteChatPhoto request
+    /// Creates a new [`DeleteChatPhoto`] request which will delete the profile photo of the chat.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1788,20 +1809,23 @@ impl TelegramMethod for DeleteChatPhoto {
 
 impl JsonMethod for DeleteChatPhoto {}
 
-/// Use this method to change the title of a chat.
+/// Changes the title of a chat.
+///
 /// Titles can't be changed for private chats.
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Returns _True_ on success.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct SetChatTitle {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// New chat title, 1-255 characters
+    /// New chat title, 1-255 characters.
     pub title: String,
 }
 
 impl SetChatTitle {
-    /// Create a new setChatTitle request
+    /// Creates a new [`SetChatTitle`] request which will change the title of the chat.
     pub fn new(chat_id: impl Into<ChatId>, title: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1820,20 +1844,22 @@ impl TelegramMethod for SetChatTitle {
 
 impl JsonMethod for SetChatTitle {}
 
-/// Use this method to change the description of a group, a supergroup or a channel.
+/// Changes the description of a group, a supergroup or a channel.
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Returns _True_ on success.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct SetChatDescription {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`).
     pub chat_id: ChatId,
-    /// New chat description, 0-255 characters
+    /// New chat description, 0-255 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }
 
 impl SetChatDescription {
-    /// Create a new setChatDescription request which empties the description
+    /// Creates a new [`SetChatDescription`] request which will empty the description of the chat.
     pub fn new_empty(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1841,7 +1867,7 @@ impl SetChatDescription {
         }
     }
 
-    /// Create a new setChatDescription request with description
+    /// Creates a new [`SetChatDescription`] request which will set the description of the chat.
     pub fn new(chat_id: impl Into<ChatId>, description: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1858,24 +1884,26 @@ impl TelegramMethod for SetChatDescription {
     }
 }
 
-/// Use this method to add a message to the list of pinned messages in a chat.
+/// Adds a message to the list of pinned messages in a chat.
+///
 /// If the chat is not a private chat, the bot must be an administrator in the chat for this to work
-/// and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel.
-/// Returns _True_ on success.
+/// and must have the [`ChatMember::Administrator::can_pin_messages`] administrator right in a supergroup or [`ChatMember::Administrator::can_edit_messages`] administrator right in a channel.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct PinChatMessage {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
-    /// Identifier of a message to pin
+    /// Identifier of a message to pin.
     pub message_id: i64,
-    /// Pass True, if it is not necessary to send a notification to all chat members about the new pinned message.
-    /// Notifications are always disabled in channels and private chats.
+    /// Pass `true`, if it is not necessary to send a notification to all chat members about the new pinned message.
+    /// Notifications are always disabled in channels.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
 }
 
 impl PinChatMessage {
-    /// Create a new pinChatMessage request
+    /// Creates a new [`PinChatMessage`] request which will pin a message in the chat.
     pub fn new(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1884,7 +1912,7 @@ impl PinChatMessage {
         }
     }
 
-    /// Disable notification about the new pinned message
+    /// Disables notification for the pinned message.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
@@ -1903,21 +1931,25 @@ impl TelegramMethod for PinChatMessage {
 
 impl JsonMethod for PinChatMessage {}
 
-/// Use this method to remove a message from the list of pinned messages in a chat.
+/// Removes a message from the list of pinned messages in a chat.
+///
 /// If the chat is not a private chat, the bot must be an administrator in the chat for this to work
-/// and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel.
-/// Returns _True_ on success.
+/// and must have the [`ChatMember::Administrator::can_pin_messages`] administrator right in a supergroup or [`ChatMember::Administrator::can_edit_messages`] administrator right in a channel.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct UnpinChatMessage {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
-    /// Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned.
+    /// Identifier of a message to unpin.
+    ///
+    /// If not specified, the most recent pinned message (by sending date) will be unpinned.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message_id: Option<i64>,
 }
 
 impl UnpinChatMessage {
-    /// Create a new unpinChatMessage request that unpins the most recent pinned message
+    /// Creates a new [`UnpinChatMessage`] request which will unpin the most recent pinned message in the chat.
     pub fn new_recent(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1925,7 +1957,7 @@ impl UnpinChatMessage {
         }
     }
 
-    /// Create a new unpinChatMessage request
+    /// Creates a new [`UnpinChatMessage`] request which will unpin the specified message in the chat.
     pub fn new(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1944,18 +1976,20 @@ impl TelegramMethod for UnpinChatMessage {
 
 impl JsonMethod for UnpinChatMessage {}
 
-/// Use this method to clear the list of pinned messages in a chat.
+/// Clears the list of pinned messages in a chat.
+///
 /// If the chat is not a private chat, the bot must be an administrator in the chat for this to work
-/// and must have the 'can_pin_messages' administrator right in a supergroup or 'can_edit_messages' administrator right in a channel.
-/// Returns _True_ on success.
+/// and must have the [`ChatMember::Administrator::can_pin_messages`] administrator right in a supergroup or [`ChatMember::Administrator::can_edit_messages`] administrator right in a channel.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct UnpinAllChatMessages {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
 }
 
 impl UnpinAllChatMessages {
-    /// Create a new unpinAllChatMessages request
+    /// Creates a new [`UnpinAllChatMessages`] request which will unpin all messages in the chat.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1973,15 +2007,17 @@ impl TelegramMethod for UnpinAllChatMessages {
 
 impl JsonMethod for UnpinAllChatMessages {}
 
-/// Use this method for your bot to leave a group, supergroup or channel. Returns _True_ on success.
+/// Leaves a group, supergroup or channel.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct LeaveChat {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
 }
 
 impl LeaveChat {
-    /// Create a new leaveChat request
+    /// Creates a new [`LeaveChat`] request which will make the bot leave the chat.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1999,17 +2035,18 @@ impl TelegramMethod for LeaveChat {
 
 impl JsonMethod for LeaveChat {}
 
-/// Use this method to get up to date information about the chat
+/// Gets up to date information about the chat
 /// (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.).
-/// Returns a Chat object on success.
+///
+/// Returns a [`Chat`] object on success.
 #[derive(Clone, Serialize)]
 pub struct GetChat {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
 }
 
 impl GetChat {
-    /// Create a new getChat request
+    /// Creates a new [`GetChat`] request which will get information about the chat.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -2027,18 +2064,19 @@ impl TelegramMethod for GetChat {
 
 impl JsonMethod for GetChat {}
 
-/// Use this method to get a list of administrators in a chat.
-/// On success, returns an Array of [ChatMember](https://core.telegram.org/bots/api#chatmember) objects
+/// Gets a list of administrators in a chat.
+///
+/// On success, returns an Array of [`ChatMember`] objects
 /// that contains information about all chat administrators except other bots.
 /// If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
 #[derive(Clone, Serialize)]
 pub struct GetChatAdministrators {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
 }
 
 impl GetChatAdministrators {
-    /// Create a new getChatAdministrators request
+    /// Creates a new [`GetChatAdministrators`] request which will get a list of administrators in the chat.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -2056,15 +2094,17 @@ impl TelegramMethod for GetChatAdministrators {
 
 impl JsonMethod for GetChatAdministrators {}
 
-/// Use this method to get the number of members in a chat. Returns _Int_ on success.
+/// Gets the number of members in a chat.
+///
+/// Returns `u32` on success.
 #[derive(Clone, Serialize)]
 pub struct GetChatMemberCount {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
 }
 
 impl GetChatMemberCount {
-    /// Create a new getChatMemberCount request
+    /// Creates a new [`GetChatMemberCount`] request which will get the number of members in the chat.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -2082,18 +2122,19 @@ impl TelegramMethod for GetChatMemberCount {
 
 impl JsonMethod for GetChatMemberCount {}
 
-/// Use this method to get information about a member of a chat.
-/// Returns a [ChatMember](https://core.telegram.org/bots/api#chatmember) object on success.
+/// Gets information about a member of a chat.
+///
+/// Returns a [`ChatMember`] object on success.
 #[derive(Clone, Serialize)]
 pub struct GetChatMember {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
-    /// Unique identifier of the target user
+    /// Unique identifier of the target user.
     pub user_id: i64,
 }
 
 impl GetChatMember {
-    /// Create a new getChatMember request
+    /// Creates a new [`GetChatMember`] request which will get information about a member of the chat.
     pub fn new(chat_id: impl Into<ChatId>, user_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -2110,20 +2151,22 @@ impl TelegramMethod for GetChatMember {
     }
 }
 
-/// Use this method to set a new group sticker set for a supergroup.
+/// Sets a new group sticker set for a supergroup.
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Use the field *can_set_sticker_set* optionally returned in [getChat](https://core.telegram.org/bots/api#getchat) requests to check if the bot can use this method.
-/// Returns _True_ on success.
+/// Use the field [`Chat::can_set_sticker_set`] optionally returned in [`GetChat`] requests to check if the bot can use this method.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct SetChatStickerSet {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
-    /// Name of the sticker set to be set as the group sticker set
+    /// Name of the sticker set to be set as the group sticker set.
     pub sticker_set_name: String,
 }
 
 impl SetChatStickerSet {
-    /// Create a new setChatStickerSet request
+    /// Creates a new [`SetChatStickerSet`] request which will set a new group sticker set for a supergroup.
     pub fn new(chat_id: impl Into<ChatId>, sticker_set_name: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -2142,18 +2185,20 @@ impl TelegramMethod for SetChatStickerSet {
 
 impl JsonMethod for SetChatStickerSet {}
 
-/// Use this method to delete a group sticker set from a supergroup.
+/// Deletes a group sticker set from a supergroup.
+///
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
-/// Use the field *can_set_sticker_set* optionally returned in [getChat](https://core.telegram.org/bots/api#getchat) requests to check if the bot can use this method.
-/// Returns _True_ on success.
+/// Use the field [`Chat::can_set_sticker_set`] optionally returned in [`GetChat`] requests to check if the bot can use this method.
+///
+/// Returns `true` on success.
 #[derive(Clone, Serialize)]
 pub struct DeleteChatStickerSet {
-    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)
+    /// Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`).
     pub chat_id: ChatId,
 }
 
 impl DeleteChatStickerSet {
-    /// Create a new deleteChatStickerSet request
+    /// Creates a new [`DeleteChatStickerSet`] request which will delete a group sticker set from a supergroup.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
