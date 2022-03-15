@@ -24,7 +24,7 @@ telbot-cf-worker = "0.3.0"
 
 ```toml
 [dependencies]
-telbot-ureq = "0.3.0"
+telbot-ureq = "0.3.1"
 ```
 
 - telbot-hyper: API wrapper for [hyper](https://github.com/hyperium/hyper) client

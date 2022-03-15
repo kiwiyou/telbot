@@ -64,6 +64,8 @@ impl Api {
                     Some(&file.name),
                     Some(file.mime.parse().unwrap()),
                 );
+            } else if let Some(text) = value.as_str() {
+                multipart.add_text(key, text);
             } else {
                 multipart.add_text(key, value.to_string());
             }
