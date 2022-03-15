@@ -146,7 +146,7 @@ impl JsonMethod for Close {}
 
 /// Changes the list of the bot's commands.
 ///
-/// See https://core.telegram.org/bots#commands for more details about bot commands.
+/// See <https://core.telegram.org/bots#commands> for more details about bot commands.
 /// Returns `true` on success.
 ///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#setmycommands)
