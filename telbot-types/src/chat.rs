@@ -1070,7 +1070,7 @@ impl JsonMethod for BanChatMember {}
 /// If you don't want this, use the parameter [`UnbanChatMember::only_if_banned`] or [`UnbanChatMember::only_if_banned()`].
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#unbanchatmember)
 #[derive(Clone, Serialize)]
 pub struct UnbanChatMember {
@@ -1119,7 +1119,7 @@ impl JsonMethod for UnbanChatMember {}
 /// Pass `true` for all permissions to lift restrictions from a user.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#restrictchatmember)
 #[derive(Clone, Serialize)]
 pub struct RestrictChatMember {
@@ -1193,7 +1193,7 @@ impl JsonMethod for RestrictChatMember {}
 /// Pass `false` for all boolean parameters to demote a user.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#promotechatmember)
 #[derive(Clone, Serialize)]
 pub struct PromoteChatMember {
@@ -1387,7 +1387,7 @@ impl JsonMethod for PromoteChatMember {}
 /// Sets a custom title for an administrator in a supergroup promoted by the bot.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#setchatadministratorcustomtitle)
 #[derive(Clone, Serialize)]
 pub struct SetChatAdministratorCustomTitle {
@@ -1426,7 +1426,7 @@ impl JsonMethod for SetChatAdministratorCustomTitle {}
 /// and must have the [`ChatMember::Administrator::can_restrict_members`] administrator rights.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#setchatpermissions)
 #[derive(Clone, Serialize)]
 pub struct SetChatPermissions {
@@ -1469,7 +1469,7 @@ impl JsonMethod for SetChatPermissions {}
 /// or by calling the [`GetChat`] method.
 /// If your bot needs to generate a new primary invite link replacing its previous one,
 /// use [`ExportChatInviteLink`] again.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#exportchatinvitelink)
 #[derive(Clone, Serialize)]
 pub struct ExportChatInviteLink {
@@ -1503,7 +1503,7 @@ impl JsonMethod for ExportChatInviteLink {}
 /// The link can be revoked using the method [`RevokeChatInviteLink`].
 ///
 /// Returns the new invite link as [`ChatInviteLink`] object.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#createchatinvitelink)
 #[derive(Clone, Serialize)]
 pub struct CreateChatInviteLink {
@@ -1589,7 +1589,7 @@ impl JsonMethod for CreateChatInviteLink {}
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 ///
 /// Returns the edited invite link as a [`ChatInviteLink`] object.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editchatinvitelink)
 #[derive(Clone, Serialize)]
 pub struct EditChatInviteLink {
@@ -1666,7 +1666,7 @@ impl EditChatInviteLink {
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 ///
 /// Returns the revoked invite link as [`ChatInviteLink`] object.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#revokechatinvitelink)
 #[derive(Clone, Serialize)]
 pub struct RevokeChatInviteLink {
@@ -1698,10 +1698,10 @@ impl JsonMethod for RevokeChatInviteLink {}
 
 /// Approves a chat join request.
 ///
-/// The bot must be an administrator in the chat for this to work and must have the [`ChatPermissions::can_invite_users`] administrator right.
+/// The bot must be an administrator in the chat for this to work and must have the [`ChatMember::Administrator::can_invite_users`] administrator right.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#approvechatjoinrequest)
 #[derive(Clone, Serialize)]
 pub struct ApproveChatJoinRequest {
@@ -1733,10 +1733,10 @@ impl JsonMethod for ApproveChatJoinRequest {}
 
 /// Declines a chat join request.
 ///
-/// The bot must be an administrator in the chat for this to work and must have the [`ChatPermissions::can_invite_users`] administrator right.
+/// The bot must be an administrator in the chat for this to work and must have the [`ChatMember::Administrator::can_invite_users`] administrator right.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#declinechatjoinrequest)
 #[derive(Clone, Serialize)]
 pub struct DeclineChatJoinRequest {
@@ -1773,7 +1773,7 @@ impl JsonMethod for DeclineChatJoinRequest {}
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#setchatphoto)
 #[derive(Clone, Serialize)]
 pub struct SetChatPhoto {
@@ -1810,7 +1810,7 @@ impl JsonMethod for SetChatPhoto {}
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#deletechatphoto)
 #[derive(Clone, Serialize)]
 pub struct DeleteChatPhoto {
@@ -1844,7 +1844,7 @@ impl JsonMethod for DeleteChatPhoto {}
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#setchattitle)
 #[derive(Clone, Serialize)]
 pub struct SetChatTitle {
@@ -1879,7 +1879,7 @@ impl JsonMethod for SetChatTitle {}
 /// The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#setchatdescription)
 #[derive(Clone, Serialize)]
 pub struct SetChatDescription {
@@ -1922,7 +1922,7 @@ impl TelegramMethod for SetChatDescription {
 /// and must have the [`ChatMember::Administrator::can_pin_messages`] administrator right in a supergroup or [`ChatMember::Administrator::can_edit_messages`] administrator right in a channel.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#pinchatmessage)
 #[derive(Clone, Serialize)]
 pub struct PinChatMessage {
@@ -1971,7 +1971,7 @@ impl JsonMethod for PinChatMessage {}
 /// and must have the [`ChatMember::Administrator::can_pin_messages`] administrator right in a supergroup or [`ChatMember::Administrator::can_edit_messages`] administrator right in a channel.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#unpinchatmessage)
 #[derive(Clone, Serialize)]
 pub struct UnpinChatMessage {
@@ -2018,7 +2018,7 @@ impl JsonMethod for UnpinChatMessage {}
 /// and must have the [`ChatMember::Administrator::can_pin_messages`] administrator right in a supergroup or [`ChatMember::Administrator::can_edit_messages`] administrator right in a channel.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#unpinallchatmessages)
 #[derive(Clone, Serialize)]
 pub struct UnpinAllChatMessages {
@@ -2048,7 +2048,7 @@ impl JsonMethod for UnpinAllChatMessages {}
 /// Leaves a group, supergroup or channel.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#leavechat)
 #[derive(Clone, Serialize)]
 pub struct LeaveChat {
@@ -2079,7 +2079,7 @@ impl JsonMethod for LeaveChat {}
 /// (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.).
 ///
 /// Returns a [`Chat`] object on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#getchat)
 #[derive(Clone, Serialize)]
 pub struct GetChat {
@@ -2111,7 +2111,7 @@ impl JsonMethod for GetChat {}
 /// On success, returns an Array of [`ChatMember`] objects
 /// that contains information about all chat administrators except other bots.
 /// If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#getchatadministrators)
 #[derive(Clone, Serialize)]
 pub struct GetChatAdministrators {
@@ -2141,7 +2141,7 @@ impl JsonMethod for GetChatAdministrators {}
 /// Gets the number of members in a chat.
 ///
 /// Returns `u32` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#getchatmembercount)
 #[derive(Clone, Serialize)]
 pub struct GetChatMemberCount {
@@ -2171,7 +2171,7 @@ impl JsonMethod for GetChatMemberCount {}
 /// Gets information about a member of a chat.
 ///
 /// Returns a [`ChatMember`] object on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#getchatmember)
 #[derive(Clone, Serialize)]
 pub struct GetChatMember {
@@ -2205,7 +2205,7 @@ impl TelegramMethod for GetChatMember {
 /// Use the field [`Chat::can_set_sticker_set`] optionally returned in [`GetChat`] requests to check if the bot can use this method.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#setchatstickerset)
 #[derive(Clone, Serialize)]
 pub struct SetChatStickerSet {
@@ -2241,7 +2241,7 @@ impl JsonMethod for SetChatStickerSet {}
 /// Use the field [`Chat::can_set_sticker_set`] optionally returned in [`GetChat`] requests to check if the bot can use this method.
 ///
 /// Returns `true` on success.
-/// 
+///
 /// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#deletechatstickerset)
 #[derive(Clone, Serialize)]
 pub struct DeleteChatStickerSet {
