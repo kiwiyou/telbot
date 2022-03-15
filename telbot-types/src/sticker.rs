@@ -23,6 +23,8 @@ pub struct Sticker {
     pub height: u32,
     /// *True*, if the sticker is [animated](https://telegram.org/blog/animated-stickers)
     pub is_animated: bool,
+    /// *True*, if the sticker is a [video sticker](https://telegram.org/blog/video-stickers-better-reactions)
+    pub is_video: bool,
     /// Sticker thumbnail in the .WEBP or .JPG format
     pub thumb: Option<PhotoSize>,
     /// Emoji associated with the sticker
@@ -44,6 +46,8 @@ pub struct StickerSet {
     pub title: String,
     /// *True*, if the sticker set contains [animated stickers](https://telegram.org/blog/animated-stickers)
     pub is_animated: bool,
+    /// *True*, if the sticker set contains [video stickers](https://telegram.org/blog/video-stickers-better-reactions)
+    pub is_video: bool,
     /// *True*, if the sticker set contains masks
     pub contains_masks: bool,
     /// List of all set stickers
@@ -256,9 +260,13 @@ pub struct CreateNewStickerSet {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub png_sticker: Option<InputFileVariant>,
     /// **TGS** animation with the sticker, uploaded using multipart/form-data.
-    /// See https://core.telegram.org/animated_stickers#technical-requirements for technical requirements
+    /// See https://core.telegram.org/stickers#animated-sticker-requirements for technical requirements
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tgs_sticker: Option<InputFile>,
+    /// **WEBM** video with the sticker, uploaded using multipart/form-data.
+    /// See https://core.telegram.org/stickers#video-sticker-requirements for technical requirements
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub webm_sticker: Option<InputFile>,
     /// One or more emoji corresponding to the sticker.
     pub emojis: String,
     /// Pass *True*, if a set of mask stickers should be created.
@@ -284,6 +292,7 @@ impl CreateNewStickerSet {
             title: title.into(),
             png_sticker: Some(png_sticker.into()),
             tgs_sticker: None,
+            webm_sticker: None,
             emojis: emojis.into(),
             contains_masks: None,
             mask_position: None,
@@ -303,6 +312,27 @@ impl CreateNewStickerSet {
             title: title.into(),
             png_sticker: None,
             tgs_sticker: Some(tgs_sticker),
+            webm_sticker: None,
+            emojis: emojis.into(),
+            contains_masks: None,
+            mask_position: None,
+        }
+    }
+    /// Create a new createNewStickerSet request with webm sticker
+    pub fn new_webm(
+        user_id: i64,
+        name: impl Into<String>,
+        title: impl Into<String>,
+        emojis: impl Into<String>,
+        webm_sticker: InputFile,
+    ) -> Self {
+        Self {
+            user_id,
+            name: name.into(),
+            title: title.into(),
+            png_sticker: None,
+            tgs_sticker: None,
+            webm_sticker: Some(webm_sticker),
             emojis: emojis.into(),
             contains_masks: None,
             mask_position: None,
@@ -373,6 +403,10 @@ pub struct AddStickerToSet {
     /// See https://core.telegram.org/animated_stickers#technical-requirements for technical requirements
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tgs_sticker: Option<InputFile>,
+    /// **WEBM** video with the sticker, uploaded using multipart/form-data.
+    /// See https://core.telegram.org/stickers#video-sticker-requirements for technical requirements
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub webm_sticker: Option<InputFile>,
     /// One or more emoji corresponding to the sticker
     pub emojis: String,
     /// A JSON-serialized object for position where the mask should be placed on faces
@@ -392,6 +426,7 @@ impl AddStickerToSet {
             name: name.into(),
             png_sticker: Some(png_sticker.into()),
             tgs_sticker: None,
+            webm_sticker: None,
             emojis: emojis.into(),
             mask_position: None,
         }
@@ -408,6 +443,24 @@ impl AddStickerToSet {
             name: name.into(),
             png_sticker: None,
             tgs_sticker: Some(tgs_sticker),
+            webm_sticker: None,
+            emojis: emojis.into(),
+            mask_position: None,
+        }
+    }
+    /// Create a new addStickerToSet request with webm sticker
+    pub fn new_webm(
+        user_id: i64,
+        name: impl Into<String>,
+        emojis: impl Into<String>,
+        webm_sticker: InputFile,
+    ) -> Self {
+        Self {
+            user_id,
+            name: name.into(),
+            png_sticker: None,
+            tgs_sticker: None,
+            webm_sticker: Some(webm_sticker),
             emojis: emojis.into(),
             mask_position: None,
         }
