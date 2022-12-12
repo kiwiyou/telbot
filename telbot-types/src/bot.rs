@@ -235,6 +235,8 @@ impl TelegramMethod for DeleteMyCommands {
     }
 }
 
+impl JsonMethod for DeleteMyCommands {}
+
 /// Use this method to get the current list of the bot's commands for the given scope and user language.
 /// Returns Array of [BotCommand](https://core.telegram.org/bots/api#botcommand) on success.
 /// If commands aren't set, an empty list is returned.
@@ -283,3 +285,5 @@ impl TelegramMethod for GetMyCommands {
         "getMyCommands"
     }
 }
+
+impl JsonMethod for GetMyCommands {}
