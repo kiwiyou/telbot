@@ -6,6 +6,8 @@ use crate::markup::{MessageEntity, ParseMode};
 use crate::{JsonMethod, TelegramMethod};
 
 /// An animation file (GIF or H.264/MPEG-4 AVC video without sound).
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#animation)
 #[derive(Debug, Deserialize)]
 pub struct Animation {
     /// Identifier for this file, which can be used to download or reuse the file.
@@ -31,6 +33,8 @@ pub struct Animation {
 }
 
 /// An audio file to be treated as music by the Telegram clients.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#audio)
 #[derive(Debug, Deserialize)]
 pub struct Audio {
     /// Identifier for this file, which can be used to download or reuse the file.
@@ -59,6 +63,8 @@ pub struct Audio {
 /// [photos](struct.PhotoSize.html),
 /// [voice messages](struct.Voice.html) and
 /// [audio files](struct.Audio.html)).
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#document)
 #[derive(Debug, Deserialize)]
 pub struct Document {
     /// Identifier for this file, which can be used to download or reuse the file.
@@ -80,6 +86,8 @@ pub struct Document {
 /// One size of a photo or a
 /// [file](struct.Document.html) /
 /// [sticker](../sticker/struct.Sticker.html) thumbnail.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#photosize)
 #[derive(Debug, Deserialize)]
 pub struct PhotoSize {
     /// Identifier for this file, which can be used to download or reuse the file.
@@ -97,6 +105,8 @@ pub struct PhotoSize {
 }
 
 /// A video file.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#video)
 #[derive(Debug, Deserialize)]
 pub struct Video {
     /// Identifier for this file, which can be used to download or reuse the file.
@@ -123,6 +133,8 @@ pub struct Video {
 
 /// A [video message](https://telegram.org/blog/video-messages-and-telescope)
 /// (available in Telegram apps as of [v.4.0](https://telegram.org/blog/video-messages-and-telescope)).
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#videonote)
 #[derive(Debug, Deserialize)]
 pub struct VideoNote {
     /// Identifier for this file, which can be used to download or reuse the file.
@@ -142,6 +154,8 @@ pub struct VideoNote {
 }
 
 /// A voice note.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#voice)
 #[derive(Debug, Deserialize)]
 pub struct Voice {
     /// Identifier for this file, which can be used to download or reuse the file.
@@ -162,7 +176,9 @@ pub struct Voice {
 ///
 /// The file can be downloaded via the link `https://api.telegram.org/file/bot<token>/<file_path>`.
 /// It is guaranteed that the link will be valid for at least 1 hour.
-/// When the link expires, a new one can be requested by calling [`GetFile].
+/// When the link expires, a new one can be requested by calling [`GetFile`].
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#file)
 #[derive(Debug, Deserialize)]
 pub struct File {
     /// Identifier for this file, which can be used to download or reuse the file.
@@ -185,6 +201,8 @@ pub struct File {
 /// - InputMediaAudio
 /// - InputMediaPhoto
 /// - InputMediaVideo
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#inputmedia)
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum InputMedia {
@@ -419,6 +437,8 @@ impl From<&str> for InputFileVariant {
 }
 
 /// A file to be uploaded to Telegram.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#inputfile)
 #[derive(Clone)]
 pub struct InputFile {
     /// File name.

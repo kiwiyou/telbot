@@ -9,54 +9,60 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-/// This object represents a sticker.
+/// A sticker.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#sticker)
 #[derive(Debug, Deserialize)]
 pub struct Sticker {
-    /// Identifier for this file, which can be used to download or reuse the file
+    /// Identifier for this file, which can be used to download or reuse the file.
     pub file_id: String,
     /// Unique identifier for this file, which is supposed to be the same over time and for different bots.
     /// Can't be used to download or reuse the file.
     pub file_unique_id: String,
-    /// Sticker width
+    /// Sticker width.
     pub width: u32,
-    /// Sticker height
+    /// Sticker height.
     pub height: u32,
-    /// *True*, if the sticker is [animated](https://telegram.org/blog/animated-stickers)
+    /// `true`, if the sticker is [animated](https://telegram.org/blog/animated-stickers).
     pub is_animated: bool,
-    /// *True*, if the sticker is a [video sticker](https://telegram.org/blog/video-stickers-better-reactions)
+    /// `true`, if the sticker is a [video sticker](https://telegram.org/blog/video-stickers-better-reactions)
     pub is_video: bool,
-    /// Sticker thumbnail in the .WEBP or .JPG format
+    /// Sticker thumbnail in the .WEBP or .JPG format.
     pub thumb: Option<PhotoSize>,
-    /// Emoji associated with the sticker
+    /// Emoji associated with the sticker.
     pub emoji: Option<String>,
-    /// Name of the sticker set to which the sticker belongs
+    /// Name of the sticker set to which the sticker belongs.
     pub set_name: Option<String>,
-    /// For mask stickers, the position where the mask should be placed
+    /// For mask stickers, the position where the mask should be placed.
     pub mask_position: Option<MaskPosition>,
-    /// File size
+    /// File size.
     pub file_size: Option<u32>,
 }
 
-/// This object represents a sticker set.
+/// A sticker set.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#stickerset)
 #[derive(Debug, Deserialize)]
 pub struct StickerSet {
-    /// Sticker set name
+    /// Sticker set name.
     pub name: String,
-    /// Sticker set title
+    /// Sticker set title.
     pub title: String,
-    /// *True*, if the sticker set contains [animated stickers](https://telegram.org/blog/animated-stickers)
+    /// `true`, if the sticker set contains [animated stickers](https://telegram.org/blog/animated-stickers).
     pub is_animated: bool,
-    /// *True*, if the sticker set contains [video stickers](https://telegram.org/blog/video-stickers-better-reactions)
+    /// `true`, if the sticker set contains [video stickers](https://telegram.org/blog/video-stickers-better-reactions).
     pub is_video: bool,
-    /// *True*, if the sticker set contains masks
+    /// `true`, if the sticker set contains masks.
     pub contains_masks: bool,
-    /// List of all set stickers
+    /// List of all set stickers.
     pub stickers: Vec<Sticker>,
-    /// Sticker set thumbnail in the .WEBP or .TGS format
+    /// Sticker set thumbnail in the .WEBP or .TGS format.
     pub thumb: Option<PhotoSize>,
 }
 
-/// This object describes the position on faces where a mask should be placed by default.
+/// The position on faces where a mask should be placed by default.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#maskposition)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MaskPosition {
     /// The part of the face relative to which the mask should be placed.
@@ -81,11 +87,14 @@ pub enum MaskPoint {
     Chin,
 }
 
-/// Use this method to send static .WEBP or [animated](https://telegram.org/blog/animated-stickers) .TGS stickers.
-/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+/// Sends static .WEBP or [animated](https://telegram.org/blog/animated-stickers) .TGS stickers.
+///
+/// On success, the sent [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#sendsticker)
 #[derive(Clone, Serialize)]
 pub struct SendSticker {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
     /// Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended),
     /// pass an HTTP URL as a String for Telegram to get a .WEBP file from the Internet,
@@ -96,10 +105,10 @@ pub struct SendSticker {
     /// Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
-    /// If the message is a reply, ID of the original message
+    /// If the message is a reply, ID of the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message_id: Option<i64>,
-    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    /// Pass `true`, if the message should be sent even if the specified replied-to message is not found.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
     /// Additional interface options.
@@ -108,13 +117,13 @@ pub struct SendSticker {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
-    /// Protects the contents of the sent message from forwarding and saving
+    /// Protects the contents of the sent message from forwarding and saving.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
 }
 
 impl SendSticker {
-    /// Create a new sendSticker request
+    /// Create a new [`SendSticker`] request that sends the given sticker on the given chat.
     pub fn new(chat_id: impl Into<ChatId>, sticker: impl Into<InputFileVariant>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -126,35 +135,35 @@ impl SendSticker {
             protect_content: None,
         }
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message,
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present,
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup,
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -173,15 +182,19 @@ impl TelegramMethod for SendSticker {
 
 impl JsonMethod for SendSticker {}
 
-/// Use this method to get a sticker set. On success, a [StickerSet](https://core.telegram.org/bots/api#stickerset) object is returned.
+/// Gets a sticker set.
+///
+/// On success, a [`StickerSet`] object is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#getstickerset)
 #[derive(Clone, Serialize)]
 pub struct GetStickerSet {
-    /// Name of the sticker set
+    /// Name of the sticker set.
     pub name: String,
 }
 
 impl GetStickerSet {
-    /// Create a new getStickerSet request
+    /// Creates a new [`GetStickerSet`] request that gets a sticker set with the given name.
     pub fn new(name: impl Into<String>) -> Self {
         Self { name: name.into() }
     }
@@ -197,12 +210,15 @@ impl TelegramMethod for GetStickerSet {
 
 impl JsonMethod for GetStickerSet {}
 
-/// Use this method to upload a .PNG file with a sticker for later use
+/// Uploads a .PNG file with a sticker for later use
 /// in *createNewStickerSet* and *addStickerToSet* methods (can be used multiple times).
+///
 /// Returns the uploaded [`File`] on success.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#uploadstickerfile)
 #[derive(Clone, Serialize)]
 pub struct UploadStickerFile {
-    /// User identifier of sticker file owner
+    /// User identifier of sticker file owner.
     pub user_id: i64,
     /// **PNG** image with the sticker, must be up to 512 kilobytes in size,
     /// dimensions must not exceed 512px, and either width or height must be exactly 512px.
@@ -211,7 +227,7 @@ pub struct UploadStickerFile {
 }
 
 impl UploadStickerFile {
-    /// Create a new uploadStickerFile request
+    /// Creates a new [`UploadStickerFile`] request that uploads the given png sticker owned by the given user.
     pub fn new(user_id: i64, png_sticker: InputFile) -> Self {
         Self {
             user_id,
@@ -236,10 +252,14 @@ impl FileMethod for UploadStickerFile {
     }
 }
 
-/// Use this method to create a new sticker set owned by a user.
+/// Creates a new sticker set owned by a user.
+///
 /// The bot will be able to edit the sticker set thus created.
 /// You must use exactly one of the fields *png_sticker* or *tgs_sticker*.
-/// Returns *True* on success.
+///
+/// Returns `true` on success.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#createnewstickerset)
 #[derive(Clone, Serialize)]
 pub struct CreateNewStickerSet {
     /// User identifier of created sticker set owner.
@@ -269,7 +289,7 @@ pub struct CreateNewStickerSet {
     pub webm_sticker: Option<InputFile>,
     /// One or more emoji corresponding to the sticker.
     pub emojis: String,
-    /// Pass *True*, if a set of mask stickers should be created.
+    /// Pass `true`, if a set of mask stickers should be created.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contains_masks: Option<bool>,
     /// A JSON-serialized object for position where the mask should be placed on faces.
@@ -278,7 +298,7 @@ pub struct CreateNewStickerSet {
 }
 
 impl CreateNewStickerSet {
-    /// Create a new createNewStickerSet request with png sticker
+    /// Creates a new [`CreateNewStickerSet`] request that creates a new sticker set with given initial png sticker owned by the given user.
     pub fn new_png(
         user_id: i64,
         name: impl Into<String>,
@@ -298,7 +318,7 @@ impl CreateNewStickerSet {
             mask_position: None,
         }
     }
-    /// Create a new createNewStickerSet request with tgs sticker
+    /// Creates a new [`CreateNewStickerSet`] request that creates a new sticker set with given initial tgs sticker owned by the given user.
     pub fn new_tgs(
         user_id: i64,
         name: impl Into<String>,
@@ -318,7 +338,7 @@ impl CreateNewStickerSet {
             mask_position: None,
         }
     }
-    /// Create a new createNewStickerSet request with webm sticker
+    /// Creates a new [`CreateNewStickerSet`] request that creates a new sticker set with given initial webm sticker owned by the given user.
     pub fn new_webm(
         user_id: i64,
         name: impl Into<String>,
@@ -338,14 +358,14 @@ impl CreateNewStickerSet {
             mask_position: None,
         }
     }
-    /// Mark as mask sticker
+    /// Marks as mask sticker.
     pub fn with_masks(self) -> Self {
         Self {
             contains_masks: Some(true),
             ..self
         }
     }
-    /// Set mask position
+    /// Sets mask position.
     pub fn with_mask_position(self, position: MaskPosition) -> Self {
         Self {
             mask_position: Some(position),
@@ -379,17 +399,21 @@ impl FileMethod for CreateNewStickerSet {
     }
 }
 
-/// Use this method to add a new sticker to a set created by the bot.
+/// Add a new sticker to a set created by the bot.
+///
 /// You **must** use exactly one of the fields _png_sticker_ or _tgs_sticker_.
 /// Animated stickers can be added to animated sticker sets and only to them.
 /// Animated sticker sets can have up to 50 stickers
 /// Static sticker sets can have up to 120 stickers.
-/// Returns _True_ on success.
+///
+/// Returns `true` on success.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#addstickertoset)
 #[derive(Clone, Serialize)]
 pub struct AddStickerToSet {
-    /// User identifier of sticker file owner
+    /// User identifier of sticker file owner.
     pub user_id: i64,
-    /// Sticker set name
+    /// Sticker set name.
     pub name: String,
     /// **PNG** image with the sticker, must be up to 512 kilobytes in size,
     /// dimensions must not exceed 512px, and either width or height must be exactly 512px.
@@ -407,14 +431,14 @@ pub struct AddStickerToSet {
     /// See https://core.telegram.org/stickers#video-sticker-requirements for technical requirements
     #[serde(skip_serializing_if = "Option::is_none")]
     pub webm_sticker: Option<InputFile>,
-    /// One or more emoji corresponding to the sticker
+    /// One or more emoji corresponding to the sticker.
     pub emojis: String,
-    /// A JSON-serialized object for position where the mask should be placed on faces
+    /// A JSON-serialized object for position where the mask should be placed on faces.
     pub mask_position: Option<MaskPosition>,
 }
 
 impl AddStickerToSet {
-    /// Create a new addStickerToSet request with png sticker
+    /// Creates a new [`AddStickerToSet`] request that adds the given png sticker.
     pub fn new_png(
         user_id: i64,
         name: impl Into<String>,
@@ -431,7 +455,7 @@ impl AddStickerToSet {
             mask_position: None,
         }
     }
-    /// Create a new addStickerToSet request with tgs sticker
+    /// Creates a new [`AddStickerToSet`] request that adds the given tgs sticker.
     pub fn new_tgs(
         user_id: i64,
         name: impl Into<String>,
@@ -448,7 +472,7 @@ impl AddStickerToSet {
             mask_position: None,
         }
     }
-    /// Create a new addStickerToSet request with webm sticker
+    /// Creates a new [`AddStickerToSet`] request that adds the given webm sticker.
     pub fn new_webm(
         user_id: i64,
         name: impl Into<String>,
@@ -465,7 +489,7 @@ impl AddStickerToSet {
             mask_position: None,
         }
     }
-    /// Set mask position
+    /// Sets mask position.
     pub fn with_mask_position(self, position: MaskPosition) -> Self {
         Self {
             mask_position: Some(position),
@@ -499,16 +523,21 @@ impl FileMethod for AddStickerToSet {
     }
 }
 
-/// Use this method to move a sticker in a set created by the bot to a specific position.
-/// Returns _True_ on success.
+/// Moves a sticker in a set created by the bot to a specific position.
+///
+/// Returns `true` on success.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#setstickerpositioninset)
 #[derive(Clone, Serialize)]
 pub struct SetStickerPositionInSet {
+    /// File identifier of the sticker.
     pub sticker: String,
+    /// New sticker position in the set, zero-based.
     pub position: usize,
 }
 
 impl SetStickerPositionInSet {
-    /// Create a new setStickerPositionSet request
+    /// Creates a new [`SetStickerPositionSet`] request that set the position of the given sticker to the given position.
     pub fn new(sticker: impl Into<String>, position: usize) -> Self {
         Self {
             sticker: sticker.into(),
@@ -527,15 +556,19 @@ impl TelegramMethod for SetStickerPositionInSet {
 
 impl JsonMethod for SetStickerPositionInSet {}
 
-/// Use this method to delete a sticker from a set created by the bot.
-/// Returns _True_ on success.
+/// Deletes a sticker from a set created by the bot.
+///
+/// Returns `True` on success.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#deletestickerfromset)
 #[derive(Clone, Serialize)]
 pub struct DeleteStickerFromSet {
+    /// File identifier of the sticker.
     pub sticker: String,
 }
 
 impl DeleteStickerFromSet {
-    /// Create a new deleteStickerFromSet request
+    /// Creates a new [`DeleteStickerFromSet`] request that deletes the given sticker from its containing set.
     pub fn new(sticker: impl Into<String>) -> Self {
         Self {
             sticker: sticker.into(),
@@ -553,14 +586,18 @@ impl TelegramMethod for DeleteStickerFromSet {
 
 impl JsonMethod for DeleteStickerFromSet {}
 
-/// Use this method to set the thumbnail of a sticker set.
+/// Sets the thumbnail of a sticker set.
+///
 /// Animated thumbnails can be set for animated sticker sets only.
-/// Returns _True_ on success.
+///
+/// Returns `true` on success.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#setstickersetthumb)
 #[derive(Clone, Serialize)]
 pub struct SetStickerSetThumb {
-    /// Sticker set name
+    /// Sticker set name.
     pub name: String,
-    /// User identifier of the sticker set owner
+    /// User identifier of the sticker set owner.
     pub user_id: i64,
     /// A **PNG** image with the thumbnail, must be up to 128 kilobytes in size
     /// and have width and height exactly 100px, or a **TGS** animation with the thumbnailup to 32 kilobytes in size;
@@ -576,7 +613,7 @@ pub struct SetStickerSetThumb {
 }
 
 impl SetStickerSetThumb {
-    /// Create a new setStickerSetThumb request
+    /// Creates a new [`SetStickerSetThumb`] request that edits the given sticker set owned by the given user with no thumbnail.
     pub fn new(name: impl Into<String>, user_id: i64) -> Self {
         Self {
             name: name.into(),
@@ -585,7 +622,7 @@ impl SetStickerSetThumb {
         }
     }
 
-    /// Set thumb
+    /// Sets thumbnail.
     pub fn with_thumb(self, thumb: impl Into<InputFileVariant>) -> Self {
         Self {
             thumb: Some(thumb.into()),

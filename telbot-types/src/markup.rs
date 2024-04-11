@@ -2,11 +2,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::user::User;
 
-/// This object represents a [custom keyboard](https://core.telegram.org/bots#keyboards) with reply options
+/// A [custom keyboard](https://core.telegram.org/bots#keyboards) with reply options
 /// (see [Introduction to bots](https://core.telegram.org/bots#keyboards) for details and examples).
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#replykeyboardmarkup)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReplyKeyboardMarkup {
-    /// Array of button rows, each represented by an Array of [KeyboardButton](https://core.telegram.org/bots/api#keyboardbutton) objects
+    /// Array of button rows, each represented by an Array of [`KeyboardButton`] objects
     pub keyboard: Vec<Vec<KeyboardButton>>,
     /// Requests clients to resize the keyboard vertically for optimal fit
     // (e.g., make the keyboard smaller if there are just two rows of buttons).
@@ -43,6 +45,8 @@ pub struct ReplyKeyboardMarkup {
 /// Older clients will display *unsupported message*.
 /// - *request_poll* option will only work in Telegram versions released after 23 January, 2020.
 /// Older clients will display *unsupported message*.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#keyboardbutton)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KeyboardButton {
     /// Text of the button. If none of the optional fields are used,
@@ -62,7 +66,9 @@ pub struct KeyboardButton {
     request_poll: Option<KeyboardButtonPollType>,
 }
 
-/// This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
+/// Type of a poll, which is allowed to be created and sent when the corresponding button is pressed.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#keyboardbuttonpolltype)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KeyboardButtonPollType {
     /// If *quiz* is passed, the user will be allowed to create only polls in the quiz mode.
@@ -77,6 +83,8 @@ pub struct KeyboardButtonPollType {
 ///
 /// By default, custom keyboards are displayed until a new keyboard is sent by a bot.
 /// An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup).
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#replykeyboardremove)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReplyKeyboardRemove {
     /// Requests clients to remove the custom keyboard
@@ -96,42 +104,47 @@ pub struct ReplyKeyboardRemove {
     pub selective: Option<bool>,
 }
 
-/// This object represents an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating)
+/// An [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating)
 /// that appears right next to the message it belongs to.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#inlinekeyboardmarkup)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InlineKeyboardMarkup {
-    /// Array of button rows, each represented by an Array of [InlineKeyboardButton](https://core.telegram.org/bots/api#inlinekeyboardbutton) objects
+    /// Array of button rows, each represented by an Array of [`InlineKeyboardButton`] objects
     pub inline_keyboard: Vec<Vec<InlineKeyboardButton>>,
 }
 
 impl InlineKeyboardMarkup {
-    /// Create a new InlineKeyboardMarkup with a row.
+    /// Creates a new InlineKeyboardMarkup with a row.
     pub fn new_with_row(row: InlineKeyboardRow) -> Self {
         Self {
             inline_keyboard: vec![row.buttons],
         }
     }
 
-    /// Add a row
+    /// Adds a row.
     pub fn with_row(mut self, row: InlineKeyboardRow) -> Self {
         self.inline_keyboard.push(row.buttons);
         self
     }
 }
 
+/// A row of inline keyboard buttons.
 #[derive(Clone)]
 pub struct InlineKeyboardRow {
+    /// Array of keyboard buttons from left to right.
     pub buttons: Vec<InlineKeyboardButton>,
 }
 
 impl InlineKeyboardRow {
-    /// Create a new InlineKeyboardRow
+    /// Creates a new [`InlineKeyboardRow`].
     pub fn new_with(button: InlineKeyboardButton) -> Self {
         Self {
             buttons: vec![button],
         }
     }
-    /// Create a new InlineKeyboardRow, emplacing a new button
+
+    /// Creates a new [`InlineKeyboardRow`], emplacing a new button.
     pub fn new_emplace(text: impl Into<String>, kind: InlineKeyboardButtonKind) -> Self {
         Self {
             buttons: vec![InlineKeyboardButton {
@@ -140,12 +153,14 @@ impl InlineKeyboardRow {
             }],
         }
     }
-    /// Add a InlineKeyboardButton to the row
+
+    /// Adds a [`InlineKeyboardButton`] to the row.
     pub fn with(mut self, button: InlineKeyboardButton) -> Self {
         self.buttons.push(button);
         self
     }
-    /// Create and add a InlineKeyboardButton to the row
+
+    /// Creates and adds a [`InlineKeyboardButton`] to the row.
     pub fn emplace(mut self, text: impl Into<String>, kind: InlineKeyboardButtonKind) -> Self {
         self.buttons.push(InlineKeyboardButton {
             text: text.into(),
@@ -155,22 +170,24 @@ impl InlineKeyboardRow {
     }
 }
 
-/// This object represents one button of an inline keyboard.
+/// One button of an inline keyboard.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#InlineKeyboardButton)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InlineKeyboardButton {
-    /// Label text on the button
+    /// Label text on the button.
     pub text: String,
-    /// Button type
+    /// Button type.
     #[serde(flatten)]
     pub kind: InlineKeyboardButtonKind,
 }
 
-/// Inline keyboard button type
+/// Type of an inline keyboard button.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineKeyboardButtonKind {
     Url {
-        /// HTTP or tg:// url to be opened when button is pressed
+        /// HTTP or tg:// url to be opened when button is pressed.
         url: String,
     },
     Login {
@@ -214,6 +231,7 @@ pub enum InlineKeyboardButtonKind {
 }
 
 impl InlineKeyboardButtonKind {
+    /// Gets the url associated with this button, if any.
     pub fn url(&self) -> Option<&str> {
         match self {
             Self::Url { url } => Some(url),
@@ -221,6 +239,7 @@ impl InlineKeyboardButtonKind {
         }
     }
 
+    /// Gets the login url associated with this button, if any.
     pub fn login_url(&self) -> Option<&LoginUrl> {
         match self {
             Self::Login { login_url } => Some(login_url),
@@ -228,6 +247,7 @@ impl InlineKeyboardButtonKind {
         }
     }
 
+    /// Gets the callback data associated with this button, if any.
     pub fn callback_data(&self) -> Option<&str> {
         match self {
             Self::Callback { callback_data } => Some(&callback_data),
@@ -235,6 +255,7 @@ impl InlineKeyboardButtonKind {
         }
     }
 
+    /// Gets the inline query prompt entered to user when the user clicks this button, if any.
     pub fn inline_query_prompt(&self) -> Option<&str> {
         match self {
             Self::SwitchInlineQuery {
@@ -244,6 +265,7 @@ impl InlineKeyboardButtonKind {
         }
     }
 
+    /// Gets the chat prompt entered to user when the user clicks this button, if any.
     pub fn inline_query_current_chat_prompt(&self) -> Option<&str> {
         match self {
             Self::SwitchInlineQueryCurrentChat {
@@ -253,30 +275,37 @@ impl InlineKeyboardButtonKind {
         }
     }
 
+    /// `true` if this button is a url button.
     pub fn is_url(&self) -> bool {
         matches!(self, Self::Url { .. })
     }
 
+    /// `true` if this button is a login button.
     pub fn is_login(&self) -> bool {
         matches!(self, Self::Login { .. })
     }
 
+    /// `true` if this button is a callback button.
     pub fn is_callback(&self) -> bool {
         matches!(self, Self::Callback { .. })
     }
 
+    /// `true` if the user is provided with inline query prompt when clicking this button.
     pub fn is_switch_inline_query(&self) -> bool {
         matches!(self, Self::SwitchInlineQuery { .. })
     }
 
+    /// `true` if the user is provided with chat prompt when clicking this button.
     pub fn is_switch_inline_query_current_chat(&self) -> bool {
         matches!(self, Self::SwitchInlineQueryCurrentChat { .. })
     }
 
+    /// `true` if this button is associated with a game.
     pub fn is_callback_game(&self) -> bool {
         matches!(self, Self::CallbackGame { .. })
     }
 
+    /// `true` if this button is associated with a payment.
     pub fn is_pay(&self) -> bool {
         match self {
             Self::Pay { pay } => *pay,
@@ -286,10 +315,12 @@ impl InlineKeyboardButtonKind {
 }
 
 /// A placeholder, currently holds no information. Use [BotFather](https://t.me/botfather) to set up your game.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#callbackgame)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CallbackGame;
 
-/// This object represents a parameter of the inline keyboard button used to automatically authorize a user.
+/// A parameter of the inline keyboard button used to automatically authorize a user.
 ///
 /// Serves as a great replacement for the [Telegram Login Widget](https://core.telegram.org/widgets/login)
 /// when the user is coming from Telegram.
@@ -297,6 +328,8 @@ pub struct CallbackGame;
 /// ![TITLE](https://core.telegram.org/file/811140015/1734/8VZFkwWXalM.97872/6127fa62d8a0bf2b3c)
 /// Telegram apps support buttons as of [version 5.7](https://telegram.org/blog/privacy-discussions-web-bots#meet-seamless-web-bots)
 /// > Sample bot: [@discussbot](https://t.me/discussbot)
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#loginurl)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginUrl {
     /// An HTTP URL to be opened with user authorization data added to the query string when the button is pressed.
@@ -341,6 +374,8 @@ pub struct LoginUrl {
 /// > And if you use [ForceReply](https://core.telegram.org/bots/api#forcereply) in your bot's questions,
 /// > it will receive the user's answers even if it only receives replies, commands and mentions
 /// > — without any extra work for the user.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#forcereply)
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ForceReply {
@@ -361,6 +396,7 @@ pub struct ForceReply {
     pub selective: Option<bool>,
 }
 
+/// Type of parse mode of chat text.
 #[derive(Debug, Clone, Serialize, Deserialize, Copy, PartialEq, Eq, Hash)]
 pub enum ParseMode {
     MarkdownV2,
@@ -369,7 +405,7 @@ pub enum ParseMode {
 }
 
 impl ParseMode {
-    /// Escape text to fit to given parse mode
+    /// Escapes text to fit to given parse mode.
     pub fn escape(&self, text: impl AsRef<str>) -> String {
         match self {
             Self::MarkdownV2 => Self::escape_markdown_v2(text.as_ref()),
@@ -440,68 +476,71 @@ impl ParseMode {
     }
 }
 
-/// This object represents one special entity in a text message.
+/// One special entity in a text message.
 ///
 /// For example, hashtags, usernames, URLs, etc.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#messageentity)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageEntity {
-    /// Type of the entity
+    /// Type of the entity.
     #[serde(flatten)]
     pub kind: MessageEntityKind,
-    /// Offset in UTF-16 code units to the start of the entity
+    /// Offset in UTF-16 code units to the start of the entity.
     pub offset: usize,
-    /// Length of the entity in UTF-16 code units
+    /// Length of the entity in UTF-16 code units.
     pub length: usize,
 }
 
-/// Type of the message entity
+/// Type of the message entity.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum MessageEntityKind {
-    /// `@username`
+    /// `@username`.
     Mention,
-    /// `#hashtag`
+    /// `#hashtag`.
     Hashtag,
-    /// `$USD`
+    /// `$USD`.
     Cashtag,
-    /// `/start@jobs_bot`
+    /// `/start@jobs_bot`.
     BotCommand,
-    /// `https://telegram.org`
+    /// `https://telegram.org`.
     Url,
-    /// `do-not-reply@telegram.org`
+    /// `do-not-reply@telegram.org`.
     Email,
-    /// `+1-212-555-0123`
+    /// `+1-212-555-0123`.
     PhoneNumber,
-    /// **bold text**
+    /// **bold text**.
     Bold,
-    /// *italic text*
+    /// *italic text*.
     Italic,
-    /// <ins>underlined text</ins>
+    /// <ins>underlined text</ins>.
     Underline,
-    /// ~strikethrough text~
+    /// ~strikethrough text~.
     Strikethrough,
-    /// `monowidth string`
+    /// `monowidth string`.
     Code,
-    /// ```monowidth block```
+    /// ```monowidth block```.
     Pre {
-        /// The programming language of the entity text
+        /// The programming language of the entity text.
         language: String,
     },
-    /// clickable text URLs
+    /// clickable text URLs.
     TextLink {
-        /// Url that will be opened after user taps on the text
+        /// Url that will be opened after user taps on the text.
         url: String,
     },
-    /// mention for users [without usernames](https://telegram.org/blog/edit#new-mentions)
+    /// mention for users [without usernames](https://telegram.org/blog/edit#new-mentions).
     TextMention {
-        /// The mentioned user
+        /// The mentioned user.
         user: User,
     },
-    /// spoiler message
+    /// spoiler message.
     Spoiler,
 }
 
 impl MessageEntityKind {
+    /// Gets the language of code text, if any.
     pub fn code_language(&self) -> Option<&str> {
         match self {
             Self::Pre { language } => Some(language),
@@ -509,6 +548,7 @@ impl MessageEntityKind {
         }
     }
 
+    /// Gets the url text shown as clickable, if any.
     pub fn clickable_url(&self) -> Option<&str> {
         match self {
             Self::TextLink { url } => Some(url),
@@ -516,6 +556,7 @@ impl MessageEntityKind {
         }
     }
 
+    /// Gets the text-mentioned user, if any.
     pub fn text_metioned_user(&self) -> Option<&User> {
         match self {
             Self::TextMention { user } => Some(user),
@@ -523,67 +564,83 @@ impl MessageEntityKind {
         }
     }
 
+    /// `true` if it mentions a user.
     pub fn is_mention(&self) -> bool {
         matches!(self, Self::Mention)
     }
 
+    /// `true` if it is a hashtag.
     pub fn is_hashtag(&self) -> bool {
         matches!(self, Self::Hashtag)
     }
 
+    /// `true` if it is a cash text.
     pub fn is_cashtag(&self) -> bool {
         matches!(self, Self::Cashtag)
     }
 
+    /// `true` if it is a bot command.
     pub fn is_bot_command(&self) -> bool {
         matches!(self, Self::BotCommand)
     }
 
+    /// `true` if it is a url.
     pub fn is_url(&self) -> bool {
         matches!(self, Self::Url)
     }
 
+    /// `true` if it is an email.
     pub fn is_email(&self) -> bool {
         matches!(self, Self::Email)
     }
 
+    /// `true` if it is a phone number.
     pub fn is_phone_number(&self) -> bool {
         matches!(self, Self::PhoneNumber)
     }
 
+    /// `true` if it is a bold text.
     pub fn is_bold(&self) -> bool {
         matches!(self, Self::Bold)
     }
+
+    /// `true` if it is an italic text.`
     pub fn is_italic(&self) -> bool {
         matches!(self, Self::Italic)
     }
 
+    /// `true` if it is an underlined text.
     pub fn is_underline(&self) -> bool {
         matches!(self, Self::Underline)
     }
 
+    /// `true` if it is a strikethrough text.
     pub fn is_strikethrough(&self) -> bool {
         matches!(self, Self::Strikethrough)
     }
 
+    /// `true` if it is an inline code.
     pub fn is_inline_code(&self) -> bool {
         matches!(self, Self::Code)
     }
 
+    /// `true` if it is a code block.
     pub fn is_code_block(&self) -> bool {
         matches!(self, Self::Pre { .. })
     }
 
+    /// `true` if it is a clickable link.
     pub fn is_clickable_link(&self) -> bool {
         matches!(self, Self::TextLink { .. })
     }
 
+    /// `true` if it is a text mention.
     pub fn is_text_mention(&self) -> bool {
         matches!(self, Self::TextMention { .. })
     }
 }
 
-/// Reply markups
+/// Reply markups.
 #[derive(Clone, Serialize)]
 #[serde(untagged)]
 pub enum ReplyMarkup {

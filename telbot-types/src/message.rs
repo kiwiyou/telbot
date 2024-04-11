@@ -13,42 +13,44 @@ use crate::sticker::Sticker;
 use crate::user::User;
 use crate::{FileMethod, JsonMethod, TelegramMethod};
 
-/// This object represents a message.
+/// A message.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#message)
 #[derive(Debug, Deserialize)]
 pub struct Message {
-    /// Unique message identifier inside this chat
+    /// Unique message identifier inside this chat.
     pub message_id: i64,
-    /// Sender, empty for messages sent to channels
+    /// Sender, empty for messages sent to channels.
     pub from: Option<User>,
     /// Sender of the message, sent on behalf of a chat.
     /// The channel itself for channel messages.
     /// The supergroup itself for messages from anonymous group administrators.
     /// The linked channel for messages automatically forwarded to the discussion group
     pub sender_chat: Option<Chat>,
-    /// Date the message was sent in Unix time
+    /// Date the message was sent in Unix time.
     pub date: u64,
-    /// Conversation the message belongs to
+    /// Conversation the message belongs to.
     pub chat: Chat,
-    /// For forwarded messages, sender of the original message
+    /// For forwarded messages, sender of the original message.
     pub forward_from: Option<User>,
-    /// For messages forwarded from channels or from anonymous administrators, information about the original sender chat
+    /// For messages forwarded from channels or from anonymous administrators, information about the original sender chat.
     pub forward_from_chat: Option<Chat>,
-    /// For messages forwarded from channels, identifier of the original message in the channel
+    /// For messages forwarded from channels, identifier of the original message in the channel.
     pub forward_from_message_id: Option<i64>,
-    /// For messages forwarded from channels, signature of the post author if present
+    /// For messages forwarded from channels, signature of the post author if present.
     pub forward_signature: Option<String>,
-    /// Sender's name for messages forwarded from users who disallow adding a link to their account in forwarded messages
+    /// Sender's name for messages forwarded from users who disallow adding a link to their account in forwarded messages.
     pub forward_sender_name: Option<String>,
-    /// For forwarded messages, date the original message was sent in Unix time
+    /// For forwarded messages, date the original message was sent in Unix time.
     pub forward_date: Option<u64>,
     /// For replies, the original message.
     /// Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply.
     pub reply_to_message: Option<Box<Message>>,
-    /// Bot through which the message was sent
+    /// Bot through which the message was sent.
     pub via_bot: Option<User>,
-    /// Date the message was last edited in Unix time
+    /// Date the message was last edited in Unix time.
     pub edit_date: Option<u64>,
-    /// The unique identifier of a media message group this message belongs to
+    /// The unique identifier of a media message group this message belongs to.
     pub media_group_id: Option<String>,
     /// Signature of the post author for messages in channels,
     /// or the custom title of an anonymous group administrator
@@ -62,46 +64,57 @@ pub struct Message {
 }
 
 impl Message {
+    /// Creates a new [`SendMessage`] request that replies to this message.
     pub fn reply_text(&self, text: impl Into<String>) -> SendMessage {
         SendMessage::new(self.chat.id, text).reply_to(self.message_id)
     }
 
+    /// Creates a new [`ForwardMessage`] request that forwards this message to the given chat.
     pub fn forward_to(&self, chat_id: impl Into<ChatId>) -> ForwardMessage {
         ForwardMessage::new(chat_id, self.chat.id, self.message_id)
     }
 
+    /// Creates a new [`CopyMessage`] request that copies this message to the given chat.
     pub fn copy_to(&self, chat_id: impl Into<ChatId>) -> CopyMessage {
         CopyMessage::new(chat_id, self.chat.id, self.message_id)
     }
 
+    /// Creates a new [`PinChatMessage`] request that pins this message.
     pub fn pin(&self) -> PinChatMessage {
         PinChatMessage::new(self.chat.id, self.message_id)
     }
 
+    /// Creates a new [`UnpinChatMessage`] request that unpins this message.
     pub fn unpin(&self) -> UnpinChatMessage {
         UnpinChatMessage::new(self.chat.id, self.message_id)
     }
 
+    /// Creates a new [`EditMessageText`] request that edits this message with the given text.
     pub fn edit_text(&self, text: impl Into<String>) -> EditMessageText {
         EditMessageText::new(self.chat.id, self.message_id, text)
     }
 
+    /// Creates a new [`EditMessageCaption`] request that removes the caption of this message.
     pub fn remove_caption(&self) -> EditMessageCaption {
         EditMessageCaption::new_empty(self.chat.id, self.message_id)
     }
 
+    /// Creates a new [`EditMessageCaption`] request that replaces the caption of this message with the given text.
     pub fn edit_caption(&self, caption: impl Into<String>) -> EditMessageCaption {
         EditMessageCaption::new(self.chat.id, self.message_id, caption)
     }
 
+    /// Creates a new [`EditMessageMedia`] request that replaces the media of this message to the given media.
     pub fn edit_media(&self, media: impl Into<InputMedia>) -> EditMessageMedia {
         EditMessageMedia::new(self.chat.id, self.message_id, media)
     }
 
+    /// Creates a new [`EditMessageReplyMarkup`] request that removes reply markups of this message.
     pub fn remove_reply_markup(&self) -> EditMessageReplyMarkup {
         EditMessageReplyMarkup::new_empty(self.chat.id, self.message_id)
     }
 
+    /// Creates a new [`EditMessageReplyMarkup`] request that replaces reply markup to the given markup.
     pub fn edit_reply_markup(
         &self,
         reply_markup: impl Into<InlineKeyboardMarkup>,
@@ -109,10 +122,12 @@ impl Message {
         EditMessageReplyMarkup::new(self.chat.id, self.message_id, reply_markup)
     }
 
+    /// Creates a new [`StopPoll`] request that stops the poll in this message.
     pub fn stop_poll(&self) -> StopPoll {
         StopPoll::new(self.chat.id, self.message_id)
     }
 
+    /// Creates a new [`DeleteMessage`] request that deletes this message.
     pub fn delete(&self) -> DeleteMessage {
         DeleteMessage::new(self.chat.id, self.message_id)
     }
@@ -122,83 +137,83 @@ impl Message {
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum MessageKind {
-    /// Text message
+    /// Text message.
     Text {
-        /// The actual UTF-8 text of the message, 0-4096 characters
+        /// The actual UTF-8 text of the message, 0-4096 characters.
         text: String,
-        /// Special entities like usernames, URLs, bot commands, etc. that appear in the text
+        /// Special entities like usernames, URLs, bot commands, etc. that appear in the text.
         entities: Option<Vec<MessageEntity>>,
     },
-    /// Animation message
+    /// Animation message.
     Animation {
         /// Information about the animation.
-        /// For backward compatibility, when this field is set, the document field will also be set
+        /// For backward compatibility, when this field is set, the document field will also be set.
         animation: Animation,
-        /// Information about the file
+        /// Information about the file.
         document: Document,
-        /// Caption for the animation, 0-1024 characters
+        /// Caption for the animation, 0-1024 characters.
         caption: Option<String>,
-        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption.
         caption_entities: Option<Vec<MessageEntity>>,
     },
-    /// Audio message
+    /// Audio message.
     Audio {
-        /// Information about the file
+        /// Information about the file.
         audio: Audio,
-        /// Caption for the audio, 0-1024 characters
+        /// Caption for the audio, 0-1024 characters.
         caption: Option<String>,
-        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption.
         caption_entities: Option<Vec<MessageEntity>>,
     },
-    /// General file message
+    /// General file message.
     Document {
-        /// Information about the file
+        /// Information about the file.
         document: Document,
-        /// Caption for the document, 0-1024 characters
+        /// Caption for the document, 0-1024 characters.
         caption: Option<String>,
-        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption.
         caption_entities: Option<Vec<MessageEntity>>,
     },
-    /// Photo message
+    /// Photo message.
     Photo {
-        /// Available sizes of the photo
+        /// Available sizes of the photo.
         photo: Vec<PhotoSize>,
-        /// Caption for the photo, 0-1024 characters
+        /// Caption for the photo, 0-1024 characters.
         caption: Option<String>,
-        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption.
         caption_entities: Option<Vec<MessageEntity>>,
     },
-    /// Sticker message
+    /// Sticker message.
     Sticker {
-        /// Information about the sticker
+        /// Information about the sticker.
         sticker: Sticker,
     },
-    /// Video message
+    /// Video message.
     Video {
-        /// Information about the video
+        /// Information about the video.
         video: Video,
-        /// Caption for the video, 0-1024 characters
+        /// Caption for the video, 0-1024 characters.
         caption: Option<String>,
-        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption.
         caption_entities: Option<Vec<MessageEntity>>,
     },
-    /// [Video note](https://telegram.org/blog/video-messages-and-telescope)
+    /// [Video note](https://telegram.org/blog/video-messages-and-telescope).
     VideoNote {
-        /// Information about the video message
+        /// Information about the video message.
         video_note: VideoNote,
     },
-    /// Voice message
+    /// Voice message.
     Voice {
-        /// Information about the file
+        /// Information about the file.
         voice: Voice,
-        /// Caption for the voice, 0-1024 characters
+        /// Caption for the voice, 0-1024 characters.
         caption: Option<String>,
-        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+        /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption.
         caption_entities: Option<Vec<MessageEntity>>,
     },
-    /// Shared contact
+    /// Shared contact.
     Contact {
-        /// Information about the contact
+        /// Information about the contact.
         contact: Contact,
     },
     Dice {
@@ -209,93 +224,95 @@ pub enum MessageKind {
         /// [More about games »](https://core.telegram.org/bots/api#games)
         game: Game,
     },
-    /// Native Poll
+    /// Native Poll.
     Poll {
-        /// Information about the poll
+        /// Information about the poll.
         poll: Poll,
     },
-    /// Venue message
+    /// Venue message.
     Venue {
         /// Information about the venue.
-        /// For backward compatibility, when this field is set, the location field will also be set
+        /// For backward compatibility, when this field is set, the location field will also be set.
         venue: Venue,
-        /// Information about the location
+        /// Information about the location.
         location: Location,
     },
-    /// Shared location
+    /// Shared location.
     Location {
-        /// Information about the location
+        /// Information about the location.
         location: Location,
     },
-    /// New chat members message
+    /// New chat members message.
     NewChatMembers {
-        /// New members that were added to the group or supergroup and information about them
+        /// New members that were added to the group or supergroup and information about them.
         /// (the bot itself may be one of these members)
         new_chat_members: Vec<User>,
     },
-    /// Chat members leave message
+    /// Chat members leave message.
     LeftChatMember {
-        /// A member was removed from the group, information about them
+        /// A member was removed from the group, information about them.
         /// (this member may be the bot itself)
         left_chat_member: User,
     },
-    /// Chat title change message
+    /// Chat title change message.
     NewChatTitle {
-        /// A chat title was changed to this value
+        /// A chat title was changed to this value.
         new_chat_title: String,
     },
-    /// Service message: the chat photo was deleted
+    /// Service message: the chat photo was deleted.
     DeleteChatPhoto {
-        /// Always true
+        /// Always `true`.
         delete_chat_photo: bool,
     },
-    /// Service message: the group has been created
+    /// Service message: the group has been created.
     GroupChatCreated {
-        /// Always true
+        /// Always `true`.
         group_chat_created: bool,
     },
     /// Service message: the supergroup has been created.
+    ///
     /// This variant can't be received in a message coming through updates,
     /// because bot can't be a member of a supergroup when it is created.
-    /// It can only be found in reply_to_message
+    /// It can only be found in `reply_to_message`
     /// if someone replies to a very first message in a directly created supergroup.
     SupergroupChatCreated {
-        /// Always true
+        /// Always `true`.
         supergroup_chat_created: bool,
     },
     /// Service message: the channel has been created.
+    ///
     /// This variant can't be received in a message coming through updates,
     /// because bot can't be a member of a channel when it is created.
-    /// It can only be found in reply_to_message
+    /// It can only be found in `reply_to_message`
     /// if someone replies to a very first message in a channel.
     ChannelChatCreated {
-        /// Always true
+        /// Always `true`.
         channel_chat_created: bool,
     },
-    /// Service message: auto-delete timer settings changed in the chat
+    /// Service message: auto-delete timer settings changed in the chat.
     MessageAutoDeleteTimerChanged {
         message_auto_delete_timer_changed: MessageAutoDeleteTimerChanged,
     },
-    /// Group migration message
+    /// Group migration message.
     GroupMigrated {
         /// The group has been migrated to a supergroup with the specified identifier.
         migrate_to_chat_id: i64,
         /// The supergroup has been migrated from a group with the specified identifier.
         migrate_from_chat_id: i64,
     },
-    /// Pinned message
+    /// Pinned message.
     MessagePinned {
         /// Specified message was pinned.
         /// Note that the Message object in this field will not contain further reply_to_message fields even if it is itself a reply.
         pinned_message: Box<Message>,
     },
-    /// Invoice for a [payment](https://core.telegram.org/bots/api#payments)
+    /// Invoice for a [payment](https://core.telegram.org/bots/api#payments).
     Invoice {
         /// Information about the invoice.
         /// [More about payments »](https://core.telegram.org/bots/api#payments)
         invoice: Invoice,
     },
-    /// Service message about a successful payment
+    /// Service message about a successful payment.
     SuccessfulPayment {
         /// Information about the payment.
         /// [More about payments »](https://core.telegram.org/bots/api#payments)
@@ -309,29 +326,30 @@ pub enum MessageKind {
         /// Telegram Passport data
         passport_data: PassportData,
     },
-    /// Service message: a user in the chat triggered another user's proximity alert while sharing Live Location
+    /// Service message: a user in the chat triggered another user's proximity alert while sharing Live Location.
     ProximityAlertTriggered {
         proximity_alert_triggered: ProximityAlertTriggered,
     },
-    /// Service message: voice chat scheduled
+    /// Service message: voice chat scheduled.
     VoiceChatScheduled {
         voice_chat_scheduled: VoiceChatScheduled,
     },
-    /// Service message: voice chat started
+    /// Service message: voice chat started.
     VoiceChatStarted {
         voice_chat_started: VoiceChatStarted,
     },
-    /// Service message: voice chat ended
+    /// Service message: voice chat ended.
     VoiceChatEnded {
         voice_chat_ended: VoiceChatEnded,
     },
-    /// Service message: new participants invited to a voice chat
+    /// Service message: new participants invited to a voice chat.
     VoiceChatParticipantsInvited {
         voice_chat_participants_invited: VoiceChatParticipantsInvited,
     },
 }
 
 impl MessageKind {
+    /// Gets the text associated with this message, if any.
     pub fn text(&self) -> Option<&str> {
         match self {
             Self::Text { text, .. } => Some(text),
@@ -339,6 +357,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets a list of text entities associated with this message, if any.
     pub fn entities(&self) -> Option<&[MessageEntity]> {
         match self {
             Self::Text { entities, .. } => entities.as_deref(),
@@ -346,6 +365,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the animation associated with this message, if any.
     pub fn animation(&self) -> Option<&Animation> {
         match self {
             Self::Animation { animation, .. } => Some(animation),
@@ -353,6 +373,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the document associated with this message, if any.
     pub fn document(&self) -> Option<&Document> {
         match self {
             Self::Animation { document, .. } | Self::Document { document, .. } => Some(document),
@@ -360,6 +381,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the caption associated with this message, if any.
     pub fn caption(&self) -> Option<&str> {
         match self {
             Self::Animation { caption, .. }
@@ -372,6 +394,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets a list of text entities inside the caption associated with this messasge, if any.
     pub fn caption_entities(&self) -> Option<&[MessageEntity]> {
         match self {
             Self::Animation {
@@ -396,6 +419,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the audio associated with this message, if any.
     pub fn audio(&self) -> Option<&Audio> {
         match self {
             Self::Audio { audio, .. } => Some(audio),
@@ -403,6 +427,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the photo associated with this message, if any.
     pub fn photo(&self) -> Option<&[PhotoSize]> {
         match self {
             Self::Photo { photo, .. } => Some(photo.as_ref()),
@@ -410,6 +435,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the sticker associated with this message, if any.
     pub fn sticker(&self) -> Option<&Sticker> {
         match self {
             Self::Sticker { sticker } => Some(sticker),
@@ -417,6 +443,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the video associated with this message, if any.
     pub fn video(&self) -> Option<&Video> {
         match self {
             Self::Video { video, .. } => Some(video),
@@ -424,6 +451,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the video note associated with this message, if any.
     pub fn video_note(&self) -> Option<&VideoNote> {
         match self {
             Self::VideoNote { video_note } => Some(video_note),
@@ -431,6 +459,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the voice associated with this message, if any.
     pub fn voice(&self) -> Option<&Voice> {
         match self {
             Self::Voice { voice, .. } => Some(voice),
@@ -438,6 +467,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the contact associated with this message, if any.
     pub fn contact(&self) -> Option<&Contact> {
         match self {
             Self::Contact { contact } => Some(contact),
@@ -445,6 +475,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the dice information associated with this message, if any.
     pub fn dice(&self) -> Option<&Dice> {
         match self {
             Self::Dice { dice } => Some(dice),
@@ -452,6 +483,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the game information associated with this message, if any.
     pub fn game(&self) -> Option<&Game> {
         match self {
             Self::Game { game } => Some(game),
@@ -459,6 +491,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the poll in this message, if any.
     pub fn poll(&self) -> Option<&Poll> {
         match self {
             Self::Poll { poll } => Some(poll),
@@ -466,6 +499,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the venue associated with this message, if any.
     pub fn venue(&self) -> Option<&Venue> {
         match self {
             Self::Venue { venue, .. } => Some(venue),
@@ -473,6 +507,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the location associated with this message, if any.
     pub fn location(&self) -> Option<&Location> {
         match self {
             Self::Venue { location, .. } | Self::Location { location } => Some(location),
@@ -480,6 +515,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets a list of new chat members referred in this message, if any.
     pub fn new_chat_members(&self) -> Option<&[User]> {
         match self {
             Self::NewChatMembers { new_chat_members } => Some(new_chat_members.as_ref()),
@@ -487,6 +523,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets a list of left chat members referred in this message, if any.
     pub fn left_chat_member(&self) -> Option<&User> {
         match self {
             Self::LeftChatMember { left_chat_member } => Some(left_chat_member),
@@ -494,6 +531,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the new chat title referred in this message, if any.
     pub fn new_chat_title(&self) -> Option<&str> {
         match self {
             Self::NewChatTitle { new_chat_title } => Some(new_chat_title),
@@ -501,6 +539,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the change of message auto delete timer referred in this message, if any.
     pub fn message_auto_delete_timer_changed(&self) -> Option<&MessageAutoDeleteTimerChanged> {
         match self {
             Self::MessageAutoDeleteTimerChanged {
@@ -510,6 +549,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the chat id to which the chat is migrated, referred in this message, if any.
     pub fn migrate_to_chat_id(&self) -> Option<i64> {
         match self {
             Self::GroupMigrated {
@@ -519,6 +559,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the chat id from which the chat is migrated, referred in this message, if any.
     pub fn migrate_from_chat_id(&self) -> Option<i64> {
         match self {
             Self::GroupMigrated {
@@ -529,6 +570,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the pinned message referred in this message, if any.
     pub fn pinned_message(&self) -> Option<&Message> {
         match self {
             Self::MessagePinned { pinned_message } => Some(pinned_message.as_ref()),
@@ -536,6 +578,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the invoice associated with this message, if any.
     pub fn invoice(&self) -> Option<&Invoice> {
         match self {
             Self::Invoice { invoice } => Some(invoice),
@@ -543,6 +586,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the successful payment referred in this message, if any.
     pub fn successful_payment(&self) -> Option<&SuccessfulPayment> {
         match self {
             Self::SuccessfulPayment { successful_payment } => Some(successful_payment),
@@ -550,6 +594,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the connected website associated with this message, if any.
     pub fn connected_website(&self) -> Option<&str> {
         match self {
             Self::Login {
@@ -559,6 +604,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets the passport data associated with this message, if any.
     pub fn passport_data(&self) -> Option<&PassportData> {
         match self {
             Self::Login { passport_data, .. } => Some(passport_data),
@@ -566,6 +612,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets information about proximity alert triggered, referred in this message, if any.
     pub fn proximity_alert_triggered(&self) -> Option<&ProximityAlertTriggered> {
         match self {
             Self::ProximityAlertTriggered {
@@ -575,6 +622,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets information about voice chat schedule, referred in this message, if any.
     pub fn voice_chat_scheduled(&self) -> Option<&VoiceChatScheduled> {
         match self {
             Self::VoiceChatScheduled {
@@ -584,6 +632,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets information about voice chat start, referred in this message, if any.
     pub fn voice_chat_started(&self) -> Option<&VoiceChatStarted> {
         match self {
             Self::VoiceChatStarted { voice_chat_started } => Some(voice_chat_started),
@@ -591,6 +640,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets information about voice end, referred in this message, if any.
     pub fn voice_chat_ended(&self) -> Option<&VoiceChatEnded> {
         match self {
             Self::VoiceChatEnded { voice_chat_ended } => Some(voice_chat_ended),
@@ -598,6 +648,7 @@ impl MessageKind {
         }
     }
 
+    /// Gets information about voice chat participants invitation, referred in this message, if any.
     pub fn voice_chat_participants_invited(&self) -> Option<&VoiceChatParticipantsInvited> {
         match self {
             Self::VoiceChatParticipantsInvited {
@@ -607,146 +658,181 @@ impl MessageKind {
         }
     }
 
+    /// `true` if it is a text message.
     pub fn is_text(&self) -> bool {
         matches!(self, Self::Text { .. })
     }
 
+    /// `true` if it is an animation message.
     pub fn is_animation(&self) -> bool {
         matches!(self, Self::Animation { .. })
     }
 
+    /// `true` if it is an audio message.
     pub fn is_audio(&self) -> bool {
         matches!(self, Self::Audio { .. })
     }
 
+    /// `true` if it is a document message.
     pub fn is_document(&self) -> bool {
         matches!(self, Self::Document { .. })
     }
 
+    /// `true` if it is a photo message.`
     pub fn is_photo(&self) -> bool {
         matches!(self, Self::Photo { .. })
     }
 
+    /// `true` if it is a sticker message.
     pub fn is_sticker(&self) -> bool {
         matches!(self, Self::Sticker { .. })
     }
 
+    /// `true` if it is a video message.
     pub fn is_video(&self) -> bool {
         matches!(self, Self::Video { .. })
     }
 
+    /// `true` if it is a video note.
     pub fn is_video_note(&self) -> bool {
         matches!(self, Self::VideoNote { .. })
     }
 
+    /// `true` if it is a voice message.
     pub fn is_voice(&self) -> bool {
         matches!(self, Self::Voice { .. })
     }
 
+    /// `true` if it is a contact.
     pub fn is_contact(&self) -> bool {
         matches!(self, Self::Contact { .. })
     }
 
+    /// `true` if it is a dice.
     pub fn is_dice(&self) -> bool {
         matches!(self, Self::Dice { .. })
     }
 
+    /// `true` if it is a game message.
     pub fn is_game(&self) -> bool {
         matches!(self, Self::Game { .. })
     }
 
+    /// `true` if it is a poll.
     pub fn is_poll(&self) -> bool {
         matches!(self, Self::Poll { .. })
     }
 
+    /// `true` if it is a venue.
     pub fn is_venue(&self) -> bool {
         matches!(self, Self::Venue { .. })
     }
 
+    /// `true` if it is a location message.
     pub fn is_location(&self) -> bool {
         matches!(self, Self::Location { .. })
     }
 
+    /// `true` if it refers new chat members.
     pub fn is_new_chat_members(&self) -> bool {
         matches!(self, Self::NewChatMembers { .. })
     }
 
+    /// `true` if it refers left chat members.
     pub fn is_left_chat_member(&self) -> bool {
         matches!(self, Self::LeftChatMember { .. })
     }
 
+    /// `true` if it refers new chat title.
     pub fn is_new_chat_title(&self) -> bool {
         matches!(self, Self::NewChatTitle { .. })
     }
 
+    /// `true` if it refers deleted chat photo.
     pub fn is_delete_chat_photo(&self) -> bool {
         matches!(self, Self::DeleteChatPhoto { .. })
     }
 
+    /// `true` if it refers group chat creation.
     pub fn is_group_chat_created(&self) -> bool {
         matches!(self, Self::GroupChatCreated { .. })
     }
 
+    /// `true` if it refers supergroup chat creation.
     pub fn is_supergroup_chat_created(&self) -> bool {
         matches!(self, Self::SupergroupChatCreated { .. })
     }
 
+    /// `true` if it refers channel chat creation.
     pub fn is_channel_chat_created(&self) -> bool {
         matches!(self, Self::ChannelChatCreated { .. })
     }
 
+    /// `true` if it refers group migration.
     pub fn is_group_migrated(&self) -> bool {
         matches!(self, Self::GroupMigrated { .. })
     }
 
+    /// `true` if it refers message pin.
     pub fn is_message_pinned(&self) -> bool {
         matches!(self, Self::MessagePinned { .. })
     }
 
+    /// `true` if it is an invoice.
     pub fn is_invoice(&self) -> bool {
         matches!(self, Self::Invoice { .. })
     }
 
+    /// `true` if it is a login message.
     pub fn is_login(&self) -> bool {
         matches!(self, Self::Login { .. })
     }
 
+    /// `true` if it refers proximity alert trigger.
     pub fn is_proximity_alert_triggered(&self) -> bool {
         matches!(self, Self::ProximityAlertTriggered { .. })
     }
 
+    /// `true` if it refers voice chat schedule.
     pub fn is_voice_chat_scheduled(&self) -> bool {
         matches!(self, Self::VoiceChatScheduled { .. })
     }
 
+    /// `true` if it refers start of voice chat.
     pub fn is_voice_chat_started(&self) -> bool {
         matches!(self, Self::VoiceChatStarted { .. })
     }
 
+    /// `true` if it refers end of voice chat.
     pub fn is_voice_chat_ended(&self) -> bool {
         matches!(self, Self::VoiceChatEnded { .. })
     }
 
+    /// `true` if it refers invitation of voice chat participants.
     pub fn is_voice_chat_participants_invited(&self) -> bool {
         matches!(self, Self::VoiceChatParticipantsInvited { .. })
     }
 }
 
-/// This object represents a unique message identifier.
+/// A unique message identifier.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#messageid)
 #[derive(Debug, Deserialize)]
 pub struct MessageId {
-    /// Unique message identifier
+    /// Unique message identifier.
     pub message_id: i64,
 }
 
-/// This object represents a point on the map.
+/// A point on the map.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#location)
 #[derive(Debug, Deserialize)]
 pub struct Location {
-    /// Longitude as defined by sender
+    /// Longitude as defined by sender.
     pub longitude: f32,
-    /// Latitude as defined by sender
+    /// Latitude as defined by sender.
     pub latitude: f32,
-    /// The radius of uncertainty for the location, measured in meters; 0-1500
+    /// The radius of uncertainty for the location, measured in meters; 0-1500.
     pub horizontal_accuracy: Option<f32>,
     /// Time relative to the message sending date, during which the location can be updated, in seconds.
     /// For active live locations only.
@@ -759,81 +845,90 @@ pub struct Location {
     pub proximity_alert_radius: Option<i32>,
 }
 
-/// This object represents a phone contact.
+/// A phone contact.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#contact)
 #[derive(Debug, Deserialize)]
 pub struct Contact {
-    /// Contact's phone number
+    /// Contact's phone number.
     pub phone_number: String,
-    /// Contact's first name
+    /// Contact's first name.
     pub first_name: String,
-    /// Contact's last name
+    /// Contact's last name.
     pub last_name: Option<String>,
     /// Contact's user identifier in Telegram.
     pub user_id: Option<i64>,
-    /// Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard)
+    /// Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard).
     pub vcard: Option<String>,
 }
 
 /// This object represents an animated emoji that displays a random value.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#dice)
 #[derive(Debug, Deserialize)]
 pub struct Dice {
-    /// Emoji on which the dice throw animation is based
+    /// Emoji on which the dice throw animation is based.
     pub emoji: String,
-    /// Value of the dice, 1-6 for “🎲”, “🎯” and “🎳” base emoji, 1-5 for “🏀” and “⚽” base emoji, 1-64 for “🎰” base emoji
+    /// Value of the dice, 1-6 for “🎲”, “🎯” and “🎳” base emoji, 1-5 for “🏀” and “⚽” base emoji, 1-64 for “🎰” base emoji.
     pub value: i32,
 }
 
+/// A game.
+///
+/// Use BotFather to create and edit games, their short names will act as unique identifiers.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#game)
 #[derive(Debug, Deserialize)]
 pub struct Game {}
 
-/// This object contains information about one answer option in a poll.
+/// Information about one answer option in a poll.
 #[derive(Debug, Deserialize)]
 pub struct PollOption {
-    /// Option text, 1-100 characters
+    /// Option text, 1-100 characters.
     pub text: String,
-    /// Number of users that voted for this option
+    /// Number of users that voted for this option.
     pub voter_count: u32,
 }
 
-/// This object represents an answer of a user in a non-anonymous poll.
+/// An answer of a user in a non-anonymous poll.
 #[derive(Debug, Deserialize)]
 pub struct PollAnswer {
-    /// Unique poll identifier
+    /// Unique poll identifier.
     pub poll_id: String,
-    /// The user, who changed the answer to the poll
+    /// The user, who changed the answer to the poll.
     pub user: User,
     /// 0-based identifiers of answer options, chosen by the user.
     /// May be empty if the user retracted their vote.
     pub option_ids: Vec<u32>,
 }
 
-/// This object contains information about a poll.
+/// Information about a poll.
 #[derive(Debug, Deserialize)]
 pub struct Poll {
-    /// Unique poll identifier
+    /// Unique poll identifier.
     pub id: String,
-    /// Poll question, 1-300 characters
+    /// Poll question, 1-300 characters.
     pub question: String,
-    /// List of poll options
+    /// List of poll options.
     pub options: Vec<PollOption>,
-    /// Total number of users that voted in the poll
+    /// Total number of users that voted in the poll.
     pub total_voter_count: u32,
-    /// True, if the poll is closed
+    /// True, if the poll is closed.
     pub is_closed: bool,
-    /// True, if the poll is anonymous
+    /// True, if the poll is anonymous.
     pub is_anonymous: bool,
-    /// Poll type
+    /// Poll type.
     #[serde(flatten)]
     pub kind: PollKind,
-    /// True, if the poll allows multiple answers
+    /// True, if the poll allows multiple answers.
     pub allows_multiple_answers: bool,
-    /// Amount of time in seconds the poll will be active after creation
+    /// Amount of time in seconds the poll will be active after creation.
     pub open_period: Option<u32>,
-    /// Point in time (Unix timestamp) when the poll will be automatically closed
+    /// Point in time (Unix timestamp) when the poll will be automatically closed.
     pub close_date: Option<u64>,
 }
 
-/// Poll type
+/// Poll type.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum PollKind {
@@ -844,14 +939,15 @@ pub enum PollKind {
         /// or was sent (not forwarded) by the bot or to the private chat with the bot.
         correct_option_id: Option<usize>,
         /// Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll,
-        /// 0-200 characters
+        /// 0-200 characters.
         explanation: Option<String>,
-        /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation
+        /// Special entities like usernames, URLs, bot commands, etc. that appear in the explanation.
         explanation_entities: Option<Vec<MessageEntity>>,
     },
 }
 
 impl PollKind {
+    /// Gets the correct option id of this quiz, if any.
     pub fn correct_option_id(&self) -> Option<usize> {
         match self {
             Self::Quiz {
@@ -861,6 +957,7 @@ impl PollKind {
         }
     }
 
+    /// Gets the explanation of the correct answer, if any.
     pub fn explanation(&self) -> Option<&str> {
         match self {
             Self::Quiz { explanation, .. } => explanation.as_deref(),
@@ -868,6 +965,7 @@ impl PollKind {
         }
     }
 
+    /// Gets a list of text entities in the explanation of the correct answer, if any.
     pub fn explanation_entities(&self) -> Option<&[MessageEntity]> {
         match self {
             Self::Quiz {
@@ -878,25 +976,29 @@ impl PollKind {
         }
     }
 
+    /// `true` if it is a regular poll.
     pub fn is_regular(&self) -> bool {
         matches!(self, Self::Regular)
     }
 
+    /// `true` if it is a quiz.
     pub fn is_quiz(&self) -> bool {
         matches!(self, Self::Quiz { .. })
     }
 }
 
-/// This object represents a venue.
+/// A venue.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#venue)
 #[derive(Debug, Deserialize)]
 pub struct Venue {
-    /// Venue location. Can't be a live location
+    /// Venue location. Can't be a live location.
     pub location: Location,
-    /// Name of the venue
+    /// Name of the venue.
     pub title: String,
-    /// Address of the venue
+    /// Address of the venue.
     pub address: String,
-    /// Foursquare identifier of the venue
+    /// Foursquare identifier of the venue.
     pub foursquare_id: Option<String>,
     /// Foursquare type of the venue.
     ///
@@ -908,80 +1010,93 @@ pub struct Venue {
     pub google_place_type: String,
 }
 
-/// This object represents a service message about a change in auto-delete timer settings.
+/// A service message about a change in auto-delete timer settings.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#messageautodeletetimerchanged)
 #[derive(Debug, Deserialize)]
 pub struct MessageAutoDeleteTimerChanged {
-    /// New auto-delete time for messages in the chat
+    /// New auto-delete time for messages in the chat.
     pub message_auto_delete_time: u32,
 }
 
+/// Telegram Passport Data shared with the bot by the user.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#passportdata)
 #[derive(Debug, Deserialize)]
 pub struct PassportData {}
 
-/// This object represents the content of a service message,
+/// The content of a service message,
 /// sent whenever a user in the chat triggers a proximity alert set by another user.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#proximityalerttriggered)
 #[derive(Debug, Deserialize)]
 pub struct ProximityAlertTriggered {
-    /// User that triggered the alert
+    /// User that triggered the alert.
     pub traveler: User,
-    /// User that set the alert
+    /// User that set the alert.
     pub watcher: User,
-    /// The distance between the users
+    /// The distance between the users.
     pub distance: u32,
 }
 
-/// This object represents a service message about a voice chat scheduled in the chat.
+/// A service message about a voice chat scheduled in the chat.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#voicechatscheduled)
 #[derive(Debug, Deserialize)]
 pub struct VoiceChatScheduled {
-    /// Point in time (Unix timestamp) when the voice chat is supposed to be started by a chat administrator
+    /// Point in time (Unix timestamp) when the voice chat is supposed to be started by a chat administrator.
     pub start_date: u64,
 }
 
-/// This object represents a service message about a voice chat started in the chat.
+/// A service message about a voice chat started in the chat.
 /// Currently holds no information.
 #[derive(Debug, Deserialize)]
 pub struct VoiceChatStarted;
 
-/// This object represents a service message about a voice chat ended in the chat.
+/// A service message about a voice chat ended in the chat.
 #[derive(Debug, Deserialize)]
 pub struct VoiceChatEnded {
-    /// Voice chat duration; in seconds
+    /// Voice chat duration; in seconds.
     pub duration: u32,
 }
 
-/// This object represents a service message about new members invited to a voice chat.
+/// A service message about new members invited to a voice chat.
 #[derive(Debug, Deserialize)]
 pub struct VoiceChatParticipantsInvited {
-    /// New members that were invited to the voice chat
+    /// New members that were invited to the voice chat.
     pub users: Option<Vec<User>>,
 }
 
-/// Use this method to send text messages. On success, the sent Message is returned.
+/// Use this method to send text messages.
+/// 
+/// On success, the sent [`Message`] is returned.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#sendmessage)
 #[derive(Clone, Serialize)]
 pub struct SendMessage {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Text of the message to be sent, 1-4096 characters after entities parsing
+    /// Text of the message to be sent, 1-4096 characters after entities parsing.
     pub text: String,
     /// Mode for parsing entities in the message text.
     /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parse_mode: Option<ParseMode>,
     /// List of special entities that appear in message text,
-    /// which can be specified instead of *parse_mode*
+    /// which can be specified instead of *parse_mode*.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entities: Option<Vec<MessageEntity>>,
-    /// Disables link previews for links in the sent message
+    /// Disables link previews for links in the sent message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_web_page_preview: Option<bool>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
     /// Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
-    /// If the message is a reply, ID of the original message
+    /// If the message is a reply, ID of the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message_id: Option<i64>,
-    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
     /// Additional interface options.
@@ -990,13 +1105,13 @@ pub struct SendMessage {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
-    /// Protects the contents of the sent message from forwarding and saving
+    /// Protects the contents of the sent message from forwarding and saving.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
 }
 
 impl SendMessage {
-    /// Create a new sendMessage request
+    /// Create a new [`SendMessage`] request that sends the given text to the given chat.
     pub fn new(chat_id: impl Into<ChatId>, text: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -1011,7 +1126,7 @@ impl SendMessage {
             protect_content: None,
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
@@ -1025,48 +1140,48 @@ impl SendMessage {
             ..self
         }
     }
-    /// Add one entity
+    /// Disables web preview.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable web preview
+    /// Disables web preview.
     pub fn disable_web_page_preview(self) -> Self {
         Self {
             disable_web_page_preview: Some(true),
             ..self
         }
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -1085,27 +1200,30 @@ impl TelegramMethod for SendMessage {
 
 impl JsonMethod for SendMessage {}
 
-/// Use this method to forward messages of any kind. Service messages can't be forwarded.
-/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+/// Forwards messages of any kind. Service messages can't be forwarded.
+/// 
+/// On success, the sent [`Message`] is returned.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#forwardmessage)
 #[derive(Clone, Serialize)]
 pub struct ForwardMessage {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Unique identifier for the chat where the original message was sent (in the format `@channelusername`)
+    /// Unique identifier for the chat where the original message was sent. (in the format `@channelusername`)
     pub from_chat_id: ChatId,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
     /// Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
-    /// Message identifier in the chat specified in *from_chat_id*
+    /// Message identifier in the chat specified in *from_chat_id*.
     pub message_id: i64,
-    /// Protects the contents of the sent message from forwarding and saving
+    /// Protects the contents of the sent message from forwarding and saving.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
 }
 
 impl ForwardMessage {
-    /// Create a new forwardMessage request
+    /// Creates a new [`ForwardMessage`] request that forwards the given message from the given chat to the given chat.
     pub fn new(to: impl Into<ChatId>, from: impl Into<ChatId>, message: i64) -> Self {
         Self {
             chat_id: to.into(),
@@ -1115,14 +1233,14 @@ impl ForwardMessage {
             protect_content: None,
         }
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -1141,17 +1259,21 @@ impl TelegramMethod for ForwardMessage {
 
 impl JsonMethod for ForwardMessage {}
 
-/// Use this method to copy messages of any kind.
+/// Copies messages of any kind.
+///
 /// Service messages and invoice messages can't be copied.
 /// The method is analogous to the method [forwardMessage](https://core.telegram.org/bots/api#forwardmessage), but the copied message doesn't have a link to the original message.
-/// Returns the [MessageId](https://core.telegram.org/bots/api#messageid) of the sent message on success.
+///
+/// Returns the [`MessageId`] of the sent message on success.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#copymessage)
 #[derive(Clone, Serialize)]
 pub struct CopyMessage {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Unique identifier for the chat where the original message was sent (in the format `@channelusername`)
+    /// Unique identifier for the chat where the original message was sent. (in the format `@channelusername`)
     pub from_chat_id: ChatId,
-    /// Message identifier in the chat specified in *from_chat_id*
+    /// Message identifier in the chat specified in *from_chat_id*.
     pub message_id: i64,
     /// New caption for media, 0-1024 characters after entities parsing.
     /// If not specified, the original caption is kept
@@ -1159,16 +1281,16 @@ pub struct CopyMessage {
     /// Mode for parsing entities in the new caption.
     /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
     pub parse_mode: Option<ParseMode>,
-    /// List of special entities that appear in the new caption, which can be specified instead of *parse_mode*
+    /// List of special entities that appear in the new caption, which can be specified instead of *parse_mode*.
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
     /// Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
-    /// If the message is a reply, ID of the original message
+    /// If the message is a reply, ID of the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message_id: Option<i64>,
-    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
     /// Additional interface options.
@@ -1177,13 +1299,13 @@ pub struct CopyMessage {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
-    /// Protects the contents of the sent message from forwarding and saving
+    /// Protects the contents of the sent message from forwarding and saving.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
 }
 
 impl CopyMessage {
-    /// Create a new forwardMessage request
+    /// Creates a new [`CopyMessage`] request that copies the given message from the given chat to the given chat.
     pub fn new(to: impl Into<ChatId>, from: impl Into<ChatId>, message: i64) -> Self {
         Self {
             chat_id: to.into(),
@@ -1199,62 +1321,62 @@ impl CopyMessage {
             protect_content: None,
         }
     }
-    /// Set caption
+    /// Sets caption.
     pub fn with_caption(self, caption: impl Into<String>) -> Self {
         Self {
             caption: Some(caption.into()),
             ..self
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set caption entities
+    /// Sets caption entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             caption_entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.caption_entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -1335,62 +1457,62 @@ impl SendPhoto {
             protect_content: None,
         }
     }
-    /// Set caption
+    /// Sets caption.
     pub fn with_caption(self, caption: impl Into<String>) -> Self {
         Self {
             caption: Some(caption.into()),
             ..self
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set caption entities
+    /// Sets caption entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             caption_entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.caption_entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -1530,62 +1652,62 @@ impl SendAudio {
             ..self
         }
     }
-    /// Set caption
+    /// Sets caption.
     pub fn with_caption(self, caption: impl Into<String>) -> Self {
         Self {
             caption: Some(caption.into()),
             ..self
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set caption entities
+    /// Sets caption entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             caption_entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.caption_entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -1703,62 +1825,62 @@ impl SendDocument {
             ..self
         }
     }
-    /// Set caption
+    /// Sets caption.
     pub fn with_caption(self, caption: impl Into<String>) -> Self {
         Self {
             caption: Some(caption.into()),
             ..self
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set caption entities
+    /// Sets caption entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             caption_entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.caption_entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -1910,62 +2032,62 @@ impl SendVideo {
             ..self
         }
     }
-    /// Set caption
+    /// Sets caption.
     pub fn with_caption(self, caption: impl Into<String>) -> Self {
         Self {
             caption: Some(caption.into()),
             ..self
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set caption entities
+    /// Sets caption entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             caption_entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.caption_entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -2106,62 +2228,62 @@ impl SendAnimation {
             ..self
         }
     }
-    /// Set caption
+    /// Sets caption.
     pub fn with_caption(self, caption: impl Into<String>) -> Self {
         Self {
             caption: Some(caption.into()),
             ..self
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set caption entities
+    /// Sets caption entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             caption_entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.caption_entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -2267,62 +2389,62 @@ impl SendVoice {
             ..self
         }
     }
-    /// Set caption
+    /// Sets caption.
     pub fn with_caption(self, caption: impl Into<String>) -> Self {
         Self {
             caption: Some(caption.into()),
             ..self
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set caption entities
+    /// Sets caption entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             caption_entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.caption_entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -2434,35 +2556,35 @@ impl SendVideoNote {
             ..self
         }
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -2543,28 +2665,28 @@ impl SendMediaGroup {
         self.media.push(media.into());
         self
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -2670,35 +2792,35 @@ impl SendLocation {
             ..self
         }
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -2717,21 +2839,25 @@ impl TelegramMethod for SendLocation {
 
 impl JsonMethod for SendLocation {}
 
-/// Use this method to edit live location messages.
+/// Edit live location messages.
+///
 /// A location can be edited until its *live_period* expires
 /// or editing is explicitly disabled by a call to [stopMessageLiveLocation](https://core.telegram.org/bots/api#stopmessagelivelocation).
-/// On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
+///
+/// On success, the edited [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editmessagelivelocation)
 #[derive(Clone, Serialize)]
 pub struct EditMessageLiveLocation {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Identifier of the message to edit
+    /// Identifier of the message to edit.
     pub message_id: i64,
-    /// Latitude of new location
+    /// Latitude of new location.
     pub latitude: f32,
-    /// Longitude of new location
+    /// Longitude of new location.
     pub longitude: f32,
-    /// The radius of uncertainty for the location, measured in meters; 0-1500
+    /// The radius of uncertainty for the location, measured in meters; 0-1500.
     pub horizontal_accuracy: Option<f32>,
     /// For live locations, a direction in which the user is moving, in degrees.
     /// Must be between 1 and 360 if specified.
@@ -2747,7 +2873,7 @@ pub struct EditMessageLiveLocation {
 }
 
 impl EditMessageLiveLocation {
-    /// Create a new editMessageLiveLocation request
+    /// Creates a new [`EditMessageLiveLocation`] request that edits the given message live location on the given chat with the given latitude and longitude.
     pub fn new(chat_id: impl Into<ChatId>, message_id: i64, latitude: f32, longitude: f32) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -2760,28 +2886,28 @@ impl EditMessageLiveLocation {
             reply_markup: None,
         }
     }
-    /// Set horizontal accuracy
+    /// Sets horizontal accuracy.
     pub fn with_horizontal_accuracy(self, accuracy: f32) -> Self {
         Self {
             horizontal_accuracy: Some(accuracy),
             ..self
         }
     }
-    /// Set heading
+    /// Sets heading.
     pub fn with_heading(self, direction: u32) -> Self {
         Self {
             heading: Some(direction),
             ..self
         }
     }
-    /// Set proximity alert radius
+    /// Sets proximity alert radius.
     pub fn proximity_alert_within(self, radius: u32) -> Self {
         Self {
             proximity_alert_radius: Some(radius),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -2800,19 +2926,23 @@ impl TelegramMethod for EditMessageLiveLocation {
 
 impl JsonMethod for EditMessageLiveLocation {}
 
-/// Use this method to edit live location messages.
+/// Edit live location messages.
+///
 /// A location can be edited until its *live_period* expires
 /// or editing is explicitly disabled by a call to [stopMessageLiveLocation](https://core.telegram.org/bots/api#stopmessagelivelocation).
-/// On success, _True_ is returned.
+///
+/// On success, `true` is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editmessagelivelocation)
 #[derive(Clone, Serialize)]
 pub struct EditInlineMessageLiveLocation {
-    /// Identifier of the inline message
+    /// Identifier of the inline message.
     pub inline_message_id: String,
-    /// Latitude of new location
+    /// Latitude of new location.
     pub latitude: f32,
-    /// Longitude of new location
+    /// Longitude of new location.
     pub longitude: f32,
-    /// The radius of uncertainty for the location, measured in meters; 0-1500
+    /// The radius of uncertainty for the location, measured in meters; 0-1500.
     pub horizontal_accuracy: Option<f32>,
     /// For live locations, a direction in which the user is moving, in degrees.
     /// Must be between 1 and 360 if specified.
@@ -2828,7 +2958,7 @@ pub struct EditInlineMessageLiveLocation {
 }
 
 impl EditInlineMessageLiveLocation {
-    /// Create a new editMessageLiveLocation request
+    /// Creates a new [`EditInlineMessageLiveLocation`] request that edits the given inline message with the given latitude and longitude.
     pub fn new(inline_message_id: impl Into<String>, latitude: f32, longitude: f32) -> Self {
         Self {
             inline_message_id: inline_message_id.into(),
@@ -2840,28 +2970,28 @@ impl EditInlineMessageLiveLocation {
             reply_markup: None,
         }
     }
-    /// Set horizontal accuracy
+    /// Sets horizontal accuracy.
     pub fn with_horizontal_accuracy(self, accuracy: f32) -> Self {
         Self {
             horizontal_accuracy: Some(accuracy),
             ..self
         }
     }
-    /// Set heading
+    /// Sets heading.
     pub fn with_heading(self, direction: u32) -> Self {
         Self {
             heading: Some(direction),
             ..self
         }
     }
-    /// Set proximity alert radius
+    /// Sets proximity alert radius.
     pub fn proximity_alert_within(self, radius: u32) -> Self {
         Self {
             proximity_alert_radius: Some(radius),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -2880,13 +3010,16 @@ impl TelegramMethod for EditInlineMessageLiveLocation {
 
 impl JsonMethod for EditInlineMessageLiveLocation {}
 
-/// Use this method to stop updating a live location message before live_period expires.
-/// On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
+/// Stops updating a live location message before `live_period` expires.
+///
+/// On success, the edited [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#stopmessagelivelocation)
 #[derive(Clone, Serialize)]
 pub struct StopMessageLiveLocation {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Identifier of the message to edit
+    /// Identifier of the message to edit.
     pub message_id: i64,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2894,7 +3027,7 @@ pub struct StopMessageLiveLocation {
 }
 
 impl StopMessageLiveLocation {
-    /// Create a new stopMessageLiveLocation request from chat message id
+    /// Creates a new [`StopMessageLiveLocation`] request that stops the message live location on the given chat.
     pub fn from_chat(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -2902,7 +3035,7 @@ impl StopMessageLiveLocation {
             reply_markup: None,
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -2921,11 +3054,14 @@ impl TelegramMethod for StopMessageLiveLocation {
 
 impl JsonMethod for StopMessageLiveLocation {}
 
-/// Use this method to stop updating a live location message before live_period expires.
-/// On success, _True_ is returned.
+/// Stops updating a live location message before `live_period`` expires.
+///
+/// On success, `true` is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#stopmessagelivelocation)
 #[derive(Clone, Serialize)]
 pub struct StopInlineMessageLiveLocation {
-    /// Identifier of the inline message
+    /// Identifier of the inline message.
     pub inline_message_id: String,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2933,14 +3069,14 @@ pub struct StopInlineMessageLiveLocation {
 }
 
 impl StopInlineMessageLiveLocation {
-    /// Create a new stopMessageLiveLocation request
+    /// Creates a new [`StopInlineMessageLiveLocation`] request that stops the given inline messave live location.
     pub fn new(inline_message_id: impl Into<String>) -> Self {
         Self {
             inline_message_id: inline_message_id.into(),
             reply_markup: None,
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -2959,28 +3095,31 @@ impl TelegramMethod for StopInlineMessageLiveLocation {
 
 impl JsonMethod for StopInlineMessageLiveLocation {}
 
-/// Use this method to send information about a venue.
-/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+/// Sends information about a venue.
+///
+/// On success, the sent [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#sendvenue)
 #[derive(Clone, Serialize)]
 pub struct SendVenue {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Latitude of the venue
+    /// Latitude of the venue.
     pub latitude: f32,
-    /// Longitude of the venue
+    /// Longitude of the venue.
     pub longitude: f32,
-    /// Name of the venue
+    /// Name of the venue.
     pub title: String,
-    /// Address of the venue
+    /// Address of the venue.
     pub address: String,
-    /// Foursquare identifier of the venue, if known
+    /// Foursquare identifier of the venue, if known.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub foursquare_id: Option<String>,
     /// Foursquare type of the venue, if known.
     /// (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub foursquare_type: Option<String>,
-    /// Google Places identifier of the venue
+    /// Google Places identifier of the venue.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub google_place_id: Option<String>,
     /// Google Places type of the venue. (See [supported types.](https://developers.google.com/places/web-service/supported_types))
@@ -2990,10 +3129,10 @@ pub struct SendVenue {
     /// Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
-    /// If the message is a reply, ID of the original message
+    /// If the message is a reply, ID of the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message_id: Option<i64>,
-    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
     /// Additional interface options.
@@ -3002,13 +3141,13 @@ pub struct SendVenue {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
-    /// Protects the contents of the sent message from forwarding and saving
+    /// Protects the contents of the sent message from forwarding and saving.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
 }
 
 impl SendVenue {
-    /// Create a new sendVenue request
+    /// Creates a new [`SendVenue`] request that sends a venu with given location, title, and address on the given chat.
     pub fn new(
         chat_id: impl Into<ChatId>,
         latitude: f32,
@@ -3033,7 +3172,7 @@ impl SendVenue {
             protect_content: None,
         }
     }
-    /// Set foursquare id and type
+    /// Sets foursquare id and type.
     pub fn with_foursqaure(self, id: impl Into<String>, kind: Option<String>) -> Self {
         Self {
             foursquare_id: Some(id.into()),
@@ -3041,7 +3180,7 @@ impl SendVenue {
             ..self
         }
     }
-    /// Set google place id and type
+    /// Sets google place id and type.
     pub fn with_google_place(self, id: impl Into<String>, kind: Option<String>) -> Self {
         Self {
             google_place_id: Some(id.into()),
@@ -3049,35 +3188,35 @@ impl SendVenue {
             ..self
         }
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -3096,29 +3235,33 @@ impl TelegramMethod for SendVenue {
 
 impl JsonMethod for SendVenue {}
 
-/// Use this method to send text messages. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+/// Send text messages.
+///
+/// On success, the sent [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#sendcontact)
 #[derive(Clone, Serialize)]
 pub struct SendContact {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Contact's phone number
+    /// Contact's phone number.
     pub phone_number: String,
-    /// Contact's first name
+    /// Contact's first name.
     pub first_name: String,
-    /// Contact's last name
+    /// Contact's last name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last_name: Option<String>,
-    /// Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes
+    /// Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub vcard: Option<String>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
     /// Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
-    /// If the message is a reply, ID of the original message
+    /// If the message is a reply, ID of the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message_id: Option<i64>,
-    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
     /// Additional interface options.
@@ -3127,13 +3270,13 @@ pub struct SendContact {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
-    /// Protects the contents of the sent message from forwarding and saving
+    /// Protects the contents of the sent message from forwarding and saving.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
 }
 
 impl SendContact {
-    /// Create a new sendContact request
+    /// Creates a new [`SendContact`] request that sends a contact with the given phone number and first name on the given chat.
     pub fn new(
         chat_id: impl Into<ChatId>,
         phone_number: impl Into<String>,
@@ -3152,49 +3295,49 @@ impl SendContact {
             protect_content: None,
         }
     }
-    /// Set last name
+    /// Sets last name.
     pub fn with_last_name(self, last_name: impl Into<String>) -> Self {
         Self {
             last_name: Some(last_name.into()),
             ..self
         }
     }
-    /// Set vcard
+    /// Sets vcard.
     pub fn with_vcard(self, vcard: impl Into<String>) -> Self {
         Self {
             vcard: Some(vcard.into()),
             ..self
         }
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -3213,37 +3356,41 @@ impl TelegramMethod for SendContact {
 
 impl JsonMethod for SendContact {}
 
-/// Use this method to send a native poll. On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+/// Sends a native poll.
+///
+/// On success, the sent [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#sendpoll)
 #[derive(Clone, Serialize)]
 pub struct SendPoll {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Poll question, 1-300 characters
+    /// Poll question, 1-300 characters.
     pub question: String,
-    /// A JSON-serialized list of answer options, 2-10 strings 1-100 characters each
+    /// A JSON-serialized list of answer options, 2-10 strings 1-100 characters each.
     pub options: Vec<String>,
-    /// True, if the poll needs to be anonymous, defaults to *True*
+    /// True, if the poll needs to be anonymous, defaults to *True*.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_anonymous: Option<bool>,
-    /// Poll type, “quiz” or “regular”, defaults to “regular”
+    /// Poll type, “quiz” or “regular”, defaults to “regular”.
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "type")]
     pub kind: Option<String>,
-    /// True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to *False*
+    /// True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to *False*.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allows_multiple_answers: Option<bool>,
-    /// 0-based identifier of the correct answer option, required for polls in quiz mode
+    /// 0-based identifier of the correct answer option, required for polls in quiz mode.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub correct_option_id: Option<u32>,
     /// Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll,
-    /// 0-200 characters with at most 2 line feeds after entities parsing
+    /// 0-200 characters with at most 2 line feeds after entities parsing.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation: Option<String>,
     /// Mode for parsing entities in the explanation.
     /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation_parse_mode: Option<ParseMode>,
-    /// List of special entities that appear in the poll explanation, which can be specified instead of *parse_mode*
+    /// List of special entities that appear in the poll explanation, which can be specified instead of *parse_mode*.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation_entities: Option<Vec<MessageEntity>>,
     /// Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with *close_date*.
@@ -3262,10 +3409,10 @@ pub struct SendPoll {
     /// Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
-    /// If the message is a reply, ID of the original message
+    /// If the message is a reply, ID of the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message_id: Option<i64>,
-    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
     /// Additional interface options.
@@ -3274,13 +3421,13 @@ pub struct SendPoll {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
-    /// Protects the contents of the sent message from forwarding and saving
+    /// Protects the contents of the sent message from forwarding and saving.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
 }
 
 impl SendPoll {
-    /// Create a new sendPoll request to send a regular poll
+    /// Create a new [`SendPoll`] request that sends a regular poll on the given chat.
     pub fn new_regular(
         chat_id: impl Into<ChatId>,
         question: impl Into<String>,
@@ -3307,7 +3454,7 @@ impl SendPoll {
             protect_content: None,
         }
     }
-    /// Create a new sendPoll request to send a quiz
+    /// Creates a new [`SendPoll`] request that sends a quiz on the given chat.
     pub fn new_quiz(
         chat_id: impl Into<ChatId>,
         question: impl Into<String>,
@@ -3335,42 +3482,42 @@ impl SendPoll {
             protect_content: None,
         }
     }
-    /// Set the poll as anonymous
+    /// Sets the poll as anonymous.
     pub fn anonymous(self) -> Self {
         Self {
             is_anonymous: Some(true),
             ..self
         }
     }
-    /// Allow multiple answers
+    /// Allows multiple answers.
     pub fn allow_multiple_answers(self) -> Self {
         Self {
             allows_multiple_answers: Some(true),
             ..self
         }
     }
-    /// Set explanation
+    /// Sets explanation.
     pub fn with_explanation(self, explanation: impl Into<String>) -> Self {
         Self {
             explanation: Some(explanation.into()),
             ..self
         }
     }
-    /// Set explanation parse mode
+    /// Sets explanation parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             explanation_parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set explanation entities
+    /// Sets explanation entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             explanation_entities: Some(entities),
             ..self
         }
     }
-    /// Add explanation entity
+    /// Adds explanation entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self
             .explanation_entities
@@ -3378,7 +3525,7 @@ impl SendPoll {
         entities.push(entity);
         self
     }
-    /// Set open period. This sets `close_date` to `None`
+    /// Sets open period. This sets `close_date` to `None`.
     pub fn with_open_period(self, period: u32) -> Self {
         Self {
             open_period: Some(period),
@@ -3386,7 +3533,7 @@ impl SendPoll {
             ..self
         }
     }
-    /// Set close date. This sets `open_period` to `None`
+    /// Sets close date. This sets `open_period` to `None`.
     pub fn with_close_date(self, close_date: u64) -> Self {
         Self {
             close_date: Some(close_date),
@@ -3394,42 +3541,42 @@ impl SendPoll {
             ..self
         }
     }
-    /// Set the poll as closed
+    /// Sets the poll as closed.
     pub fn closed(self) -> Self {
         Self {
             is_closed: Some(true),
             ..self
         }
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replies to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present.
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -3448,25 +3595,28 @@ impl TelegramMethod for SendPoll {
 
 impl JsonMethod for SendPoll {}
 
-/// Use this method to send an animated emoji that will display a random value.
-/// On success, the sent [Message](https://core.telegram.org/bots/api#message) is returned.
+/// Sends an animated emoji that will display a random value.
+///
+/// On success, the sent [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#senddice)
 #[derive(Clone, Serialize)]
 pub struct SendDice {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
     /// Emoji on which the dice throw animation is based.
     /// Currently, must be one of “🎲”, “🎯”, “🏀”, “⚽”, “🎳”, or “🎰”.
-    /// Dice can have values 1-6 for “🎲”, “🎯” and “🎳”, values 1-5 for “🏀” and “⚽”, and values 1-64 for “🎰”. Defaults to “🎲”
+    /// Dice can have values 1-6 for “🎲”, “🎯” and “🎳”, values 1-5 for “🏀” and “⚽”, and values 1-64 for “🎰”. Defaults to “🎲”.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub emoji: Option<String>,
     /// Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages).
     /// Users will receive a notification with no sound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_notification: Option<bool>,
-    /// If the message is a reply, ID of the original message
+    /// If the message is a reply, ID of the original message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_to_message_id: Option<i64>,
-    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found
+    /// Pass *True*, if the message should be sent even if the specified replied-to message is not found.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_sending_without_reply: Option<bool>,
     /// Additional interface options.
@@ -3475,13 +3625,13 @@ pub struct SendDice {
     /// instructions to remove reply keyboard or to force a reply from the user.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reply_markup: Option<ReplyMarkup>,
-    /// Protects the contents of the sent message from forwarding and saving
+    /// Protects the contents of the sent message from forwarding and saving.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub protect_content: Option<bool>,
 }
 
 impl SendDice {
-    /// Create a new sendDice request.
+    /// Creates a new [`SendDice`] request that sends a dice on the given chat.
     pub fn new(chat_id: impl Into<ChatId>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -3493,42 +3643,42 @@ impl SendDice {
             protect_content: None,
         }
     }
-    /// Set emoji
+    /// Sets emoji.
     pub fn with_emoji(self, emoji: impl Into<String>) -> Self {
         Self {
             emoji: Some(emoji.into()),
             ..self
         }
     }
-    /// Disable notification
+    /// Disables notification.
     pub fn disable_notification(self) -> Self {
         Self {
             disable_notification: Some(true),
             ..self
         }
     }
-    /// Reply to message
+    /// Replys to message.
     pub fn reply_to(self, message_id: i64) -> Self {
         Self {
             reply_to_message_id: Some(message_id),
             ..self
         }
     }
-    /// Allow sending message even if the replying message isn't present
+    /// Allows sending message even if the replying message isn't present/
     pub fn allow_sending_without_reply(self) -> Self {
         Self {
             allow_sending_without_reply: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<ReplyMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
             ..self
         }
     }
-    /// Protect content
+    /// Protects content from forwarding and saving.
     pub fn protect_content(self) -> Self {
         Self {
             protect_content: Some(true),
@@ -3547,7 +3697,7 @@ impl TelegramMethod for SendDice {
 
 impl JsonMethod for SendDice {}
 
-/// Chat action type
+/// Type of chat action.
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ChatActionKind {
@@ -3563,25 +3713,28 @@ pub enum ChatActionKind {
     UploadVideoNote,
 }
 
-/// Use this method when you need to tell the user that something is happening on the bot's side.
+/// Sends a chat action when you need to tell the user that something is happening on the bot's side.
+///
 /// The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status).
-/// Returns True on success.
+/// Returns `true` on success.
 ///
 /// > Example: The [ImageBot](https://t.me/imagebot) needs some time to process a request and upload the image.
 /// > Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use sendChatAction with action = upload_photo.
 /// > The user will see a “sending photo” status for the bot.
 ///
 /// It is recommended to use this method only when a response from the bot will take a noticeable amount of time to arrive.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#sendchataction)
 #[derive(Clone, Serialize)]
 pub struct SendChatAction {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
     /// Type of action to broadcast.
     pub action: ChatActionKind,
 }
 
 impl SendChatAction {
-    /// Create a new sendChatAction request.
+    /// Creates a new [`SendChatAction`] request that sends the given action on the given chat.
     pub fn new(chat_id: impl Into<ChatId>, action: ChatActionKind) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -3600,26 +3753,28 @@ impl TelegramMethod for SendChatAction {
 
 impl JsonMethod for SendChatAction {}
 
-/// Use this method to edit text and [game](https://core.telegram.org/bots/api#games) messages.
-/// On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api#message) is returned,
-/// otherwise _True_ is returned.
+/// Edits text and [game](https://core.telegram.org/bots/api#games) messages.
+///
+/// On success, the edited [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editmessagetext)
 #[derive(Clone, Serialize)]
 pub struct EditMessageText {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Identifier of the message to edit
+    /// Identifier of the message to edit.
     pub message_id: i64,
-    /// New text of the message, 1-4096 characters after entities parsing
+    /// New text of the message, 1-4096 characters after entities parsing.
     pub text: String,
     /// Mode for parsing entities in the message text.
     /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parse_mode: Option<ParseMode>,
     /// List of special entities that appear in message text,
-    /// which can be specified instead of *parse_mode*
+    /// which can be specified instead of *parse_mode*.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entities: Option<Vec<MessageEntity>>,
-    /// Disables link previews for links in the sent message
+    /// Disables link previews for links in the sent message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_web_page_preview: Option<bool>,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
@@ -3628,7 +3783,7 @@ pub struct EditMessageText {
 }
 
 impl EditMessageText {
-    /// Create a new editMessageText request
+    /// Creates a new [`EditMessageText`] request that edits the given message in the given chat with the given text.
     pub fn new(chat_id: impl Into<ChatId>, message_id: i64, text: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -3640,34 +3795,34 @@ impl EditMessageText {
             reply_markup: None,
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set entities
+    /// Sets entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable web preview
+    /// Disables web preview.
     pub fn disable_web_page_preview(self) -> Self {
         Self {
             disable_web_page_preview: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -3686,23 +3841,26 @@ impl TelegramMethod for EditMessageText {
 
 impl JsonMethod for EditMessageText {}
 
-/// Use this method to edit text and [game](https://core.telegram.org/bots/api#games) messages.
-/// On success, _True_ is returned.
+/// Edit text and [game](https://core.telegram.org/bots/api#games) messages.
+///
+/// On success, `true` is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editmessagetext)
 #[derive(Clone, Serialize)]
 pub struct EditInlineMessageText {
-    /// Identifier of the inline message
+    /// Identifier of the inline message.
     pub inline_message_id: String,
-    /// New text of the message, 1-4096 characters after entities parsing
+    /// New text of the message, 1-4096 characters after entities parsing.
     pub text: String,
     /// Mode for parsing entities in the message text.
     /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parse_mode: Option<ParseMode>,
     /// List of special entities that appear in message text,
-    /// which can be specified instead of *parse_mode*
+    /// which can be specified instead of *parse_mode*.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub entities: Option<Vec<MessageEntity>>,
-    /// Disables link previews for links in the sent message
+    /// Disables link previews for links in the sent message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_web_page_preview: Option<bool>,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
@@ -3711,7 +3869,7 @@ pub struct EditInlineMessageText {
 }
 
 impl EditInlineMessageText {
-    /// Create a new editMessageText request
+    /// Creates a new [`EditInlineMessageText`] request that edits the given inline message with the given text.
     pub fn new(inline_message_id: impl Into<String>, text: impl Into<String>) -> Self {
         Self {
             inline_message_id: inline_message_id.into(),
@@ -3722,34 +3880,34 @@ impl EditInlineMessageText {
             reply_markup: None,
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set entities
+    /// Sets entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable web preview
+    /// Disables web preview.
     pub fn disable_web_page_preview(self) -> Self {
         Self {
             disable_web_page_preview: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -3768,23 +3926,27 @@ impl TelegramMethod for EditInlineMessageText {
 
 impl JsonMethod for EditInlineMessageText {}
 
-/// Use this method to edit captions of messages. On success, the edited Message is returned.
+/// Edits captions of messages.
+///
+/// On success, the edited [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editmessagecaption)
 #[derive(Clone, Serialize)]
 pub struct EditMessageCaption {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`).
     pub chat_id: ChatId,
-    /// Identifier of the message to edit
+    /// Identifier of the message to edit.
     pub message_id: i64,
-    /// New caption of the message, 0-1024 characters after entities parsing
+    /// New caption of the message, 0-1024 characters after entities parsing.
     pub caption: Option<String>,
-    /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+    /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// Mode for parsing entities in the message text.
     /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parse_mode: Option<ParseMode>,
-    /// Disables link previews for links in the sent message
+    /// Disables link previews for links in the sent message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_web_page_preview: Option<bool>,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
@@ -3793,7 +3955,7 @@ pub struct EditMessageCaption {
 }
 
 impl EditMessageCaption {
-    /// Create a new editMessageCaption request with no caption
+    /// Creates a new [`EditMessageCaption`] request that edits the given message in the given chat with no caption.
     pub fn new_empty(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -3805,7 +3967,7 @@ impl EditMessageCaption {
             reply_markup: None,
         }
     }
-    /// Create a new editMessageCaption request with caption
+    /// Creates a new [`EditMessageCaption`] request that edits the given message in the given chat with the given caption.
     pub fn new(chat_id: impl Into<ChatId>, message_id: i64, caption: impl Into<String>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -3817,34 +3979,34 @@ impl EditMessageCaption {
             reply_markup: None,
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set caption entities
+    /// Sets caption entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             caption_entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.caption_entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable web preview
+    /// Disables web preview.
     pub fn disable_web_page_preview(self) -> Self {
         Self {
             disable_web_page_preview: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -3863,22 +4025,26 @@ impl TelegramMethod for EditMessageCaption {
 
 impl JsonMethod for EditMessageCaption {}
 
-/// Use this method to edit captions of messages. On success, the edited Message is returned.
+/// Edits captions of messages.
+///
+/// On success, the edited [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editinlinemessagecaption)
 #[derive(Clone, Serialize)]
 pub struct EditInlineMessageCaption {
-    /// Identifier of the inline message
+    /// Identifier of the inline message.
     pub inline_message_id: String,
-    /// New caption of the message, 0-1024 characters after entities parsing
+    /// New caption of the message, 0-1024 characters after entities parsing.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<String>,
-    /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption
+    /// For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub caption_entities: Option<Vec<MessageEntity>>,
     /// Mode for parsing entities in the message text.
     /// See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parse_mode: Option<ParseMode>,
-    /// Disables link previews for links in the sent message
+    /// Disables link previews for links in the sent message.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_web_page_preview: Option<bool>,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
@@ -3887,7 +4053,7 @@ pub struct EditInlineMessageCaption {
 }
 
 impl EditInlineMessageCaption {
-    /// Create a new editMessageCaption request with no caption
+    /// Creates a new [`EditInlineMessageCaption`] request that edits the given inline message with no caption.
     pub fn new_empty(inline_message_id: impl Into<String>) -> Self {
         Self {
             inline_message_id: inline_message_id.into(),
@@ -3898,7 +4064,7 @@ impl EditInlineMessageCaption {
             reply_markup: None,
         }
     }
-    /// Create a new editMessageCaption request with caption
+    /// Creates a new [`EditInlineMessageCaption`] request that edits the given inline message with the given caption.
     pub fn new(inline_message_id: impl Into<String>, caption: impl Into<String>) -> Self {
         Self {
             inline_message_id: inline_message_id.into(),
@@ -3909,34 +4075,34 @@ impl EditInlineMessageCaption {
             reply_markup: None,
         }
     }
-    /// Set parse mode
+    /// Sets parse mode.
     pub fn with_parse_mode(self, parse_mode: ParseMode) -> Self {
         Self {
             parse_mode: Some(parse_mode),
             ..self
         }
     }
-    /// Set caption entities
+    /// Sets caption entities.
     pub fn with_entities(self, entities: Vec<MessageEntity>) -> Self {
         Self {
             caption_entities: Some(entities),
             ..self
         }
     }
-    /// Add one entity
+    /// Adds one entity.
     pub fn with_entity(mut self, entity: MessageEntity) -> Self {
         let entities = self.caption_entities.get_or_insert_with(Default::default);
         entities.push(entity);
         self
     }
-    /// Disable web preview
+    /// Disables web preview.
     pub fn disable_web_page_preview(self) -> Self {
         Self {
             disable_web_page_preview: Some(true),
             ..self
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -3955,19 +4121,21 @@ impl TelegramMethod for EditInlineMessageCaption {
 
 impl JsonMethod for EditInlineMessageCaption {}
 
-/// Use this method to edit animation, audio, document, photo, or video messages.
+/// Edits animation, audio, document, photo, or video messages.
+///
 /// If a message is part of a message album, then it can be edited only to an audio for audio albums,
 /// only to a document for document albums and to a photo or a video otherwise.
 /// When an inline message is edited, a new file can't be uploaded;
 /// use a previously uploaded file via its file_id or specify a URL.
-/// On success, the edited [Message](https://core.telegram.org/bots/api#message) is returned.
+///
+/// On success, the edited [`Message`] is returned.
 #[derive(Clone, Serialize)]
 pub struct EditMessageMedia {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Identifier of the message to edit
+    /// Identifier of the message to edit.
     pub message_id: i64,
-    /// A JSON-serialized object for a new media content of the message
+    /// A JSON-serialized object for a new media content of the message.
     pub media: InputMedia,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3975,7 +4143,7 @@ pub struct EditMessageMedia {
 }
 
 impl EditMessageMedia {
-    /// Create a new editMessageMedia request
+    /// Creates a new [`EditMessageMedia`] request that edits the given message in the given chat with the given media.
     pub fn new(chat_id: impl Into<ChatId>, message_id: i64, media: impl Into<InputMedia>) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -3984,7 +4152,7 @@ impl EditMessageMedia {
             reply_markup: None,
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -4003,12 +4171,16 @@ impl TelegramMethod for EditMessageMedia {
 
 impl JsonMethod for EditMessageMedia {}
 
-/// Use this method to edit animation, audio, document, photo, or video messages.
+/// Edits animation, audio, document, photo, or video messages.
+///
 /// If a message is part of a message album, then it can be edited only to an audio for audio albums,
 /// only to a document for document albums and to a photo or a video otherwise.
 /// When an inline message is edited, a new file can't be uploaded;
 /// use a previously uploaded file via its file_id or specify a URL.
-/// On success, _True_ is returned.
+///
+/// On success, `true` is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editmessagemedia)
 #[derive(Clone, Serialize)]
 pub struct EditInlineMessageMedia {
     /// Identifier of the inline message
@@ -4021,7 +4193,7 @@ pub struct EditInlineMessageMedia {
 }
 
 impl EditInlineMessageMedia {
-    /// Create a new editMessageMedia request
+    /// Creates a new [`EditInlineMessageMedia`] request that edits the given inline message with the given media.
     pub fn new(inline_message_id: impl Into<String>, media: impl Into<InputMedia>) -> Self {
         Self {
             inline_message_id: inline_message_id.into(),
@@ -4029,7 +4201,7 @@ impl EditInlineMessageMedia {
             reply_markup: None,
         }
     }
-    /// Set reply markup
+    /// Sets reply markup.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -4048,12 +4220,16 @@ impl TelegramMethod for EditInlineMessageMedia {
 
 impl JsonMethod for EditInlineMessageMedia {}
 
-/// Use this method to edit only the reply markup of messages. On success, the edited Message is returned.
+/// Edits only the reply markup of messages.
+///
+/// On success, the edited [`Message`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editmessagereplymarkup)
 #[derive(Clone, Serialize)]
 pub struct EditMessageReplyMarkup {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`).
     pub chat_id: ChatId,
-    /// Identifier of the message to edit
+    /// Identifier of the message to edit.
     pub message_id: i64,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4061,7 +4237,7 @@ pub struct EditMessageReplyMarkup {
 }
 
 impl EditMessageReplyMarkup {
-    /// Create a new editMessageReplyMarkup request with no reply markup
+    /// Create a new [`EditMessageReplyMarkup`] request that edits the given message in the given chat with no reply markup.
     pub fn new_empty(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -4069,7 +4245,7 @@ impl EditMessageReplyMarkup {
             reply_markup: None,
         }
     }
-    /// Create a new editMessageReplyMarkup with reply markup
+    /// Creates a new [`EditMessageReplyMarkup`] request that edits the given message in the given chat with reply markup.
     pub fn new(
         chat_id: impl Into<ChatId>,
         message_id: i64,
@@ -4093,10 +4269,14 @@ impl TelegramMethod for EditMessageReplyMarkup {
 
 impl JsonMethod for EditMessageReplyMarkup {}
 
-/// Use this method to edit only the reply markup of messages. On success, _True_ is returned.
+/// Edits only the reply markup of messages.
+///
+/// On success, `true` is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#editmessagereplymarkup)
 #[derive(Clone, Serialize)]
 pub struct EditInlineMessageReplyMarkup {
-    /// Identifier of the inline message
+    /// Identifier of the inline message.
     pub inline_message_id: String,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4104,14 +4284,14 @@ pub struct EditInlineMessageReplyMarkup {
 }
 
 impl EditInlineMessageReplyMarkup {
-    /// Create a new editMessageReplyMarkup request with no reply markup
+    /// Creates a new [`EditInlineMessageReplyMarkup`] request that edits the given inline message with no reply markup.
     pub fn new_empty(inline_message_id: impl Into<String>) -> Self {
         Self {
             inline_message_id: inline_message_id.into(),
             reply_markup: None,
         }
     }
-    /// Create a new editMessageReplyMarkup with reply markup
+    /// Creates a new [`EditInlineMessageReplyMarkup`] request that edits the given inline message with the given reply markup.
     pub fn new(
         inline_message_id: impl Into<String>,
         reply_markup: impl Into<InlineKeyboardMarkup>,
@@ -4133,13 +4313,16 @@ impl TelegramMethod for EditInlineMessageReplyMarkup {
 
 impl JsonMethod for EditInlineMessageReplyMarkup {}
 
-/// Use this method to stop a poll which was sent by the bot.
-/// On success, the stopped [Poll](https://core.telegram.org/bots/api#poll) is returned.
+/// Stops a poll which was sent by the bot.
+///
+/// On success, the stopped [`Poll`] is returned.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#stoppoll)
 #[derive(Clone, Serialize)]
 pub struct StopPoll {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel. (in the format `@channelusername`)
     pub chat_id: ChatId,
-    /// Identifier of the original message with the poll
+    /// Identifier of the original message with the poll.
     pub message_id: i64,
     /// A JSON-serialized object for a new [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4147,7 +4330,7 @@ pub struct StopPoll {
 }
 
 impl StopPoll {
-    /// Create a new stopPoll request
+    /// Creates a new [`StopPoll`] request that stops the poll of the given message in the given chat.
     pub fn new(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),
@@ -4155,7 +4338,7 @@ impl StopPoll {
             reply_markup: None,
         }
     }
-    /// Set reply markup
+    /// Sets reply markup of this message.
     pub fn with_reply_markup(self, markup: impl Into<InlineKeyboardMarkup>) -> Self {
         Self {
             reply_markup: Some(markup.into()),
@@ -4174,7 +4357,8 @@ impl TelegramMethod for StopPoll {
 
 impl JsonMethod for StopPoll {}
 
-/// Use this method to delete a message, including service messages, with the following limitations:
+/// Deletes a message, including service messages, with limitations.
+///
 /// - A message can only be deleted if it was sent less than 48 hours ago.
 /// - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
 /// - Bots can delete outgoing messages in private chats, groups, and supergroups.
@@ -4182,17 +4366,20 @@ impl JsonMethod for StopPoll {}
 /// - Bots granted *can_post_messages* permissions can delete outgoing messages in channels.
 /// - If the bot is an administrator of a group, it can delete any message there.
 /// - If the bot has *can_delete_messages* permission in a supergroup or a channel, it can delete any message there.
-/// Returns _True_ on success.
+///
+/// Returns `true` on success.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#deletemessage)
 #[derive(Clone, Serialize)]
 pub struct DeleteMessage {
-    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`)
+    /// Unique identifier for the target chat or username of the target channel (in the format `@channelusername`).
     pub chat_id: ChatId,
-    /// Identifier of the message to delete
+    /// Identifier of the message to delete.
     pub message_id: i64,
 }
 
 impl DeleteMessage {
-    /// Create a new deleteMessage request
+    /// Create a new [`DeleteMessage`] request that deletes the given message inside the given chat.
     pub fn new(chat_id: impl Into<ChatId>, message_id: i64) -> Self {
         Self {
             chat_id: chat_id.into(),

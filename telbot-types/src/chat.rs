@@ -14,6 +14,8 @@ use crate::user::User;
 use crate::{JsonMethod, TelegramMethod};
 
 /// A chat room including supergroup, channel, and private chat.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#chat)
 #[derive(Debug, Deserialize)]
 pub struct Chat {
     /// Unique identifier for this chat.
@@ -23,11 +25,11 @@ pub struct Chat {
     pub kind: ChatKind,
     /// Title, for supergroups, channels and group chats
     pub title: Option<String>,
-    /// Username, for private chats, supergroups and channels if availablWe
+    /// Username, for private chats, supergroups and channels if available.
     pub username: Option<String>,
-    /// First name of the other party in a private chat
+    /// First name of the other party in a private chat.
     pub first_name: Option<String>,
-    /// Last name of the other party in a private chat
+    /// Last name of the other party in a private chat.
     pub last_name: Option<String>,
     /// Chat photo.
     /// Returned only in [`GetChat`].
@@ -384,6 +386,8 @@ pub enum ChatKind {
 }
 
 /// A chat photo.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#chatphoto)
 #[derive(Debug, Deserialize)]
 pub struct ChatPhoto {
     /// File identifier of small (160x160) chat photo.
@@ -408,7 +412,9 @@ pub struct ChatPhoto {
     pub big_file_unique_id: String,
 }
 
-/// Location of a chat, especially supergroup.
+/// Location of a chat, especially supergroup.\
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#chatlocation)
 #[derive(Debug, Deserialize)]
 pub struct ChatLocation {
     /// The location to which the supergroup is connected.
@@ -420,6 +426,8 @@ pub struct ChatLocation {
 }
 
 /// Describes actions that a non-administrator user is allowed to take in a chat.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#chatpermissions)
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ChatPermissions {
     /// `true` if the user is allowed to send text messages, contacts, locations and venues.
@@ -532,6 +540,8 @@ impl ChatPermissions {
 /// Detailed information of a chat member.
 ///
 /// Can be obtained with [`GetChatMember`]
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#chatmember)
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "status")]
 pub enum ChatMember {
@@ -913,6 +923,8 @@ impl ChatMember {
 }
 
 /// An invite link for a chat.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#chatinvitelink)
 #[derive(Debug, Deserialize)]
 pub struct ChatInviteLink {
     /// The invite link.
@@ -933,6 +945,8 @@ pub struct ChatInviteLink {
 }
 
 /// Changes in the status of a chat member.
+/// 
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#chatmemberupdated)
 #[derive(Debug, Deserialize)]
 pub struct ChatMemberUpdated {
     /// Chat the user belongs to.
