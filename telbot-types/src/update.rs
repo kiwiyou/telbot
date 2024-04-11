@@ -6,8 +6,11 @@ use crate::payment::{PreCheckoutQuery, ShippingQuery};
 use crate::query::{CallbackQuery, ChosenInlineResult, InlineQuery};
 use crate::{JsonMethod, TelegramMethod};
 
-/// This object represents an incoming update.
+/// An incoming update.
+///
 /// At most **one** of the optional parameters can be present in any given update.
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#update)
 #[derive(Debug, Deserialize)]
 pub struct Update {
     /// The update's unique identifier.
@@ -18,23 +21,23 @@ pub struct Update {
     /// then identifier of the next update will be chosen randomly instead of sequentially.
     pub update_id: u32,
     #[serde(flatten)]
-    /// Update type
+    /// Update type.
     pub kind: UpdateKind,
 }
 
-/// Update type
+/// Type of update.
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateKind {
     /// New incoming message of any kind — text, photo, sticker, etc.
     Message { message: Message },
-    /// New version of a message that is known to the bot and was edited
+    /// New version of a message that is known to the bot and was edited.
     EditedMessage { edited_message: Message },
     /// New incoming channel post of any kind — text, photo, sticker, etc.
     ChannelPost { channel_post: Message },
-    /// New version of a channel post that is known to the bot and was edited
+    /// New version of a channel post that is known to the bot and was edited.
     EditedChannelPost { edited_channel_post: Message },
-    /// New incoming [inline](https://core.telegram.org/bots/api#inline-mode) query
+    /// New incoming [inline](https://core.telegram.org/bots/api#inline-mode) query.
     InlineQuery { inline_query: InlineQuery },
     /// The result of an [inline](https://core.telegram.org/bots/api#inline-mode)
     /// query that was chosen by a user and sent to their chat partner.
@@ -43,16 +46,16 @@ pub enum UpdateKind {
     ChosenInlineResult {
         chosen_inline_result: ChosenInlineResult,
     },
-    /// New incoming callback query
+    /// New incoming callback query.
     CallbackQuery { callback_query: CallbackQuery },
-    /// New incoming shipping query. Only for invoices with flexible price
+    /// New incoming shipping query. Only for invoices with flexible price.
     ShippingQuery { shipping_query: ShippingQuery },
-    /// New incoming pre-checkout query. Contains full information about checkout
+    /// New incoming pre-checkout query. Contains full information about checkout.
     PreCheckoutQuery {
         pre_checkout_query: PreCheckoutQuery,
     },
     /// New poll state.
-    /// Bots receive only updates about stopped polls and polls, which are sent by the bot
+    /// Bots receive only updates about stopped polls and polls, which are sent by the bot.
     Poll { poll: Poll },
     /// A user changed their answer in a non-anonymous poll.
     /// Bots receive new votes only in polls that were sent by the bot itself.
@@ -67,6 +70,7 @@ pub enum UpdateKind {
 }
 
 impl UpdateKind {
+    /// Gets the message associated with this update, if any.
     pub fn message(&self) -> Option<&Message> {
         match self {
             Self::Message { message } => Some(message),
@@ -74,6 +78,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the edited message associated with this update, if any.
     pub fn edited_message(&self) -> Option<&Message> {
         match self {
             Self::EditedMessage { edited_message } => Some(edited_message),
@@ -81,6 +86,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the channel post associated with this update, if any.
     pub fn channel_post(&self) -> Option<&Message> {
         match self {
             Self::ChannelPost { channel_post } => Some(channel_post),
@@ -88,6 +94,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the edited channel post associated with this update, if any.
     pub fn edited_channel_post(&self) -> Option<&Message> {
         match self {
             Self::EditedChannelPost {
@@ -97,6 +104,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the inline query associated with this update, if any.
     pub fn inline_query(&self) -> Option<&InlineQuery> {
         match self {
             Self::InlineQuery { inline_query } => Some(inline_query),
@@ -104,6 +112,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the chosen inline result associated with this update, if any.
     pub fn chosen_inline_result(&self) -> Option<&ChosenInlineResult> {
         match self {
             Self::ChosenInlineResult {
@@ -113,6 +122,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the callback query associated with this update, if any.
     pub fn callback_query(&self) -> Option<&CallbackQuery> {
         match self {
             Self::CallbackQuery { callback_query } => Some(callback_query),
@@ -120,6 +130,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the shipping query associated with this update, if any.
     pub fn shipping_query(&self) -> Option<&ShippingQuery> {
         match self {
             Self::ShippingQuery { shipping_query } => Some(shipping_query),
@@ -127,6 +138,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the pre checkout query associated with this update, if any.
     pub fn pre_checkout_query(&self) -> Option<&PreCheckoutQuery> {
         match self {
             Self::PreCheckoutQuery { pre_checkout_query } => Some(pre_checkout_query),
@@ -134,6 +146,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the poll associated with this update, if any.
     pub fn poll(&self) -> Option<&Poll> {
         match self {
             Self::Poll { poll } => Some(poll),
@@ -141,6 +154,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the poll answer associated with this update, if any.
     pub fn poll_answer(&self) -> Option<&PollAnswer> {
         match self {
             Self::PollAnswer { poll_answer } => Some(poll_answer),
@@ -148,6 +162,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the "my chat member update" associated with this update, if any.
     pub fn my_chat_member(&self) -> Option<&ChatMemberUpdated> {
         match self {
             Self::MyChatMemberUpdated { my_chat_member } => Some(my_chat_member),
@@ -155,6 +170,7 @@ impl UpdateKind {
         }
     }
 
+    /// Gets the "chat member update" associated with this update, if any.
     pub fn chat_member(&self) -> Option<&ChatMemberUpdated> {
         match self {
             Self::ChatMemberUpdated { chat_member } => Some(chat_member),
@@ -162,60 +178,75 @@ impl UpdateKind {
         }
     }
 
+    /// `true` if it is a message update.
     pub fn is_message(&self) -> bool {
         matches!(self, Self::Message { .. })
     }
 
+    /// `true` if it is a edited message update.
     pub fn is_edited_message(&self) -> bool {
         matches!(self, Self::EditedMessage { .. })
     }
 
+    /// `true` if it is a channel post update.
     pub fn is_channel_post(&self) -> bool {
         matches!(self, Self::ChannelPost { .. })
     }
 
+    /// `true` if it is a edited channel post update.
     pub fn is_edited_channel_post(&self) -> bool {
         matches!(self, Self::EditedChannelPost { .. })
     }
 
+    /// `true` if it is a inline query update.
     pub fn is_inline_query(&self) -> bool {
         matches!(self, Self::InlineQuery { .. })
     }
 
+    /// `true` if it is a chosen inline result update.
     pub fn is_chosen_inline_result(&self) -> bool {
         matches!(self, Self::ChosenInlineResult { .. })
     }
 
+    /// `true` if it is a callback query update.
     pub fn is_callback_query(&self) -> bool {
         matches!(self, Self::CallbackQuery { .. })
     }
 
+    /// `true` if it is a shipping query update.
     pub fn is_shipping_query(&self) -> bool {
         matches!(self, Self::ShippingQuery { .. })
     }
 
+    /// `true` if it is a pre checkout query update.
     pub fn is_pre_checkout_query(&self) -> bool {
         matches!(self, Self::PreCheckoutQuery { .. })
     }
 
+    /// `true` if it is a poll update.
     pub fn is_poll(&self) -> bool {
         matches!(self, Self::Poll { .. })
     }
 
+    /// `true` if it is a poll answer update.
     pub fn is_poll_answer(&self) -> bool {
         matches!(self, Self::PollAnswer { .. })
     }
 
+    /// `true` if it is a my chat member update update.
     pub fn is_my_chat_member_updated(&self) -> bool {
         matches!(self, Self::MyChatMemberUpdated { .. })
     }
 
+    /// `true` if it is a chat member update.
     pub fn is_chat_member_updated(&self) -> bool {
         matches!(self, Self::ChatMemberUpdated { .. })
     }
 }
 
-/// Use this method to receive incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)).
+/// Receives incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)).
+///
+/// [*Documentation on Telegram API Docs*](https://core.telegram.org/bots/api#getupdates)
 #[derive(Clone, Serialize)]
 pub struct GetUpdates {
     /// Identifier of the first update to be returned.
@@ -248,7 +279,7 @@ pub struct GetUpdates {
 }
 
 impl GetUpdates {
-    /// Create a new getUpdates request
+    /// Create a new [`GetUpdates`] request.
     pub fn new() -> Self {
         Self {
             offset: None,
@@ -257,35 +288,35 @@ impl GetUpdates {
             allowed_updates: None,
         }
     }
-    /// Set offset
+    /// Sets offset.
     pub fn with_offset(self, offset: i32) -> Self {
         Self {
             offset: Some(offset),
             ..self
         }
     }
-    /// Set limit
+    /// Sets limit.
     pub fn with_limit(self, limit: u32) -> Self {
         Self {
             limit: Some(limit),
             ..self
         }
     }
-    /// Set timeout
+    /// Sets timeout.
     pub fn with_timeout(self, timeout: u32) -> Self {
         Self {
             timeout: Some(timeout),
             ..self
         }
     }
-    /// Set allowed updates
+    /// Sets allowed updates.
     pub fn with_allowed_updates(self, updates: Vec<String>) -> Self {
         Self {
             allowed_updates: Some(updates),
             ..self
         }
     }
-    /// Add one allowed update
+    /// Adds one allowed update.
     pub fn with_allowed_update(mut self, update: impl Into<String>) -> Self {
         let updates = self.allowed_updates.get_or_insert_with(Default::default);
         updates.push(update.into());
